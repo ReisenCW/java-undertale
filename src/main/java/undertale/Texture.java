@@ -55,31 +55,39 @@ public class Texture {
     }
 
     // 绘制纹理
-    public static void drawTexture(int textureId, float x, float y, float width, float height) {
+    public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation) {
         // 绑定纹理
         glBindTexture(GL_TEXTURE_2D, textureId);
-        
-        // 开始绘制四边形
+
+        // 以纹理中心为旋转中心
+        float cx = x + width / 2.0f;
+        float cy = y + height / 2.0f;
+
+        glPushMatrix();
+        glTranslatef(cx, cy, 0);
+        glRotatef(rotation, 0, 0, 1);
+        glTranslatef(-cx, -cy, 0);
+
         glBegin(GL_QUADS);
-        
         // 左下角
         glTexCoord2f(0, 0);
         glVertex2f(x, y);
-        
         // 右下角
         glTexCoord2f(1, 0);
         glVertex2f(x + width, y);
-        
         // 右上角
         glTexCoord2f(1, 1);
         glVertex2f(x + width, y + height);
-        
         // 左上角
         glTexCoord2f(0, 1);
         glVertex2f(x, y + height);
-        
-        // 结束绘制
         glEnd();
+
+        glPopMatrix();
+    }
+
+    public static void drawTexture(int textureId, float x, float y, float width, float height) {
+        drawTexture(textureId, x, y, width, height, 0);
     }
 
     public int getWidth() {

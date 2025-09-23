@@ -4,7 +4,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 
 public class Game {
-	private static Window gameWindow;
+    private static Window gameWindow;
 
     private static int WINDOW_WIDTH = 1280;
     private static int WINDOW_HEIGHT = 720; 
@@ -12,8 +12,8 @@ public class Game {
     private static Renderer renderer;
     private static Logic logic;
     private static Timer timer;
-
 	private static Player player;
+    private static ObjectManager objectManager;
 
     public static void run() {
 		init();
@@ -32,13 +32,21 @@ public class Game {
 		logic = new Logic();
         renderer = new Renderer();
 		player = new Player("Frisk");
+        objectManager = new ObjectManager(player);
 	}
 
 	private static void loop() {
 		while ( !glfwWindowShouldClose(gameWindow.getWindow()) ) {
             timer.setTimerStart();
-			render();
+
+            // test
+            Texture testTexture = new Texture("img_ball_bullet.png");
+            int randomX = (int)(Math.random() * (Game.WINDOW_WIDTH - 20));
+            objectManager.createBullet(randomX, 0, 
+            0, 90, 200, 1, testTexture);
+
 			update(timer.getDeltaTime());
+			render();
 			timer.delayIfNeeded();
 		}
 	}
@@ -78,4 +86,8 @@ public class Game {
 	public static Player getPlayer() {
 		return player;
 	}
+
+    public static ObjectManager getObjectManager() {
+        return objectManager;
+    }
 }

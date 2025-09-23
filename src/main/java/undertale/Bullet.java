@@ -8,21 +8,32 @@ public class Bullet extends GameObject{
     private float vScale;
     private Texture texture;
 
-    public Bullet(float x, float y, float selfAngle, float speedAngle, float speed, int damage, String texturePath) {
-        init(x, y, selfAngle, speedAngle, speed, damage, texturePath);
+    private boolean destroyableOnHit = true;
+
+    public Bullet(float x, float y, float selfAngle, float speedAngle, float speed, int damage, Texture texture) {
+        init(x, y, selfAngle, speedAngle, speed, damage, texture);
     }
-    private void init(float x, float y, float selfAngle, float speedAngle, float speed, int damage, String texturePath){
+    private void init(float x, float y, float selfAngle, float speedAngle, float speed, int damage, Texture texture){
         setPosition(x, y);
         setAngle(speedAngle);
         setSelfAngle(selfAngle);
         setSpeed(speed);
         this.damage = damage;
-        this.texture = new Texture(texturePath);
+        this.texture = texture;
+        this.hScale = 1.0f;
+        this.vScale = 1.0f;
     }
 
     @Override
     public void update(float deltaTime) {
         updatePosition(deltaTime);
+    }
+
+    public void render(){
+        Texture.drawTexture(texture.getId(), 
+                            getX(), getY(), 
+                            hScale * texture.getWidth(), hScale * texture.getHeight(), 
+                            getSelfAngle());
     }
 
     public int getDamage() {
@@ -53,7 +64,19 @@ public class Bullet extends GameObject{
         this.vScale = vScale;
     }
 
-    public void destroyTexture() {
-        glDeleteTextures(texture.getId());
+    public float getWidth() {
+        return hScale * texture.getWidth();
+    }
+
+    public float getHeight() {
+        return vScale * texture.getHeight();
+    }
+
+    public void setDestroyableOnHit(boolean destroyableOnHit) {
+        this.destroyableOnHit = destroyableOnHit;
+    }
+
+    public boolean isDestroyableOnHit() {
+        return destroyableOnHit;
     }
 }

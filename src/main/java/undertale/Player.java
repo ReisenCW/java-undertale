@@ -9,12 +9,16 @@ public class Player extends GameObject {
     private int maxHealth;
     private int level;
     private int attackPower;
+    private int invisibleTime = 1500; // ms
     private float vScale;
     private float hScale;
     private float highSpeed;
     private float lowSpeed;
 
     private boolean isHighSpeed = true;
+    private boolean isHurt = false;
+
+    private long hurtStartTime = 0;
 
     private Texture heartTexture;
 
@@ -94,6 +98,11 @@ public class Player extends GameObject {
         Texture.drawTexture(heartTexture.getId(), 
                             getX(), getY(), 
                             hScale * heartTexture.getWidth(), vScale * heartTexture.getHeight());
+        renderInvisibility();
+    }
+
+    private void renderInvisibility(){
+        // 闪烁效果
     }
 
     public String getName() {
@@ -161,6 +170,14 @@ public class Player extends GameObject {
         this.hScale = hScale;
     }
 
+    public float getWidth() {
+        return hScale * heartTexture.getWidth();
+    }
+
+    public float getHeight() {
+        return vScale * heartTexture.getHeight();
+    }
+
     public float getHighSpeed() {
         return highSpeed;
     }
@@ -179,6 +196,21 @@ public class Player extends GameObject {
 
     public boolean isHighSpeed() {
         return isHighSpeed;
+    }
+
+    public boolean isHurt() {
+        return isHurt;
+    }
+
+    public void setHurt(boolean isHurt) {
+        this.isHurt = isHurt;
+        if (isHurt) {
+            hurtStartTime = System.currentTimeMillis();
+        }
+    }
+
+    public int getInvisibleTime() {
+        return invisibleTime;
     }
 
     public void destroyTexture() {

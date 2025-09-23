@@ -19,7 +19,7 @@ public class Logic {
     public void update(float deltaTime) {
         glfwPollEvents();
         handleEscape();
-        Game.getPlayer().update(deltaTime);
+        Game.getObjectManager().update(deltaTime);
     }
 
     private void handleEscape() {
