@@ -33,7 +33,7 @@ public class Renderer {
         renderEscaping();
         Game.getPlayer().render();
         // render ends
-        glfwSwapBuffers(Game.getWindow()); // swap the color buffers
+        glfwSwapBuffers(Game.getWindow().getWindow()); // swap the color buffers
     }
 
     private void renderEscaping() {

@@ -2,7 +2,7 @@ package undertale;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class Player extends Object {
+public class Player extends GameObject {
     private String name;
     private int currentHealth;
     private int maxHealth;
@@ -25,8 +25,8 @@ public class Player extends Object {
         this.attackPower = 1000;
         this.vScale = 3.0f;
         this.hScale = 3.0f;
-        this.highSpeed = 9.0f;
-        this.lowSpeed = 3.0f;
+        this.highSpeed = 300.0f;
+        this.lowSpeed = 150.0f;
 
         heartTexture = new Texture("img_heart.png");
 
@@ -37,9 +37,9 @@ public class Player extends Object {
     }
 
     @Override
-    public void update() {
+    public void update(float deltaTime) {
         handleSpeedMode();
-        handlePlayerMovement();
+        handlePlayerMovement(deltaTime);
         handlePlayerOutBound(0, Game.getWindowWidth(), 0, Game.getWindowHeight());
     }
 
@@ -58,7 +58,7 @@ public class Player extends Object {
         }
     }
 
-    private void handlePlayerMovement() {
+    private void handlePlayerMovement(float deltaTime) {
         // 通过上下左右箭头移动
         if (Game.isKeyPressed(GLFW_KEY_UP))
             setDirectionY(-1);
@@ -72,7 +72,7 @@ public class Player extends Object {
             setDirectionX(1);
         else
             setDirectionX(0);
-        updatePosition();
+        updatePosition(deltaTime);
     }
 
     private void handlePlayerOutBound(int left, int right, int top, int bottom) {

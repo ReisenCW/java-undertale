@@ -5,20 +5,20 @@ package undertale;
  * @ direction向下为正，向右为正
  * @ angle为顺时针方向，0度向右，90度向下
  */
-public abstract class Object {
+public abstract class GameObject {
     private float x;
     private float y;
     private float[] direction = {0.0f, 0.0f};
     private float speed;
     private float angle; // 单位为度
 
-    public abstract void update();
+    public abstract void update(float deltaTime);
 
-    public void updatePosition() {
+    public void updatePosition(float deltaTime) {
         float len = (float) Math.sqrt(direction[0] * direction[0] + direction[1] * direction[1]);
         if (len != 0) {
-            x += direction[0] * speed / len;
-            y += direction[1] * speed / len;
+            x += direction[0] * speed / len * deltaTime;
+            y += direction[1] * speed / len * deltaTime;
         }
     }
 

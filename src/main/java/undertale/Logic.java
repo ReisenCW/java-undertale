@@ -16,10 +16,10 @@ public class Logic {
         escapeTimer = new Timer();
     }
 
-    public void update() {
+    public void update(float deltaTime) {
         glfwPollEvents();
         handleEscape();
-        Game.getPlayer().update();
+        Game.getPlayer().update(deltaTime);
     }
 
     private void handleEscape() {
@@ -30,7 +30,7 @@ public class Logic {
             }
             // 按住ESCAPE键超过2秒则退出
             if(escapeTimer.isTimeElapsed(ESCAPE_HOLD_TIME)) {
-                glfwSetWindowShouldClose(Game.getWindow(), true);
+                glfwSetWindowShouldClose(Game.getWindow().getWindow(), true);
                 return;
             }
         } else {
