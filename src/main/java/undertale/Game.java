@@ -1,7 +1,6 @@
 package undertale;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.glDeleteTextures;
 
 
 public class Game {
@@ -23,7 +22,7 @@ public class Game {
 	}
 
     private static void destroy() {
-		glDeleteTextures(player.getHeartTextureId());
+        player.destroyTexture();
 		gameWindow.destroyWindow();
     }
 

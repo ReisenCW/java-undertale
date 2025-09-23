@@ -4,8 +4,8 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
 public class Renderer {
-    private final int ESCAPING_X = 100;
-    private final int ESCAPING_Y = 50;
+    // private final int ESCAPING_X = 100;
+    // private final int ESCAPING_Y = 50;
 
     Renderer() {
         init();

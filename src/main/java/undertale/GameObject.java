@@ -10,7 +10,9 @@ public abstract class GameObject {
     private float y;
     private float[] direction = {0.0f, 0.0f};
     private float speed;
-    private float angle; // 单位为度
+    private float speedAngle; // 单位为度
+    private float selfAngle; // 单位为度
+    private boolean isNavi = false; // selfAngle是否跟随speedAngle
 
     public abstract void update(float deltaTime);
 
@@ -51,7 +53,10 @@ public abstract class GameObject {
             direction[0] /= len;
             direction[1] /= len;
         }
-        angle = (float) Math.toDegrees(Math.atan2(direction[1], direction[0]));
+        speedAngle = (float) Math.toDegrees(Math.atan2(direction[1], direction[0]));
+        if (isNavi) {
+            selfAngle = speedAngle;
+        }
     }
 
     public void setDirectionX(float dirX) {
@@ -61,7 +66,10 @@ public abstract class GameObject {
             direction[0] /= len;
             direction[1] /= len;
         }
-        angle = (float) Math.toDegrees(Math.atan2(direction[1], direction[0]));
+        speedAngle = (float) Math.toDegrees(Math.atan2(direction[1], direction[0]));
+        if (isNavi) {
+            selfAngle = speedAngle;
+        }
     }
 
     public void setDirectionY(float dirY) {
@@ -71,7 +79,10 @@ public abstract class GameObject {
             direction[0] /= len;
             direction[1] /= len;
         }
-        angle = (float) Math.toDegrees(Math.atan2(direction[1], direction[0]));
+        speedAngle = (float) Math.toDegrees(Math.atan2(direction[1], direction[0]));
+        if (isNavi) {
+            selfAngle = speedAngle;
+        }
     }
 
     public float[] getDirection() {
@@ -99,12 +110,35 @@ public abstract class GameObject {
     }
 
     public float getAngle() {
-        return angle;
+        return speedAngle;
     }
 
     public void setAngle(float newAngle) {
-        angle = newAngle;
-        direction[0] = (float) Math.cos(Math.toRadians(angle));
-        direction[1] = (float) Math.sin(Math.toRadians(angle));
+        speedAngle = newAngle;
+        if (isNavi) {
+            selfAngle = speedAngle;
+        }
+        direction[0] = (float) Math.cos(Math.toRadians(speedAngle));
+        direction[1] = (float) Math.sin(Math.toRadians(speedAngle));
+    }
+
+    public void setSelfAngle(float newAngle) {
+        if(isNavi) return;
+        selfAngle = newAngle;
+    }
+
+    public float getSelfAngle() {
+        return selfAngle;
+    }
+
+    public boolean isNavi() {
+        return isNavi;
+    }
+
+    public void setNavi(boolean navi) {
+        isNavi = navi;
+        if (isNavi) {
+            selfAngle = speedAngle;
+        }
     }
 }

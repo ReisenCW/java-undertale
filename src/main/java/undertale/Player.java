@@ -1,6 +1,7 @@
 package undertale;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.*;
 
 public class Player extends GameObject {
     private String name;
@@ -144,10 +145,6 @@ public class Player extends GameObject {
         return currentHealth == maxHealth;
     }
 
-    public int getHeartTextureId() {
-        return heartTexture.getId();
-    }
-
     public float getVScale() {
         return vScale;
     }
@@ -182,5 +179,9 @@ public class Player extends GameObject {
 
     public boolean isHighSpeed() {
         return isHighSpeed;
+    }
+
+    public void destroyTexture() {
+        glDeleteTextures(heartTexture.getId());
     }
 }
