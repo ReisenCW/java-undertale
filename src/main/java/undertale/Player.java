@@ -28,24 +28,27 @@ public class Player extends GameObject {
 
     public Player(String name) {
         this.name = name;
+        heartTexture = Game.getTexture("heart");
+        
         this.level = 1;
         this.maxHealth = 16 + 4 * this.level;
         this.currentHealth = this.maxHealth;
         this.attackPower = 1000;
+        
         this.vScale = 3.0f;
         this.hScale = 3.0f;
-        this.highSpeed = 150.0f;
-        this.lowSpeed = 75.0f;
+
+        this.highSpeed = 180.0f;
+        this.lowSpeed = 80.0f;
+        this.speed = highSpeed;
+        
         this.invisibleTime = 1500; // ms
         this.flashTime = 100; // ms 闪烁周期
+        
         this.rgba = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
 
-        heartTexture = Game.getTexture("heart");
-
-        setPosition(Game.getWindowWidth() / 2 - heartTexture.getWidth() / 2, 
-            Game.getWindowHeight() / 2 - heartTexture.getHeight() / 2);
-
-        setSpeed(highSpeed);
+        this.x = Game.getWindowWidth() / 2 - heartTexture.getWidth() / 2;
+        this.y = Game.getWindowHeight() / 2 - heartTexture.getHeight() / 2;
     }
 
     @Override
@@ -60,27 +63,27 @@ public class Player extends GameObject {
         if(Game.isKeyPressed(GLFW_KEY_LEFT_SHIFT) || Game.isKeyPressed(GLFW_KEY_RIGHT_SHIFT)) {
             if (isHighSpeed) {
                 isHighSpeed = false;
-                setSpeed(lowSpeed);
+                this.speed = lowSpeed;
             }
         } else {
             if (!isHighSpeed) {
                 isHighSpeed = true;
-                setSpeed(highSpeed);
+                this.speed = highSpeed;
             }
         }
     }
 
 
     private void handlePlayerOutBound(int left, int right, int top, int bottom) {
-        if (getX() < left) {
-            setPositionX(left);
-        } else if (getX() + hScale * heartTexture.getWidth() > right) {
-            setPositionX(right - hScale * heartTexture.getWidth());
+        if (this.x < left) {
+            this.x = left;
+        } else if (this.x + hScale * heartTexture.getWidth() > right) {
+            this.x = right - hScale * heartTexture.getWidth();
         }
-        if (getY() < top) {
-            setPositionY(top);
-        } else if (getY() + vScale * heartTexture.getHeight() > bottom) {
-            setPositionY(bottom - vScale * heartTexture.getHeight());
+        if (this.y < top) {
+            this.y = top;
+        } else if (this.y + vScale * heartTexture.getHeight() > bottom) {
+            this.y = bottom - vScale * heartTexture.getHeight();
         }
     }
 
@@ -93,14 +96,14 @@ public class Player extends GameObject {
 
     public void render() {
         if(isHurt && ((System.currentTimeMillis() - hurtStartTime) / flashTime) % 2 == 0) {
-            Texture.drawTexture(heartTexture.getId(), 
-                    getX(), getY(),
+            Texture.drawTexture(heartTexture.getId(),
+                    this.x, this.y,
                     hScale * heartTexture.getWidth(), vScale * heartTexture.getHeight(),
                     0, rgba[0]/3, rgba[1]/3, rgba[2]/3, rgba[3]);
         }
         else{
-            Texture.drawTexture(heartTexture.getId(), 
-                    getX(), getY(),
+            Texture.drawTexture(heartTexture.getId(),
+                    this.x, this.y,
                     hScale * heartTexture.getWidth(), vScale * heartTexture.getHeight(),
                     0, rgba[0], rgba[1], rgba[2], rgba[3]);
         }

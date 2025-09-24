@@ -4,6 +4,8 @@ import static org.lwjgl.glfw.GLFW.*;
 
 
 public class Game {
+    public static boolean DEBUG = true;
+
     private static Window gameWindow;
 
     private static int WINDOW_WIDTH = 1280;
@@ -30,7 +32,7 @@ public class Game {
 
 	private static void init() {
         gameWindow = new Window(WINDOW_WIDTH, WINDOW_HEIGHT, "Undertale");
-        textureManager = new TextureManager();
+        textureManager = TextureManager.getInstance();
 		player = new Player("Frisk");
         objectManager = new ObjectManager(player);
         inputManager = new InputManager(gameWindow, player);
@@ -44,6 +46,7 @@ public class Game {
         
         // 初始场景
         sceneManager.switchScene(SceneEnum.BATTLE_FIGHT);
+        // sceneManager.switchScene(SceneEnum.BATTLE_MENU);
         
         // 初始化UI管理器
         uiManager = UIManager.getInstance();
@@ -56,13 +59,6 @@ public class Game {
         Timer timer = new Timer();
 		while ( !glfwWindowShouldClose(gameWindow.getWindow()) ) {
             timer.setTimerStart();
-
-            // test
-            Texture testTexture = getTexture("test_bullet");
-            int randomX = (int)(Math.random() * (Game.WINDOW_WIDTH - 20));
-            Bullet testBullet = objectManager.createBullet(randomX, 0, 
-            0, 90, 200, 4, testTexture);
-
 			update(timer.getDeltaTime());
 			render();
 			timer.delayIfNeeded();
@@ -111,6 +107,10 @@ public class Game {
 
     public static InputManager getInputManager() {
         return inputManager;
+    }
+
+    public static UIManager getUIManager() {
+        return uiManager;
     }
 
     public static Texture getTexture(String name) {

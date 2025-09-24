@@ -1,7 +1,7 @@
 package undertale;
 
 public class BattleFightScene extends Scene {
-    private boolean isPlayerTurn = false;
+    private UIManager uiManager = UIManager.getInstance();
 
     public BattleFightScene(ObjectManager objectManager, InputManager inputManager) {
         super(objectManager, inputManager);
@@ -9,20 +9,28 @@ public class BattleFightScene extends Scene {
 
     @Override
     public void onEnter() {
+        uiManager.setSelected(-1);
     }
 
     @Override
     public void onExit() {
+        uiManager.setSelected(0);
     }
 
     @Override
     public void update(float deltaTime) {
-        objectManager.battleSceneUpdate(deltaTime);
+        // test
+        Texture testTexture = textureManager.getTexture("test_bullet");
+        int randomX = (int)(Math.random() * (Game.getWindowWidth() - 20));
+        Bullet testBullet = objectManager.createBullet(randomX, 0, 
+        0, 90, 200, 4, testTexture);
+        
+        objectManager.UpdateFightScene(deltaTime);
     }
 
     @Override
     public void render() {
-        objectManager.renderBattleScene();
+        objectManager.renderFightScene();
     }
 
     @Override

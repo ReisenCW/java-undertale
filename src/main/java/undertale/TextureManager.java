@@ -3,14 +3,15 @@ package undertale;
 import java.util.HashMap;
 
 public class TextureManager {
+    private static TextureManager instance;
     private HashMap<String, Texture> textures;
 
-    public TextureManager() {
+    private TextureManager() {
         textures = new HashMap<>();
-        init();
+        initTextures();
     }
 
-    private void init() {
+    private void initTextures() {
         loadTexture("heart", "img_heart.png");
         loadTexture("test_bullet", "img_ball_bullet.png");
         
@@ -23,6 +24,14 @@ public class TextureManager {
         loadTexture("mercy_normal", "img_mercy_normal.png");
         loadTexture("mercy_chosen", "img_mercy_chosen.png");
     } 
+
+    
+    public static TextureManager getInstance() {
+        if (instance == null) {
+            instance = new TextureManager();
+        }
+        return instance;
+    }
 
     public void loadTexture(String name, String filePath) {
         Texture texture = new Texture(filePath);

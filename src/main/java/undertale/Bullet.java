@@ -2,22 +2,23 @@ package undertale;
 
 public class Bullet extends GameObject{
     private int damage;
+
     private float hScale;
     private float vScale;
     private Texture texture;
-    private float[] rgba;
-
+    
     private boolean destroyableOnHit = true;
 
+    private float[] rgba;
+
+
     public Bullet(float x, float y, float selfAngle, float speedAngle, float speed, int damage, Texture texture) {
-        rgba = new float[]{1.0f, 1.0f, 1.0f, 1.0f}; // 默认白色不透明
-        init(x, y, selfAngle, speedAngle, speed, damage, texture);
-    }
-    private void init(float x, float y, float selfAngle, float speedAngle, float speed, int damage, Texture texture){
-        setPosition(x, y);
-        setAngle(speedAngle);
+        this.rgba = new float[]{1.0f, 1.0f, 1.0f, 1.0f}; // 默认白色不透明
+        this.x = x;
+        this.y = y;
         setSelfAngle(selfAngle);
-        setSpeed(speed);
+        setSpeedAngle(speedAngle);
+        this.speed = speed;
         this.damage = damage;
         this.texture = texture;
         this.hScale = 1.0f;
@@ -38,7 +39,7 @@ public class Bullet extends GameObject{
 
     public void render(){
         Texture.drawTexture(texture.getId(), 
-                            getX(), getY(), 
+                            this.x, this.y,
                             hScale * texture.getWidth(), vScale * texture.getHeight(), 
                             getSelfAngle(), rgba[0], rgba[1], rgba[2], rgba[3]);
     }

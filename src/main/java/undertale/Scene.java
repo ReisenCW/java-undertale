@@ -4,10 +4,14 @@ public abstract class Scene {
     protected SceneManager sceneManager;
     protected ObjectManager objectManager;
     protected InputManager inputManager;
+    protected UIManager uiManager;
+    protected TextureManager textureManager;
 
     // 构造函数注入依赖
     public Scene(ObjectManager objectManager, InputManager inputManager) {
         this.sceneManager = SceneManager.getInstance();
+        this.uiManager = UIManager.getInstance();
+        this.textureManager = TextureManager.getInstance();
         this.objectManager = objectManager;
         this.inputManager = inputManager;
     }

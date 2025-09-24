@@ -22,7 +22,12 @@ public class ObjectManager {
         return bullet;
     }
 
-    public void battleSceneUpdate(float deltaTime){
+    public void updateMenuScene(float deltaTime){
+        // player
+        player.update(deltaTime);
+    }
+
+    public void UpdateFightScene(float deltaTime){
         // player
         player.update(deltaTime);
 
@@ -92,7 +97,7 @@ public class ObjectManager {
         return false;
     }
 
-    public void renderBattleScene(){
+    public void renderFightScene(){
         // bullets
         for (Bullet bullet : bullets) {
             bullet.render();
@@ -100,5 +105,14 @@ public class ObjectManager {
 
         //player 
         player.render();
+    }
+
+    public void renderMenuScene(){
+        // player 
+        player.render();
+    }
+
+    public void clearBullets() {
+        bullets.clear();
     }
 }

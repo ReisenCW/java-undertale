@@ -3,14 +3,7 @@ package undertale;
 import java.util.ArrayList;
 
 public class BattleMenuScene extends Scene {
-    // 菜单选项等UI元素
-    private ArrayList<String> options = new ArrayList<>() {{
-        add("attack");
-        add("act");
-        add("item");
-        add("spare");
-    }};
-    private int selectedIndex = 0;
+    private UIManager uiManager = UIManager.getInstance();
 
     public BattleMenuScene(ObjectManager objectManager, InputManager inputManager) {
         super(objectManager, inputManager);
@@ -18,20 +11,23 @@ public class BattleMenuScene extends Scene {
 
     @Override
     public void onEnter() {
+        objectManager.clearBullets();
+        uiManager.setSelected(0);
     }
 
     @Override
     public void onExit() {
+        uiManager.setSelected(-1);
     }
 
     @Override
     public void update(float deltaTime) {
-
+        objectManager.updateMenuScene(deltaTime);
     }
 
     @Override
     public void render() {
-
+        objectManager.renderFightScene();
     }
 
     @Override

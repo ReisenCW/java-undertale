@@ -6,10 +6,11 @@ package undertale;
  * @ angle为顺时针方向，0度向右，90度向下
  */
 public abstract class GameObject {
-    private float x;
-    private float y;
+    protected float x;
+    protected float y;
+    protected float speed;
+
     private float[] direction = {0.0f, 0.0f};
-    private float speed;
     private float speedAngle; // 单位为度
     private float selfAngle; // 单位为度
     private boolean isNavi = false; // selfAngle是否跟随speedAngle
@@ -109,11 +110,11 @@ public abstract class GameObject {
         speed = newSpeed;
     }
 
-    public float getAngle() {
+    public float getSpeedAngle() {
         return speedAngle;
     }
 
-    public void setAngle(float newAngle) {
+    public void setSpeedAngle(float newAngle) {
         speedAngle = newAngle;
         if (isNavi) {
             selfAngle = speedAngle;

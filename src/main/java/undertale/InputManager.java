@@ -5,6 +5,7 @@ import static org.lwjgl.glfw.GLFW.*;
 public class InputManager {
     private Window window;
     private boolean[] keyStates = new boolean[GLFW_KEY_LAST + 1];
+    private boolean[] wasKeyPressed = new boolean[GLFW_KEY_LAST + 1];
     
     // escape
     private static final long ESCAPE_HOLD_TIME = 2000; // 按住2秒退出
@@ -14,17 +15,26 @@ public class InputManager {
     // player
     private Player player;
 
+    // scene
     private SceneManager sceneManager;
+
+    // UI
+    private UIManager uiManager;
 
     InputManager(Window window, Player player) {
         this.window = window;
         this.player = player;
         this.sceneManager = SceneManager.getInstance();
+        this.uiManager = UIManager.getInstance();
     }
 
     private void updateKeyState() {
         glfwPollEvents();
-        // 从SPACE开始GLFW才允许遍历
+        // 先保存上一帧状态
+        for (int key = GLFW_KEY_SPACE; key <= GLFW_KEY_LAST; key++) {
+            wasKeyPressed[key] = keyStates[key];
+        }
+        // 再更新当前帧状态
         for (int key = GLFW_KEY_SPACE; key <= GLFW_KEY_LAST; key++) {
             keyStates[key] = (glfwGetKey(window.getWindow(), key) == GLFW_PRESS);
         }
@@ -45,6 +55,17 @@ public class InputManager {
             if (isEscaping) {
                 isEscaping = false;
             }
+        }
+    }
+
+    private void handleDebug(){
+        // 按下f12切换debug模式
+        if(Game.DEBUG && isKeyTriggered(GLFW_KEY_F12)) {
+            Game.DEBUG = false;
+            System.out.println("Debug mode OFF");
+        } else if(!Game.DEBUG && isKeyTriggered(GLFW_KEY_F12)) {
+            Game.DEBUG = true;
+            System.out.println("Debug mode ON");
         }
     }
 
@@ -70,12 +91,19 @@ public class InputManager {
     }
 
     private void handleMenuChoose() {
-
+        if(isKeyTriggered(GLFW_KEY_RIGHT)) {
+            uiManager.selectMoveRight();
+        }
+        if(isKeyTriggered(GLFW_KEY_LEFT)) {
+            uiManager.selectMoveLeft();
+        }
+        uiManager.updatePlayerMenuPosition();
     }
 
     public void processInput() {
         updateKeyState();
         handleEscaping();
+        handleDebug();
         switch(sceneManager.getCurrentScene().getCurrentScene()) {
             case BATTLE_FIGHT -> handlePlayerMovement();
             case BATTLE_MENU -> handleMenuChoose();
@@ -84,9 +112,20 @@ public class InputManager {
         }
     }
 
+    /**
+     * 检查某个键当前是否被按下
+     */
     public boolean isKeyPressed(int key) {
         if (key < GLFW_KEY_SPACE || key > GLFW_KEY_LAST) return false;
         return keyStates[key];
+    }
+
+    /**
+     * 检查某个键是否被触发（从未按下到按下）
+     */
+    public boolean isKeyTriggered(int key){
+        if (key < GLFW_KEY_SPACE || key > GLFW_KEY_LAST) return false;
+        return keyStates[key] && !wasKeyPressed[key];
     }
 
     public boolean isEscaping() {
