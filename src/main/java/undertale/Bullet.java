@@ -1,7 +1,5 @@
 package undertale;
 
-import static org.lwjgl.opengl.GL11.glColor4f;
-
 public class Bullet extends GameObject{
     private int damage;
     private float hScale;

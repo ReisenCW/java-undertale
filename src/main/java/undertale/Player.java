@@ -9,7 +9,8 @@ public class Player extends GameObject {
     private int maxHealth;
     private int level;
     private int attackPower;
-    private int invisibleTime = 1500; // ms
+    private int invisibleTime;
+    private int flashTime;
     private float vScale;
     private float hScale;
     private float highSpeed;
@@ -34,6 +35,8 @@ public class Player extends GameObject {
         this.hScale = 3.0f;
         this.highSpeed = 300.0f;
         this.lowSpeed = 150.0f;
+        this.invisibleTime = 1500; // ms
+        this.flashTime = 100; // ms 闪烁周期
         this.rgba = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
 
         heartTexture = new Texture("img_heart.png");
@@ -80,16 +83,26 @@ public class Player extends GameObject {
         }
     }
 
-    public void render() {
-        Texture.drawTexture(heartTexture.getId(), 
-                            getX(), getY(),
-                            hScale * heartTexture.getWidth(), vScale * heartTexture.getHeight(),
-                            0, rgba[0], rgba[1], rgba[2], rgba[3]);
-        renderInvisibility();
+    public void setColor (float r, float g, float b, float a) {
+        this.rgba[0] = r;
+        this.rgba[1] = g;
+        this.rgba[2] = b;
+        this.rgba[3] = a;
     }
 
-    private void renderInvisibility(){
-        // 闪烁效果
+    public void render() {
+        if(isHurt && ((System.currentTimeMillis() - hurtStartTime) / flashTime) % 2 == 0) {
+            Texture.drawTexture(heartTexture.getId(), 
+                    getX(), getY(),
+                    hScale * heartTexture.getWidth(), vScale * heartTexture.getHeight(),
+                    0, rgba[0]/3, rgba[1]/3, rgba[2]/3, rgba[3]);
+        }
+        else{
+            Texture.drawTexture(heartTexture.getId(), 
+                    getX(), getY(),
+                    hScale * heartTexture.getWidth(), vScale * heartTexture.getHeight(),
+                    0, rgba[0], rgba[1], rgba[2], rgba[3]);
+        }
     }
 
     public String getName() {
@@ -198,6 +211,18 @@ public class Player extends GameObject {
 
     public int getInvisibleTime() {
         return invisibleTime;
+    }
+
+    public void setInvisibleTime(int invisibleTime) {
+        this.invisibleTime = invisibleTime;
+    }
+
+    public int getFlashTime() {
+        return flashTime;
+    }
+
+    public void setFlashTime(int flashTime) {
+        this.flashTime = flashTime;
     }
 
     public void destroyTexture() {

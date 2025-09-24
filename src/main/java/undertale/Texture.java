@@ -54,7 +54,10 @@ public class Texture {
         }
     }
 
-    // 绘制纹理
+    /**
+     * 绘制纹理
+     * 颜色为相乘模式
+     */
     public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation, float r, float g, float b, float a) {
 
         // 绑定纹理
