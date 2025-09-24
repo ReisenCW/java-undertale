@@ -22,9 +22,9 @@ public class BattleFightScene extends Scene {
         // test
         Texture testTexture = textureManager.getTexture("test_bullet");
         int randomX = (int)(Math.random() * (Game.getWindowWidth() - 20));
-        Bullet testBullet = objectManager.createBullet(randomX, 0, 
+        objectManager.createBullet(randomX, 0, 
         0, 90, 200, 4, testTexture);
-        
+
         objectManager.UpdateFightScene(deltaTime);
     }
 

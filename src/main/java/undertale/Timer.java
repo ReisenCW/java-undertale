@@ -24,6 +24,14 @@ public class Timer {
         return deltaTime;
     }
 
+    /**
+     * 从setTimerStart开始计时的持续时间
+     * @return ms
+     */
+    public float durationFromStart() {
+        return (getCurrentTime() - frameStart);
+    }
+
     public boolean isTimeElapsed(long milliseconds) {
         return (getCurrentTime() - frameStart) >= milliseconds;
     }

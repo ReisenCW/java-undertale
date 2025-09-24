@@ -18,6 +18,7 @@ public class Game {
     private static InputManager inputManager;
     private static UIManager uiManager;
     private static TextureManager textureManager;
+    private static FontManager fontManager;
 
     public static void run() {
 		init();
@@ -27,6 +28,7 @@ public class Game {
 
     private static void destroy() {
         textureManager.destroyAll();
+        fontManager.destroy();
 		gameWindow.destroyWindow();
     }
 
@@ -36,6 +38,7 @@ public class Game {
 		player = new Player("Frisk");
         objectManager = new ObjectManager(player);
         inputManager = new InputManager(gameWindow, player);
+        fontManager = FontManager.getInstance();
         
         // 初始化场景管理器并注册场景
         sceneManager = SceneManager.getInstance();
@@ -52,7 +55,7 @@ public class Game {
         uiManager = UIManager.getInstance();
         
         // 初始化渲染器
-        renderer = new Renderer(inputManager, sceneManager, uiManager);
+        renderer = new Renderer(inputManager);
 	}
 
 	private static void loop() {

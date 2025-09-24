@@ -1,7 +1,5 @@
 package undertale;
 
-import java.util.ArrayList;
-
 public class BattleMenuScene extends Scene {
     private UIManager uiManager = UIManager.getInstance();
 

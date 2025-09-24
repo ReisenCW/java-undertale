@@ -8,7 +8,7 @@ public class InputManager {
     private boolean[] wasKeyPressed = new boolean[GLFW_KEY_LAST + 1];
     
     // escape
-    private static final long ESCAPE_HOLD_TIME = 2000; // 按住2秒退出
+    public final long ESCAPE_HOLD_TIME = 2000; // 按住2秒退出
     private boolean isEscaping = false;
     private Timer escapeTimer = new Timer();
     
@@ -130,5 +130,9 @@ public class InputManager {
 
     public boolean isEscaping() {
         return isEscaping;
+    }
+
+    public Timer getEscapeTimer() {
+        return escapeTimer;
     }
 }

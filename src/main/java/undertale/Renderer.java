@@ -7,14 +7,16 @@ public class Renderer {
     private InputManager inputManager;
     private SceneManager sceneManager;
     private UIManager uiManager;
-    
-    // private final int ESCAPING_X = 100;
-    // private final int ESCAPING_Y = 50;
+    private FontManager fontManager;
 
-    Renderer(InputManager inputManager, SceneManager sceneManager, UIManager uiManager) {
+    private final int ESCAPING_X = 50;
+    private final int ESCAPING_Y = 50;
+
+    Renderer(InputManager inputManager) {
         this.inputManager = inputManager;
-        this.sceneManager = sceneManager;
-        this.uiManager = uiManager;
+        this.sceneManager = SceneManager.getInstance();
+        this.uiManager = UIManager.getInstance();
+        this.fontManager = FontManager.getInstance();
         init();
     }
 
@@ -46,8 +48,9 @@ public class Renderer {
 
     private void renderEscaping() {
         if (inputManager.isEscaping()) {
-            // 之后可利用在屏幕左上角显示Escaping...
-            System.out.println("Escaping...");
+            // 按下1/3的结束时间内，透明度从0渐变到1
+            float alpha = Math.min(1.0f, 3 * inputManager.getEscapeTimer().durationFromStart() / inputManager.ESCAPE_HOLD_TIME);
+            fontManager.drawText("ESCAPING...", ESCAPING_X, ESCAPING_Y, 1.0f, 1.0f, 1.0f, alpha);
         }
     }
 }

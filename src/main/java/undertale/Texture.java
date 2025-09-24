@@ -90,6 +90,9 @@ public class Texture {
         glEnd();
 
         glPopMatrix();
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
     public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation) {
