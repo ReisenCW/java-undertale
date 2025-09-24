@@ -14,6 +14,7 @@ public class Game {
     private static Timer timer;
 	private static Player player;
     private static ObjectManager objectManager;
+    private static InputManager inputManager;
 
     public static void run() {
 		init();
@@ -27,12 +28,13 @@ public class Game {
     }
 
 	private static void init() {
-		gameWindow = new Window(WINDOW_WIDTH, WINDOW_HEIGHT, "Undertale");
         timer = new Timer();
-		logic = new Logic();
-        renderer = new Renderer();
+		gameWindow = new Window(WINDOW_WIDTH, WINDOW_HEIGHT, "Undertale");
 		player = new Player("Frisk");
         objectManager = new ObjectManager(player);
+        inputManager = new InputManager(gameWindow, player);
+		logic = new Logic(inputManager, objectManager);
+        renderer = new Renderer(inputManager);
 	}
 
 	private static void loop() {
@@ -51,11 +53,8 @@ public class Game {
 		}
 	}
 
-    public static boolean isKeyPressed(int key) {
-        return glfwGetKey(Game.getWindow().getWindow(), key) == GLFW_PRESS;
-    }
-
     private static void update(float deltaTime) {
+		inputManager.processInput();
 		logic.update(deltaTime);
 	}
 
@@ -89,5 +88,13 @@ public class Game {
 
     public static ObjectManager getObjectManager() {
         return objectManager;
+    }
+
+    public static InputManager getInputManager() {
+        return inputManager;
+    }
+
+    public static boolean isKeyPressed(int key) {
+        return inputManager.isKeyPressed(key);
     }
 }

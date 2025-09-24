@@ -4,10 +4,12 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
 public class Renderer {
+    private InputManager inputManager;
     // private final int ESCAPING_X = 100;
     // private final int ESCAPING_Y = 50;
 
-    Renderer() {
+    Renderer(InputManager inputManager) {
+        this.inputManager = inputManager;
         init();
     }
 
@@ -37,7 +39,7 @@ public class Renderer {
     }
 
     private void renderEscaping() {
-        if (Game.getLogic().isEscaping()) {
+        if (inputManager.isEscaping()) {
             // 之后可利用在屏幕左上角显示Escaping...
             System.out.println("Escaping...");
         }

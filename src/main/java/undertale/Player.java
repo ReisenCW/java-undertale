@@ -44,7 +44,7 @@ public class Player extends GameObject {
     @Override
     public void update(float deltaTime) {
         handleSpeedMode();
-        handlePlayerMovement(deltaTime);
+        updatePosition(deltaTime); // 按键处理在inputManager中
         handlePlayerOutBound(0, Game.getWindowWidth(), 0, Game.getWindowHeight());
     }
 
@@ -63,22 +63,6 @@ public class Player extends GameObject {
         }
     }
 
-    private void handlePlayerMovement(float deltaTime) {
-        // 通过上下左右箭头移动
-        if (Game.isKeyPressed(GLFW_KEY_UP))
-            setDirectionY(-1);
-        else if (Game.isKeyPressed(GLFW_KEY_DOWN))
-            setDirectionY(1);
-        else
-            setDirectionY(0);
-        if (Game.isKeyPressed(GLFW_KEY_LEFT))
-            setDirectionX(-1);
-        else if (Game.isKeyPressed(GLFW_KEY_RIGHT))
-            setDirectionX(1);
-        else
-            setDirectionX(0);
-        updatePosition(deltaTime);
-    }
 
     private void handlePlayerOutBound(int left, int right, int top, int bottom) {
         if (getX() < left) {
@@ -91,7 +75,6 @@ public class Player extends GameObject {
         } else if (getY() + vScale * heartTexture.getHeight() > bottom) {
             setPositionY(bottom - vScale * heartTexture.getHeight());
         }
-
     }
 
     public void render() {

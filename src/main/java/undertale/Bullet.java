@@ -80,3 +80,5 @@ public class Bullet extends GameObject{
         return destroyableOnHit;
     }
 }
+
+// TODO: TextureManager类统一管理资源
