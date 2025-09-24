@@ -14,7 +14,8 @@ public class Game {
     private static SceneManager sceneManager;
     private static ObjectManager objectManager;
     private static InputManager inputManager;
-
+    private static UIManager uiManager;
+    private static TextureManager textureManager;
 
     public static void run() {
 		init();
@@ -23,28 +24,32 @@ public class Game {
 	}
 
     private static void destroy() {
-        player.destroyTexture();
+        textureManager.destroyAll();
 		gameWindow.destroyWindow();
     }
 
 	private static void init() {
-		gameWindow = new Window(WINDOW_WIDTH, WINDOW_HEIGHT, "Undertale");
+        gameWindow = new Window(WINDOW_WIDTH, WINDOW_HEIGHT, "Undertale");
+        textureManager = new TextureManager();
 		player = new Player("Frisk");
         objectManager = new ObjectManager(player);
         inputManager = new InputManager(gameWindow, player);
-
+        
         // 初始化场景管理器并注册场景
         sceneManager = SceneManager.getInstance();
         sceneManager.registerScene(SceneEnum.BATTLE_MENU, 
-            new BattleMenuScene(objectManager, inputManager));
+        new BattleMenuScene(objectManager, inputManager));
         sceneManager.registerScene(SceneEnum.BATTLE_FIGHT, 
-            new BattleFightScene(objectManager, inputManager));
+        new BattleFightScene(objectManager, inputManager));
         
         // 初始场景
-        sceneManager.switchScene(SceneEnum.BATTLE_MENU);
+        sceneManager.switchScene(SceneEnum.BATTLE_FIGHT);
+        
+        // 初始化UI管理器
+        uiManager = UIManager.getInstance();
         
         // 初始化渲染器
-        renderer = new Renderer(inputManager, sceneManager);
+        renderer = new Renderer(inputManager, sceneManager, uiManager);
 	}
 
 	private static void loop() {
@@ -53,7 +58,7 @@ public class Game {
             timer.setTimerStart();
 
             // test
-            Texture testTexture = new Texture("img_ball_bullet.png");
+            Texture testTexture = getTexture("test_bullet");
             int randomX = (int)(Math.random() * (Game.WINDOW_WIDTH - 20));
             Bullet testBullet = objectManager.createBullet(randomX, 0, 
             0, 90, 200, 4, testTexture);
@@ -106,6 +111,10 @@ public class Game {
 
     public static InputManager getInputManager() {
         return inputManager;
+    }
+
+    public static Texture getTexture(String name) {
+        return textureManager.getTexture(name);
     }
 
     public static boolean isKeyPressed(int key) {

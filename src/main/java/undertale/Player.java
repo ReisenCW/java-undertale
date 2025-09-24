@@ -40,7 +40,7 @@ public class Player extends GameObject {
         this.flashTime = 100; // ms 闪烁周期
         this.rgba = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
 
-        heartTexture = new Texture("img_heart.png");
+        heartTexture = Game.getTexture("heart");
 
         setPosition(Game.getWindowWidth() / 2 - heartTexture.getWidth() / 2, 
             Game.getWindowHeight() / 2 - heartTexture.getHeight() / 2);

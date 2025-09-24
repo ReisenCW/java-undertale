@@ -111,4 +111,8 @@ public class Texture {
     public int getId() {
         return id;
     }
+
+    public void destroy() {
+        glDeleteTextures(id);
+    }
 }
