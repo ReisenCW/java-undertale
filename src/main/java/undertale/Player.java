@@ -34,8 +34,8 @@ public class Player extends GameObject {
         this.attackPower = 1000;
         this.vScale = 3.0f;
         this.hScale = 3.0f;
-        this.highSpeed = 300.0f;
-        this.lowSpeed = 150.0f;
+        this.highSpeed = 150.0f;
+        this.lowSpeed = 75.0f;
         this.invisibleTime = 1500; // ms
         this.flashTime = 100; // ms 闪烁周期
         this.rgba = new float[]{1.0f, 1.0f, 1.0f, 1.0f};

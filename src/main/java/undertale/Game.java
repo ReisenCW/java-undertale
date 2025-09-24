@@ -41,7 +41,7 @@ public class Game {
             new BattleFightScene(objectManager, inputManager));
         
         // 初始场景
-        sceneManager.switchScene(SceneEnum.BATTLE_FIGHT);
+        sceneManager.switchScene(SceneEnum.BATTLE_MENU);
         
         // 初始化渲染器
         renderer = new Renderer(inputManager, sceneManager);
