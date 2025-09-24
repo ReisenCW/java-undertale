@@ -1,0 +1,25 @@
+package undertale;
+
+public abstract class Scene {
+    protected SceneManager sceneManager;
+    protected ObjectManager objectManager;
+    protected InputManager inputManager;
+
+    // 构造函数注入依赖
+    public Scene(ObjectManager objectManager, InputManager inputManager) {
+        this.sceneManager = SceneManager.getInstance();
+        this.objectManager = objectManager;
+        this.inputManager = inputManager;
+    }
+
+    // 场景进入时调用
+    public abstract void onEnter();
+    
+    // 场景退出时调用
+    public abstract void onExit();
+    
+    // 原有方法
+    public abstract SceneEnum getCurrentScene();
+    public abstract void update(float deltaTime);
+    public abstract void render();
+}

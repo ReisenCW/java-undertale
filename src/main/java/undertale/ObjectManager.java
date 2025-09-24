@@ -22,7 +22,7 @@ public class ObjectManager {
         return bullet;
     }
 
-    public void update(float deltaTime){
+    public void battleSceneUpdate(float deltaTime){
         // player
         player.update(deltaTime);
 
@@ -30,6 +30,8 @@ public class ObjectManager {
         ArrayList<Bullet> toRemove = new ArrayList<>();
         for (Bullet bullet : bullets) {
             bullet.update(deltaTime);
+            if(!player.isAlive())
+                continue;
             if (checkPlayerBulletCollisionReturnHit(bullet)) {
                 toRemove.add(bullet);
             }
@@ -40,6 +42,8 @@ public class ObjectManager {
     }
 
     private boolean checkPlayerBulletCollisionReturnHit(Bullet bullet){
+        if(!player.isAlive()) 
+            return false;
         // 椭圆子弹判定：仿射变换到单位圆
         float a = bullet.getWidth() / 2; // 长轴
         float b = bullet.getHeight() / 2; // 短轴
@@ -88,7 +92,7 @@ public class ObjectManager {
         return false;
     }
 
-    public void render(){
+    public void renderBattleScene(){
         // bullets
         for (Bullet bullet : bullets) {
             bullet.render();

@@ -18,6 +18,7 @@ public class Player extends GameObject {
 
     private boolean isHighSpeed = true;
     private boolean isHurt = false;
+    public boolean isMovable = true;
 
     private long hurtStartTime = 0;
 

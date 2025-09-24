@@ -2,6 +2,9 @@ package undertale;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 
 public class Game {
     private static Window gameWindow;
@@ -10,11 +13,11 @@ public class Game {
     private static int WINDOW_HEIGHT = 720; 
 
     private static Renderer renderer;
-    private static Logic logic;
-    private static Timer timer;
 	private static Player player;
+    private static SceneManager sceneManager;
     private static ObjectManager objectManager;
     private static InputManager inputManager;
+
 
     public static void run() {
 		init();
@@ -28,16 +31,27 @@ public class Game {
     }
 
 	private static void init() {
-        timer = new Timer();
 		gameWindow = new Window(WINDOW_WIDTH, WINDOW_HEIGHT, "Undertale");
 		player = new Player("Frisk");
         objectManager = new ObjectManager(player);
         inputManager = new InputManager(gameWindow, player);
-		logic = new Logic(objectManager);
-        renderer = new Renderer(inputManager, objectManager);
+
+        // 初始化场景管理器并注册场景
+        sceneManager = SceneManager.getInstance();
+        sceneManager.registerScene(SceneEnum.BATTLE_MENU, 
+            new BattleMenuScene(objectManager, inputManager));
+        sceneManager.registerScene(SceneEnum.BATTLE_FIGHT, 
+            new BattleFightScene(objectManager, inputManager));
+        
+        // 初始场景
+        sceneManager.switchScene(SceneEnum.BATTLE_FIGHT);
+        
+        // 初始化渲染器
+        renderer = new Renderer(inputManager, objectManager, sceneManager);
 	}
 
 	private static void loop() {
+        Timer timer = new Timer();
 		while ( !glfwWindowShouldClose(gameWindow.getWindow()) ) {
             timer.setTimerStart();
 
@@ -54,9 +68,16 @@ public class Game {
 	}
 
     private static void update(float deltaTime) {
+        // 场景更新
+        Scene currentScene = SceneManager.getInstance().getCurrentScene();
+        if (currentScene != null) {
+            currentScene.update(deltaTime);
+        }
+        // 输入处理
 		inputManager.processInput();
-		logic.update(deltaTime);
-	}
+        // 场景更新
+        sceneManager.getCurrentScene().update(deltaTime);
+    }
 
     private static void render() {
         renderer.render();
@@ -76,10 +97,6 @@ public class Game {
 
     public static Renderer getRenderer() {
         return renderer;
-    }
-
-    public static Logic getLogic() {
-        return logic;
     }
 
 	public static Player getPlayer() {

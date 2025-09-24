@@ -1,0 +1,37 @@
+package undertale;
+
+import java.util.HashMap;
+
+// 新增场景管理器
+public class SceneManager {
+    private static SceneManager instance;
+    private HashMap<SceneEnum, Scene> scenes = new HashMap<>();
+    private Scene currentScene;
+
+    private SceneManager() {}
+
+    public static SceneManager getInstance() {
+        if (instance == null) {
+            instance = new SceneManager();
+        }
+        return instance;
+    }
+
+    public void registerScene(SceneEnum type, Scene scene) {
+        scenes.put(type, scene);
+    }
+
+    public void switchScene(SceneEnum type) {
+        if (currentScene != null) {
+            currentScene.onExit(); // 退出当前场景
+        }
+        currentScene = scenes.get(type);
+        if (currentScene != null) {
+            currentScene.onEnter(); // 进入新场景
+        }
+    }
+
+    public Scene getCurrentScene() {
+        return currentScene;
+    }
+}

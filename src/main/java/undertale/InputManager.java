@@ -14,9 +14,12 @@ public class InputManager {
     // player
     private Player player;
 
+    private SceneManager sceneManager;
+
     InputManager(Window window, Player player) {
         this.window = window;
         this.player = player;
+        this.sceneManager = SceneManager.getInstance();
     }
 
     private void updateKeyState() {
@@ -46,6 +49,11 @@ public class InputManager {
     }
 
     private void handlePlayerMovement() {
+        if(!player.isMovable || !player.isAlive()) {
+            player.setDirectionX(0);
+            player.setDirectionY(0);
+            return;
+        }
         // 通过上下左右箭头移动
         if (isKeyPressed(GLFW_KEY_UP))
             player.setDirectionY(-1);
@@ -61,10 +69,19 @@ public class InputManager {
             player.setDirectionX(0);
     }
 
+    private void handleMenuChoose() {
+
+    }
+
     public void processInput() {
         updateKeyState();
         handleEscaping();
-        handlePlayerMovement();
+        switch(sceneManager.getCurrentScene().getCurrentScene()) {
+            case BATTLE_FIGHT -> handlePlayerMovement();
+            case BATTLE_MENU -> handleMenuChoose();
+            default -> {
+            }
+        }
     }
 
     public boolean isKeyPressed(int key) {
