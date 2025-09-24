@@ -1,11 +1,9 @@
 package undertale;
 
 public class Logic {
-    private InputManager inputManager;
     private ObjectManager objectManager;
 
-    Logic(InputManager inputManager, ObjectManager objectManager) {
-        this.inputManager = inputManager;
+    Logic(ObjectManager objectManager) {
         this.objectManager = objectManager;
     }
 

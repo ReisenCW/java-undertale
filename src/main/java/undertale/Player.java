@@ -22,6 +22,8 @@ public class Player extends GameObject {
 
     private Texture heartTexture;
 
+    private float[] rgba;
+
     public Player(String name) {
         this.name = name;
         this.level = 1;
@@ -32,6 +34,7 @@ public class Player extends GameObject {
         this.hScale = 3.0f;
         this.highSpeed = 300.0f;
         this.lowSpeed = 150.0f;
+        this.rgba = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
 
         heartTexture = new Texture("img_heart.png");
 
@@ -79,8 +82,9 @@ public class Player extends GameObject {
 
     public void render() {
         Texture.drawTexture(heartTexture.getId(), 
-                            getX(), getY(), 
-                            hScale * heartTexture.getWidth(), vScale * heartTexture.getHeight());
+                            getX(), getY(),
+                            hScale * heartTexture.getWidth(), vScale * heartTexture.getHeight(),
+                            0, rgba[0], rgba[1], rgba[2], rgba[3]);
         renderInvisibility();
     }
 

@@ -40,23 +40,34 @@ public class ObjectManager {
     }
 
     private boolean checkPlayerBulletCollisionReturnHit(Bullet bullet){
-        float a = player.getWidth() / 3;
-        float b = player.getHeight() / 3;
-        float playerRadius = Math.min(a, b);
-        float centerX = player.getX() + player.getWidth() / 2;
-        float centerY = player.getY() + player.getHeight() / 2;
+        // 椭圆子弹判定：仿射变换到单位圆
+        float a = bullet.getWidth() / 2; // 长轴
+        float b = bullet.getHeight() / 2; // 短轴
+        float theta = (float)Math.toRadians(bullet.getSelfAngle()); // 椭圆旋转角度
+        float bulletCenterX = bullet.getX() + a;
+        float bulletCenterY = bullet.getY() + b;
 
-        float ba = bullet.getWidth() / 3;
-        float bb = bullet.getHeight() / 3;
-        float bulletRadius = Math.min(ba, bb);
-        float bulletCenterX = bullet.getX() + bullet.getWidth() / 2;
-        float bulletCenterY = bullet.getY() + bullet.getHeight() / 2;
+        float playerRadius = Math.min(player.getWidth(), player.getHeight()) / 3;
+        float playerCenterX = player.getX() + player.getWidth() / 2;
+        float playerCenterY = player.getY() + player.getHeight() / 2;
 
-        float dx = bulletCenterX - centerX;
-        float dy = bulletCenterY - centerY;
-        float dist = (float)Math.sqrt(dx * dx + dy * dy);
+        // 步骤1：平移
+        float px = playerCenterX - bulletCenterX;
+        float py = playerCenterY - bulletCenterY;
+        // 步骤2：旋转（逆时针-θ）
+        float cosT = (float)Math.cos(-theta);
+        float sinT = (float)Math.sin(-theta);
+        float rx = px * cosT - py * sinT;
+        float ry = px * sinT + py * cosT;
+        // 步骤3：缩放
+        float sx = rx / a;
+        float sy = ry / b;
+        // 玩家半径也缩放，取均值
+        float rScaled = playerRadius / ((a + b) / 2);
 
-        if (dist < playerRadius + bulletRadius) {
+        // 判定：距离是否小于rScaled + 1（单位圆半径）
+        float dist = (float)Math.sqrt(sx * sx + sy * sy);
+        if (dist < rScaled + 1) {
             // 碰撞
             if (!player.isHurt()) {
                 player.takeDamage(bullet.getDamage());
@@ -78,12 +89,12 @@ public class ObjectManager {
     }
 
     public void render(){
-        //player 
-        player.render();
-
         // bullets
         for (Bullet bullet : bullets) {
             bullet.render();
         }
+
+        //player 
+        player.render();
     }
 }

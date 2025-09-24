@@ -33,8 +33,8 @@ public class Game {
 		player = new Player("Frisk");
         objectManager = new ObjectManager(player);
         inputManager = new InputManager(gameWindow, player);
-		logic = new Logic(inputManager, objectManager);
-        renderer = new Renderer(inputManager);
+		logic = new Logic(objectManager);
+        renderer = new Renderer(inputManager, objectManager);
 	}
 
 	private static void loop() {
@@ -44,8 +44,8 @@ public class Game {
             // test
             Texture testTexture = new Texture("img_ball_bullet.png");
             int randomX = (int)(Math.random() * (Game.WINDOW_WIDTH - 20));
-            objectManager.createBullet(randomX, 0, 
-            0, 90, 200, 1, testTexture);
+            Bullet testBullet = objectManager.createBullet(randomX, 0, 
+            0, 90, 200, 4, testTexture);
 
 			update(timer.getDeltaTime());
 			render();

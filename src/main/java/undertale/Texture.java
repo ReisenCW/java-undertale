@@ -55,9 +55,12 @@ public class Texture {
     }
 
     // 绘制纹理
-    public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation) {
+    public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation, float r, float g, float b, float a) {
+
         // 绑定纹理
         glBindTexture(GL_TEXTURE_2D, textureId);
+        // 设置颜色和透明度
+        glColor4f(r, g, b, a);
 
         // 以纹理中心为旋转中心
         float cx = x + width / 2.0f;
@@ -84,6 +87,10 @@ public class Texture {
         glEnd();
 
         glPopMatrix();
+    }
+
+    public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation) {
+        drawTexture(textureId, x, y, width, height, rotation, 1.0f, 1.0f, 1.0f, 1.0f);
     }
 
     public static void drawTexture(int textureId, float x, float y, float width, float height) {

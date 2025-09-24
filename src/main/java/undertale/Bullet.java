@@ -1,16 +1,18 @@
 package undertale;
 
-import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.glColor4f;
 
 public class Bullet extends GameObject{
     private int damage;
     private float hScale;
     private float vScale;
     private Texture texture;
+    private float[] rgba;
 
     private boolean destroyableOnHit = true;
 
     public Bullet(float x, float y, float selfAngle, float speedAngle, float speed, int damage, Texture texture) {
+        rgba = new float[]{1.0f, 1.0f, 1.0f, 1.0f}; // 默认白色不透明
         init(x, y, selfAngle, speedAngle, speed, damage, texture);
     }
     private void init(float x, float y, float selfAngle, float speedAngle, float speed, int damage, Texture texture){
@@ -29,11 +31,18 @@ public class Bullet extends GameObject{
         updatePosition(deltaTime);
     }
 
+    public void setColor(float r, float g, float b, float a) {
+        this.rgba[0] = r;
+        this.rgba[1] = g;
+        this.rgba[2] = b;
+        this.rgba[3] = a;
+    }
+
     public void render(){
         Texture.drawTexture(texture.getId(), 
                             getX(), getY(), 
-                            hScale * texture.getWidth(), hScale * texture.getHeight(), 
-                            getSelfAngle());
+                            hScale * texture.getWidth(), vScale * texture.getHeight(), 
+                            getSelfAngle(), rgba[0], rgba[1], rgba[2], rgba[3]);
     }
 
     public int getDamage() {
