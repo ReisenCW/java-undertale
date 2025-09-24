@@ -5,14 +5,12 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Renderer {
     private InputManager inputManager;
-    private ObjectManager objectManager;
     private SceneManager sceneManager;
     // private final int ESCAPING_X = 100;
     // private final int ESCAPING_Y = 50;
 
-    Renderer(InputManager inputManager, ObjectManager objectManager, SceneManager sceneManager) {
+    Renderer(InputManager inputManager, SceneManager sceneManager) {
         this.inputManager = inputManager;
-        this.objectManager = objectManager;
         this.sceneManager = sceneManager;
         init();
     }

@@ -2,9 +2,6 @@ package undertale;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 
 public class Game {
     private static Window gameWindow;
@@ -47,7 +44,7 @@ public class Game {
         sceneManager.switchScene(SceneEnum.BATTLE_FIGHT);
         
         // 初始化渲染器
-        renderer = new Renderer(inputManager, objectManager, sceneManager);
+        renderer = new Renderer(inputManager, sceneManager);
 	}
 
 	private static void loop() {
