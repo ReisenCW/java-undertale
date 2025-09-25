@@ -74,7 +74,7 @@ public class Player extends GameObject {
     }
 
 
-    private void handlePlayerOutBound(int left, int right, int top, int bottom) {
+    public void handlePlayerOutBound(float left, float right, float top, float bottom) {
         if (this.x < left) {
             this.x = left;
         } else if (this.x + hScale * heartTexture.getWidth() > right) {

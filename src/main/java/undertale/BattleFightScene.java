@@ -26,6 +26,7 @@ public class BattleFightScene extends Scene {
         0, 90, 200, 4, testTexture);
 
         objectManager.UpdateFightScene(deltaTime);
+        uiManager.updatePlayerInBound();
     }
 
     @Override

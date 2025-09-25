@@ -23,7 +23,15 @@ public class UIManager {
     private final float BTN_HEIGHT;
     private final float BTN_MARGIN;
 
-
+    private final float BATTLE_FRAME_LINE_WIDTH = 3.0f;
+    private final float MENU_FRAME_WIDTH;
+    private final float MENU_FRAME_HEIGHT;
+    private final float MENU_FRAME_LEFT;
+    private final float MENU_FRAME_BOTTOM; 
+    private float battle_frame_width;
+    private float battle_frame_height;
+    private float battle_frame_left;
+    private float battle_frame_bottom;
 
     private Player player;
 
@@ -45,11 +53,20 @@ public class UIManager {
                                 attack_chosen, act_chosen, item_chosen, mercy_chosen};
         player = Game.getPlayer();
 
-            BOTTOM_OFFSET = 20;
-            SCALER = 1.6f;
-            BTN_WIDTH = buttons[0].getWidth() * SCALER;
-            BTN_HEIGHT = buttons[0].getHeight() * SCALER;
-            BTN_MARGIN = (RIGHT_MARGIN - LEFT_MARGIN - 4 * BTN_WIDTH) / 5;
+        BOTTOM_OFFSET = 20;
+        SCALER = 1.6f;
+        BTN_WIDTH = buttons[0].getWidth() * SCALER;
+        BTN_HEIGHT = buttons[0].getHeight() * SCALER;
+        BTN_MARGIN = (RIGHT_MARGIN - LEFT_MARGIN - 4 * BTN_WIDTH) / 5;
+
+        MENU_FRAME_WIDTH = RIGHT_MARGIN - LEFT_MARGIN - BTN_MARGIN * 2;
+        MENU_FRAME_HEIGHT = (BOTTOM_MARGIN - TOP_MARGIN) / 3;
+        MENU_FRAME_LEFT = LEFT_MARGIN + BTN_MARGIN;
+        MENU_FRAME_BOTTOM = BOTTOM_MARGIN - BOTTOM_OFFSET - BTN_HEIGHT - 80;
+        battle_frame_width = MENU_FRAME_WIDTH;
+        battle_frame_height = MENU_FRAME_HEIGHT;
+        battle_frame_left = MENU_FRAME_LEFT;
+        battle_frame_bottom = MENU_FRAME_BOTTOM;
     }
 
     public static UIManager getInstance() {
@@ -63,6 +80,7 @@ public class UIManager {
         // 渲染按钮
         renderButtons();
         renderPlayerInfo();
+        renderBattleFrame();
     }
 
     private void renderButtons(){
@@ -102,8 +120,19 @@ public class UIManager {
 
     public void updatePlayerMenuPosition() {
         int LEFT_OFFSET = 25;
-        player.setPosition(LEFT_MARGIN + BTN_MARGIN + selectedAction * (BTN_WIDTH + BTN_MARGIN) + LEFT_OFFSET - player.getWidth() / 2,
-                           BOTTOM_MARGIN - BOTTOM_OFFSET  - BTN_HEIGHT/2 - player.getHeight()/2);
+        player.setPosition(LEFT_MARGIN + BTN_MARGIN + selectedAction * (BTN_WIDTH + BTN_MARGIN) + LEFT_OFFSET - player.getWidth() / 2, BOTTOM_MARGIN - BOTTOM_OFFSET  - BTN_HEIGHT/2 - player.getHeight()/2);
+    }
+
+    public void updatePlayerInBound() {
+        player.handlePlayerOutBound(battle_frame_left + BATTLE_FRAME_LINE_WIDTH, 
+                                    battle_frame_left + battle_frame_width - BATTLE_FRAME_LINE_WIDTH, 
+                                    battle_frame_bottom - battle_frame_height + BATTLE_FRAME_LINE_WIDTH, 
+                                    battle_frame_bottom - BATTLE_FRAME_LINE_WIDTH);
+    }
+
+    private void renderBattleFrame() {
+        Texture.drawRect(battle_frame_left, battle_frame_bottom - battle_frame_height, battle_frame_width, battle_frame_height, 0.0f, 0.0f, 0.0f, 1.0f);        
+        Texture.drawHollowRect(battle_frame_left, battle_frame_bottom - battle_frame_height, battle_frame_width, battle_frame_height, 1.0f, 1.0f, 1.0f, 1.0f, BATTLE_FRAME_LINE_WIDTH);
     }
 
     public void selectMoveRight() {
