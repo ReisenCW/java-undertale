@@ -108,4 +108,22 @@ public class FontManager {
         glDeleteTextures(fontTextureId);
         fontInfo.free();
     }
+
+    public float getCharWidth(char c) {
+        if (c < FIRST_CHAR || c >= FIRST_CHAR + CHAR_COUNT) return 0;
+        return charWidths[c - FIRST_CHAR];
+    }
+
+    public float getTextWidth(String text) {
+        float width = 0;
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            width += getCharWidth(c);
+        }
+        return width;
+    }
+
+    public float getFontHeight() {
+        return FONT_SIZE;
+    }
 }

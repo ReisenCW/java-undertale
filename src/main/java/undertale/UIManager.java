@@ -23,7 +23,11 @@ public class UIManager {
     private final float BTN_HEIGHT;
     private final float BTN_MARGIN;
 
+
+
     private Player player;
+
+    private FontManager fontManager = FontManager.getInstance();
 
     int selectedAction = -1;
 
@@ -55,9 +59,10 @@ public class UIManager {
         return instance;
     }
 
-    public void renderUI() {
+    public void renderBattleUI() {
         // 渲染按钮
         renderButtons();
+        renderPlayerInfo();
     }
 
     private void renderButtons(){
@@ -68,9 +73,36 @@ public class UIManager {
                 BTN_WIDTH, BTN_HEIGHT);
         }
     }
+
+    private void renderPlayerInfo() {
+        // 绘制 name, LV, HP/MaxHP信息
+        float HEIGHT = BOTTOM_MARGIN - BOTTOM_OFFSET - BTN_HEIGHT - 20;
+        float OFFSET = LEFT_MARGIN + BTN_MARGIN;
+        // 绘制name
+        fontManager.drawText(player.getName(), OFFSET , HEIGHT, 1.0f, 1.0f, 1.0f, 1.0f);
+        // 绘制LV
+        fontManager.drawText("LV " + player.getLevel(), OFFSET + BTN_WIDTH / 4 * 3, HEIGHT, 1.0f, 1.0f, 1.0f, 1.0f);
+        // 绘制HP
+        fontManager.drawText("HP ", OFFSET + BTN_WIDTH * 3 / 2 + BTN_MARGIN, HEIGHT, 1.0f, 1.0f, 1.0f, 1.0f);
+        // 绘制HP条，用红色绘制maxHealth长度，再用黄色覆盖currentHealth长度
+        float HP_BAR_WIDTH = player.getMaxHealth() * 3;
+        float HP_BAR_CURRENT_WIDTH = player.getCurrentHealth() * 3;
+        float HP_BAR_HEIGHT = fontManager.getFontHeight();
+        float HP_BAR_X = OFFSET + BTN_WIDTH * 3 / 2 + BTN_MARGIN + fontManager.getTextWidth("HP ") + 20;
+        float HP_BAR_Y = HEIGHT - HP_BAR_HEIGHT / 2 - 8;
+        // 绘制maxHealth
+        Texture.drawRect(HP_BAR_X, HP_BAR_Y, HP_BAR_WIDTH, HP_BAR_HEIGHT, 1.0f, 0.0f, 0.0f, 1.0f);
+        // 绘制currentHealth
+        Texture.drawRect(HP_BAR_X, HP_BAR_Y, HP_BAR_CURRENT_WIDTH, HP_BAR_HEIGHT, 1.0f, 1.0f, 0.0f, 1.0f);
+
+        // 绘制currentHealth/maxHealth
+        String hpText = player.getCurrentHealth() + "  /  " + player.getMaxHealth();
+        fontManager.drawText(hpText, HP_BAR_X + HP_BAR_WIDTH + 20, HEIGHT, 1.0f, 1.0f, 1.0f, 1.0f);
+    }
+
     public void updatePlayerMenuPosition() {
-        int OFFSET = 25;
-        player.setPosition(LEFT_MARGIN + BTN_MARGIN + selectedAction * (BTN_WIDTH + BTN_MARGIN) + OFFSET - player.getWidth() / 2,
+        int LEFT_OFFSET = 25;
+        player.setPosition(LEFT_MARGIN + BTN_MARGIN + selectedAction * (BTN_WIDTH + BTN_MARGIN) + LEFT_OFFSET - player.getWidth() / 2,
                            BOTTOM_MARGIN - BOTTOM_OFFSET  - BTN_HEIGHT/2 - player.getHeight()/2);
     }
 

@@ -40,7 +40,6 @@ public class Renderer {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
         // render
         renderEscaping();
-        uiManager.renderUI();
         sceneManager.getCurrentScene().render();
         // render ends
         glfwSwapBuffers(Game.getWindow().getWindow()); // swap the color buffers

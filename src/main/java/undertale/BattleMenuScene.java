@@ -25,6 +25,7 @@ public class BattleMenuScene extends Scene {
 
     @Override
     public void render() {
+        uiManager.renderBattleUI();
         objectManager.renderFightScene();
     }
 

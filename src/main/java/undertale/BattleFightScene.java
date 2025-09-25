@@ -30,6 +30,7 @@ public class BattleFightScene extends Scene {
 
     @Override
     public void render() {
+        uiManager.renderBattleUI();
         objectManager.renderFightScene();
     }
 

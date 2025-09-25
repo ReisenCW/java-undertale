@@ -103,6 +103,20 @@ public class Texture {
         drawTexture(textureId, x, y, width, height, 0);
     }
 
+    public static void drawRect(float x, float y, float width, float height, float r, float g, float b, float a) {
+        glColor4f(r, g, b, a);
+        glBegin(GL_QUADS);
+        glVertex2f(x, y);
+        glVertex2f(x + width, y);
+        glVertex2f(x + width, y + height);
+        glVertex2f(x, y + height);
+        glEnd();
+    }
+
+    public static void drawRect(float x, float y, float width, float height) {
+        drawRect(x, y, width, height, 1.0f, 1.0f, 1.0f, 1.0f);
+    }
+
     public int getWidth() {
         return width;
     }
