@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class ObjectManager {
     private Player player;
     private ArrayList<Bullet> bullets;
+    private EnemyManager enemyManager;
 
     ObjectManager(Player player){
         init(player);
@@ -13,6 +14,7 @@ public class ObjectManager {
     private void init(Player player){
         this.player = player;
         bullets = new ArrayList<>();
+        enemyManager = EnemyManager.getInstance();
     }
 
     public Bullet createBullet(float x, float y, float selfAngle, float speedAngle, 
@@ -23,11 +25,15 @@ public class ObjectManager {
     }
 
     public void updateMenuScene(float deltaTime){
+        // enemy
+        enemyManager.update(deltaTime);
         // player
         player.update(deltaTime);
     }
 
     public void UpdateFightScene(float deltaTime){
+        // enemy
+        enemyManager.update(deltaTime);
         // player
         player.update(deltaTime);
 
@@ -81,8 +87,6 @@ public class ObjectManager {
             if (!player.isHurt()) {
                 player.takeDamage(bullet.getDamage());
                 player.setHurt(true);
-                //TEST
-                System.out.println("Player is hurt! , Player Health: " + player.getCurrentHealth() + "/" + player.getMaxHealth());
                 new Thread(() -> {
                     try {
                         Thread.sleep(player.getInvisibleTime());

@@ -58,8 +58,7 @@ public class Texture {
      * 绘制纹理
      * 颜色为相乘模式
      */
-    public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation, float r, float g, float b, float a) {
-
+    public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation, float r, float g, float b, float a, boolean horizontalReverse, boolean verticalReverse) {
         // 绑定纹理
         glBindTexture(GL_TEXTURE_2D, textureId);
         // 设置颜色和透明度
@@ -69,6 +68,11 @@ public class Texture {
         float cx = x + width / 2.0f;
         float cy = y + height / 2.0f;
 
+        float u0 = horizontalReverse ? 1.0f : 0.0f;
+        float u1 = horizontalReverse ? 0.0f : 1.0f;
+        float v0 = verticalReverse ? 0.0f : 1.0f;
+        float v1 = verticalReverse ? 1.0f : 0.0f;
+
         glPushMatrix();
         glTranslatef(cx, cy, 0);
         glRotatef(rotation, 0, 0, 1);
@@ -76,16 +80,16 @@ public class Texture {
 
         glBegin(GL_QUADS);
         // 左下角
-        glTexCoord2f(0, 0);
+        glTexCoord2f(u0, v1);
         glVertex2f(x, y);
         // 右下角
-        glTexCoord2f(1, 0);
+        glTexCoord2f(u1, v1);
         glVertex2f(x + width, y);
         // 右上角
-        glTexCoord2f(1, 1);
+        glTexCoord2f(u1, v0);
         glVertex2f(x + width, y + height);
         // 左上角
-        glTexCoord2f(0, 1);
+        glTexCoord2f(u0, v0);
         glVertex2f(x, y + height);
         glEnd();
 
@@ -95,8 +99,16 @@ public class Texture {
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
-    public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation) {
-        drawTexture(textureId, x, y, width, height, rotation, 1.0f, 1.0f, 1.0f, 1.0f);
+    public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation, float r, float g, float b, float a){
+        drawTexture(textureId, x, y, width, height, rotation, r, g, b, a, false, false);
+    }
+
+    public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation, boolean horizontalReverse, boolean verticalReverse) {
+        drawTexture(textureId, x, y, width, height, rotation, 1.0f, 1.0f, 1.0f, 1.0f, horizontalReverse, verticalReverse);
+    }
+
+    public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation) { 
+        drawTexture(textureId, x, y, width, height, rotation, false, false);
     }
 
     public static void drawTexture(int textureId, float x, float y, float width, float height) {

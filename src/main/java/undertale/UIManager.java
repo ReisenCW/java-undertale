@@ -12,26 +12,26 @@ public class UIManager {
     private Texture mercy_chosen;
     private Texture[] buttons;
 
-    private final int TOP_MARGIN = 0;
-    private final int BOTTOM_MARGIN = Game.getWindowHeight();
-    private final int LEFT_MARGIN = 0;
-    private final int RIGHT_MARGIN = Game.getWindowWidth();
+    public final int TOP_MARGIN = 0;
+    public final int BOTTOM_MARGIN = Game.getWindowHeight();
+    public final int LEFT_MARGIN = 0;
+    public final int RIGHT_MARGIN = Game.getWindowWidth();
 
-    private final int BOTTOM_OFFSET;
-    private final float SCALER;
-    private final float BTN_WIDTH;
-    private final float BTN_HEIGHT;
-    private final float BTN_MARGIN;
+    public final int BOTTOM_OFFSET;
+    public final float SCALER;
+    public final float BTN_WIDTH;
+    public final float BTN_HEIGHT;
+    public final float BTN_MARGIN;
 
-    private final float BATTLE_FRAME_LINE_WIDTH = 3.0f;
-    private final float MENU_FRAME_WIDTH;
-    private final float MENU_FRAME_HEIGHT;
-    private final float MENU_FRAME_LEFT;
-    private final float MENU_FRAME_BOTTOM; 
-    private float battle_frame_width;
-    private float battle_frame_height;
-    private float battle_frame_left;
-    private float battle_frame_bottom;
+    public final float BATTLE_FRAME_LINE_WIDTH = 3.0f;
+    public final float MENU_FRAME_WIDTH;
+    public final float MENU_FRAME_HEIGHT;
+    public final float MENU_FRAME_LEFT;
+    public final float MENU_FRAME_BOTTOM;
+    public float battle_frame_width;
+    public float battle_frame_height;
+    public float battle_frame_left;
+    public float battle_frame_bottom;
 
     private Player player;
 

@@ -19,6 +19,7 @@ public class Game {
     private static UIManager uiManager;
     private static TextureManager textureManager;
     private static FontManager fontManager;
+    private static EnemyManager enemyManager;
 
     public static void run() {
 		init();
@@ -39,6 +40,7 @@ public class Game {
         objectManager = new ObjectManager(player);
         inputManager = new InputManager(gameWindow, player);
         fontManager = FontManager.getInstance();
+        enemyManager = EnemyManager.getInstance();
         
         // 初始化场景管理器并注册场景
         sceneManager = SceneManager.getInstance();
@@ -48,14 +50,15 @@ public class Game {
         new BattleFightScene(objectManager, inputManager));
         
         // 初始场景
-        sceneManager.switchScene(SceneEnum.BATTLE_FIGHT);
-        // sceneManager.switchScene(SceneEnum.BATTLE_MENU);
+        // sceneManager.switchScene(SceneEnum.BATTLE_FIGHT);
+        sceneManager.switchScene(SceneEnum.BATTLE_MENU);
         
         // 初始化UI管理器
         uiManager = UIManager.getInstance();
         
         // 初始化渲染器
         renderer = new Renderer(inputManager);
+
 	}
 
 	private static void loop() {

@@ -15,14 +15,30 @@ public class TextureManager {
         loadTexture("heart", "img_heart.png");
         loadTexture("test_bullet", "img_ball_bullet.png");
         
-        loadTexture("attack_normal", "img_fight_normal.png");
-        loadTexture("attack_chosen", "img_fight_chosen.png");
-        loadTexture("act_normal", "img_act_normal.png");
-        loadTexture("act_chosen", "img_act_chosen.png");
-        loadTexture("item_normal", "img_item_normal.png");
-        loadTexture("item_chosen", "img_item_chosen.png");
-        loadTexture("mercy_normal", "img_mercy_normal.png");
-        loadTexture("mercy_chosen", "img_mercy_chosen.png");
+        String[] menuOptions = {"attack", "act", "item", "mercy"};
+        String[] states = {"normal", "chosen"};
+        for (String option : menuOptions) {
+            for (String state : states) {
+                String textureName = option + "_" + state;
+                String fileName = "img_" + option + "_" + state + ".png";
+                loadTexture(textureName, fileName);
+            }
+        }
+        // titan
+        loadTexture("titan_body", "enemy_titan/img_titan_body.png");
+        loadTexture("titan_star", "enemy_titan/img_titan_star.png");
+        for(int i = 0; i < 3; i++){
+            String folderName = "enemy_titan/img_titan_backwing_" + i;
+            for(int j = 0; j < 7; j++){
+                String fileName = "spr_titan_backwing_" + j + ".png";
+                loadTexture("titan_backwing_" + i + "_" + j, folderName + "/" + fileName);
+            }
+            folderName = "enemy_titan/img_titan_frontwing_" + i;
+            for(int j = 0; j < 7; j++){
+                String fileName = "spr_titan_backwing_" + j + ".png";
+                loadTexture("titan_frontwing_" + i + "_" + j, folderName + "/" + fileName);
+            }
+        }
     } 
 
     

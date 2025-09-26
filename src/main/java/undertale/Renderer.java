@@ -6,8 +6,8 @@ import static org.lwjgl.opengl.GL11.*;
 public class Renderer {
     private InputManager inputManager;
     private SceneManager sceneManager;
-    private UIManager uiManager;
     private FontManager fontManager;
+    private EnemyManager enemyManager;
 
     private final int ESCAPING_X = 50;
     private final int ESCAPING_Y = 50;
@@ -15,8 +15,8 @@ public class Renderer {
     Renderer(InputManager inputManager) {
         this.inputManager = inputManager;
         this.sceneManager = SceneManager.getInstance();
-        this.uiManager = UIManager.getInstance();
         this.fontManager = FontManager.getInstance();
+        this.enemyManager = EnemyManager.getInstance();
         init();
     }
 
@@ -40,6 +40,7 @@ public class Renderer {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
         // render
         renderEscaping();
+        enemyManager.render();
         sceneManager.getCurrentScene().render();
         // render ends
         glfwSwapBuffers(Game.getWindow().getWindow()); // swap the color buffers
