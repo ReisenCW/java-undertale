@@ -11,6 +11,8 @@ public class Enemy {
     private int dropGold;
     private int dropExp;
 
+    private ArrayList<String> acts;
+
     private static class AnimationEntry {
         String name;
         Animation animation;
@@ -30,13 +32,20 @@ public class Enemy {
 
     private ArrayList<AnimationEntry> animationEntries;
 
-    Enemy(String name, int maxHealth, int currentHealth, int dropGold, int dropExp) {
+    Enemy(String name, int maxHealth, int currentHealth, int dropGold, int dropExp, String... acts) {
         this.animationEntries = new ArrayList<>();
+        this.acts = new ArrayList<>();
         this.name = name;
         this.maxHealth = maxHealth;
         this.currentHealth = currentHealth;
         this.dropGold = dropGold;
         this.dropExp = dropExp;
+        for(String act : acts) {
+            this.acts.add(act);
+        }
+        if(this.acts.size() == 0) {
+            this.acts.add("check");
+        }
     }
 
     Enemy(String name, int maxHealth) {
@@ -108,5 +117,9 @@ public class Enemy {
 
     public void addAnimation(String name, Animation animation, float left, float bottom, int priority, float scaler) {
         animationEntries.add(new AnimationEntry(name, animation, left, bottom, priority, scaler));
+    }
+
+    public ArrayList<String> getActs() {
+        return acts;
     }
 }

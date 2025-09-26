@@ -2,6 +2,7 @@ package undertale;
 
 public class BattleFightScene extends Scene {
     private UIManager uiManager = UIManager.getInstance();
+    private EnemyManager enemyManager = EnemyManager.getInstance();
 
     public BattleFightScene(ObjectManager objectManager, InputManager inputManager) {
         super(objectManager, inputManager);
@@ -31,6 +32,7 @@ public class BattleFightScene extends Scene {
 
     @Override
     public void render() {
+        enemyManager.render();
         uiManager.renderBattleUI();
         objectManager.renderFightScene();
     }

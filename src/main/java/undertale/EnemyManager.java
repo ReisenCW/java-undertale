@@ -6,9 +6,9 @@ import java.util.Iterator;
 public class EnemyManager {
 	private ArrayList<Enemy> enemies;
     private static EnemyManager enemyManager;
+    private static UIManager uiManager = UIManager.getInstance();
 
     private TextureManager textureManager = TextureManager.getInstance();
-    private UIManager uiManager = UIManager.getInstance();
 
     private float windowWidth = Game.getWindowWidth();
     private float windowCenterX = windowWidth / 2;
@@ -27,7 +27,7 @@ public class EnemyManager {
 
     private void init() {
         // enemy_titan
-        Enemy titan = new Enemy("Titan", 999999, 999999, 50, 20);
+        Enemy titan = new Enemy("Titan", 999999, 999999, 50, 20, "check", "light", "banish", "single heal");
         float bodyBottom = uiManager.MENU_FRAME_BOTTOM - uiManager.MENU_FRAME_HEIGHT;
         float starBottom = bodyBottom - 45;
         Animation bodyAnimation = new Animation(0, false, 

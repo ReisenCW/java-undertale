@@ -19,7 +19,6 @@ public class Game {
     private static UIManager uiManager;
     private static TextureManager textureManager;
     private static FontManager fontManager;
-    private static EnemyManager enemyManager;
 
     public static void run() {
 		init();
@@ -40,7 +39,6 @@ public class Game {
         objectManager = new ObjectManager(player);
         inputManager = new InputManager(gameWindow, player);
         fontManager = FontManager.getInstance();
-        enemyManager = EnemyManager.getInstance();
         
         // 初始化场景管理器并注册场景
         sceneManager = SceneManager.getInstance();

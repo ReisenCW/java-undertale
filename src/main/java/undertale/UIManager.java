@@ -23,11 +23,11 @@ public class UIManager {
     public final float BTN_HEIGHT;
     public final float BTN_MARGIN;
 
-    public final float BATTLE_FRAME_LINE_WIDTH = 3.0f;
-    public final float MENU_FRAME_WIDTH;
-    public final float MENU_FRAME_HEIGHT;
-    public final float MENU_FRAME_LEFT;
-    public final float MENU_FRAME_BOTTOM;
+    public static final float BATTLE_FRAME_LINE_WIDTH = 3.0f;
+    public float MENU_FRAME_WIDTH;
+    public float MENU_FRAME_HEIGHT;
+    public float MENU_FRAME_LEFT;
+    public float MENU_FRAME_BOTTOM;
     public float battle_frame_width;
     public float battle_frame_height;
     public float battle_frame_left;
@@ -35,9 +35,26 @@ public class UIManager {
 
     private Player player;
 
-    private FontManager fontManager = FontManager.getInstance();
+    private FontManager fontManager;
+    public enum MenuState { 
+        MAIN, 
+        FIGHT_SELECT_ENEMY,
+        FIGHT,
+        ACT_SELECT_ENEMY,
+        ACT_SELECT_ACT,
+        ACT,
+        ITEM_SELECT_ITEM, 
+        ITEM,
+        MERCY_SELECT_ENEMY, 
+        MERCY_SELECT_SPARE,
+        MERCY
+    }
+    public MenuState menuState = MenuState.MAIN;
 
-    int selectedAction = -1;
+    public int selectedEnemy = 0;
+    public int selectedAct = 0;
+    public int selectedItem = 0;
+    public int selectedAction = -1;
 
     private UIManager() {
         // 初始化
@@ -67,6 +84,8 @@ public class UIManager {
         battle_frame_height = MENU_FRAME_HEIGHT;
         battle_frame_left = MENU_FRAME_LEFT;
         battle_frame_bottom = MENU_FRAME_BOTTOM;
+
+        fontManager = FontManager.getInstance();
     }
 
     public static UIManager getInstance() {
@@ -81,6 +100,52 @@ public class UIManager {
         renderButtons();
         renderPlayerInfo();
         renderBattleFrame();
+        switch(menuState) {
+            case FIGHT_SELECT_ENEMY, ACT_SELECT_ENEMY, MERCY_SELECT_ENEMY -> 
+                renderEnemyList();
+            case ACT_SELECT_ACT -> 
+                renderActList(EnemyManager.getInstance().getEnemy(selectedEnemy));
+            case ITEM_SELECT_ITEM -> 
+                renderItemList();
+            case MERCY_SELECT_SPARE -> 
+                renderMercyList();
+            case MAIN ->
+                renderTexts();
+        }
+    }
+
+    private void renderEnemyList() {
+        int enemyCnt = EnemyManager.getInstance().getEnemyCount();
+        float top = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 50;
+        float left = MENU_FRAME_LEFT + 100;
+        for (int i = 0; i < enemyCnt; i++) {
+            Enemy enemy = EnemyManager.getInstance().getEnemy(i);
+            fontManager.drawText(enemy.getName(), left, top + i * (fontManager.getFontHeight() + 20), 1.0f, 1.0f, 1.0f, 1.0f);
+        }
+    }
+
+    private void renderActList(Enemy enemy) {
+        int actCnt = enemy.getActs().size();
+        float top = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 50;
+        float left = MENU_FRAME_LEFT + 100;
+        for (int i = 0; i < actCnt; i++) {
+            String act = enemy.getActs().get(i);
+            fontManager.drawText(act, left, top + i * (fontManager.getFontHeight() + 20), 1.0f, 1.0f, 1.0f, 1.0f);
+        }
+    }
+
+    private void renderItemList() {
+
+
+    }
+
+    private void renderMercyList() {
+        // spare单项
+        fontManager.drawText("spare", MENU_FRAME_LEFT + 100, MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 50, 1.0f, 1.0f, 1.0f, 1.0f);
+    }
+
+    private void renderTexts() {
+        // 回合texts
     }
 
     private void renderButtons(){
@@ -119,8 +184,21 @@ public class UIManager {
     }
 
     public void updatePlayerMenuPosition() {
-        int LEFT_OFFSET = 25;
-        player.setPosition(LEFT_MARGIN + BTN_MARGIN + selectedAction * (BTN_WIDTH + BTN_MARGIN) + LEFT_OFFSET - player.getWidth() / 2, BOTTOM_MARGIN - BOTTOM_OFFSET  - BTN_HEIGHT/2 - player.getHeight()/2);
+        if(menuState == MenuState.MAIN) {
+            int LEFT_OFFSET = 25;
+            player.setPosition(LEFT_MARGIN + BTN_MARGIN + selectedAction * (BTN_WIDTH + BTN_MARGIN) + LEFT_OFFSET - player.getWidth() / 2, BOTTOM_MARGIN - BOTTOM_OFFSET  - BTN_HEIGHT/2 - player.getHeight()/2);
+        }
+        else {
+            int row = switch(menuState) {
+                case FIGHT_SELECT_ENEMY, MERCY_SELECT_ENEMY -> selectedEnemy;
+                case ACT_SELECT_ACT -> selectedAct;
+                case ITEM_SELECT_ITEM -> selectedItem;
+                case MERCY_SELECT_SPARE -> 0;
+                default -> 0;
+            };
+            // 渲染在list
+            player.setPosition(MENU_FRAME_LEFT + 60 - player.getWidth() / 2, MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 40 + row * (fontManager.getFontHeight() + 20) - player.getHeight() / 2);
+        }
     }
 
     public void updatePlayerInBound() {
@@ -130,20 +208,125 @@ public class UIManager {
                                     battle_frame_bottom - BATTLE_FRAME_LINE_WIDTH);
     }
 
+    // 菜单“确定”操作
+    public void handleMenuSelect() {
+        // Z确定
+        if (menuState == MenuState.MAIN) {
+            menuState = switch(selectedAction) {
+                case 0 -> MenuState.FIGHT_SELECT_ENEMY;
+                case 1 -> MenuState.ACT_SELECT_ENEMY;
+                case 2 -> MenuState.ITEM_SELECT_ITEM;
+                case 3 -> MenuState.MERCY_SELECT_ENEMY;
+                default -> MenuState.MAIN;
+            };
+        }
+        else {
+            menuState = switch(menuState) {
+                case FIGHT_SELECT_ENEMY -> MenuState.FIGHT;
+                case ACT_SELECT_ENEMY -> MenuState.ACT_SELECT_ACT;
+                case ACT_SELECT_ACT -> MenuState.ACT;
+                case ITEM_SELECT_ITEM -> MenuState.ITEM;
+                case MERCY_SELECT_ENEMY -> MenuState.MERCY_SELECT_SPARE;
+                case MERCY_SELECT_SPARE -> MenuState.MERCY;
+                default -> menuState;
+            };
+        }
+    }
+
+    // 菜单“撤销/返回”操作
+    public void handleMenuCancel() {
+        // X返回上一级
+        switch(menuState) {
+            case FIGHT_SELECT_ENEMY,  ACT_SELECT_ENEMY, MERCY_SELECT_ENEMY, ITEM_SELECT_ITEM ->
+                menuState = MenuState.MAIN;
+            case ACT_SELECT_ACT ->
+                menuState = MenuState.ACT_SELECT_ENEMY;
+            case MERCY_SELECT_SPARE ->
+                menuState = MenuState.MERCY_SELECT_ENEMY;
+        }
+    }
+
+    public void menuSelectDown() {
+        // 向下选择，不需要循环
+        switch(menuState) {
+            case MAIN -> {
+                return;
+            }
+            case FIGHT_SELECT_ENEMY, MERCY_SELECT_ENEMY, ACT_SELECT_ENEMY -> {
+                if (selectedEnemy < EnemyManager.getInstance().getEnemyCount() - 1) {
+                    selectedEnemy++;
+                }
+            }
+            case ACT_SELECT_ACT -> {
+                Enemy enemy = EnemyManager.getInstance().getEnemy(selectedEnemy);
+                if (selectedAct < enemy.getActs().size() - 1) {
+                    selectedAct++;
+                }
+            }
+            case ITEM_SELECT_ITEM -> {
+                // item
+                return;
+            }
+            case MERCY_SELECT_SPARE -> {
+                if (selectedEnemy < EnemyManager.getInstance().getEnemyCount() - 1) {
+                    selectedEnemy++;
+                }
+            }
+        }
+    }
+
+    public void menuSelectUp() {
+        // 向上选择，不需要循环
+        switch(menuState) {
+            case MAIN -> {
+                return;
+            }
+            case FIGHT_SELECT_ENEMY, MERCY_SELECT_ENEMY, ACT_SELECT_ENEMY -> {
+                if (selectedEnemy > 0) {
+                    selectedEnemy--;
+                }
+            }
+            case ACT_SELECT_ACT -> {
+                if (selectedAct > 0) {
+                    selectedAct--;
+                }
+            }
+            case ITEM_SELECT_ITEM -> {
+                // item
+                return;
+            }
+            case MERCY_SELECT_SPARE -> {
+                if (selectedEnemy > 0) {
+                    selectedEnemy--;
+                }
+            }
+        }
+    }
+
     private void renderBattleFrame() {
         Texture.drawRect(battle_frame_left, battle_frame_bottom - battle_frame_height, battle_frame_width, battle_frame_height, 0.0f, 0.0f, 0.0f, 1.0f);        
         Texture.drawHollowRect(battle_frame_left, battle_frame_bottom - battle_frame_height, battle_frame_width, battle_frame_height, 1.0f, 1.0f, 1.0f, 1.0f, BATTLE_FRAME_LINE_WIDTH);
     }
 
     public void selectMoveRight() {
+        if(menuState != MenuState.MAIN) return;
         selectedAction = (selectedAction + 1) % 4;
     }
 
     public void selectMoveLeft() {
+        if(menuState != MenuState.MAIN) return;
         selectedAction = (selectedAction + 3) % 4;
     }
 
     public void setSelected(int index){
         selectedAction = index;
+    }
+
+    public void setMenuState(MenuState state) {
+        this.menuState = state;
+    }
+
+    public MenuState getMenuState() {
+        return this.menuState;
     }
 }
