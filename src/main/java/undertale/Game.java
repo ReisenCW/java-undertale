@@ -35,21 +35,21 @@ public class Game {
 	private static void init() {
         gameWindow = new Window(WINDOW_WIDTH, WINDOW_HEIGHT, "Undertale");
         textureManager = TextureManager.getInstance();
+        sceneManager = SceneManager.getInstance();
 		player = new Player("Frisk");
         objectManager = new ObjectManager(player);
         inputManager = new InputManager(gameWindow, player);
         fontManager = FontManager.getInstance();
         
         // 初始化场景管理器并注册场景
-        sceneManager = SceneManager.getInstance();
         sceneManager.registerScene(SceneEnum.BATTLE_MENU, 
         new BattleMenuScene(objectManager, inputManager));
         sceneManager.registerScene(SceneEnum.BATTLE_FIGHT, 
         new BattleFightScene(objectManager, inputManager));
         
         // 初始场景
-        // sceneManager.switchScene(SceneEnum.BATTLE_FIGHT);
-        sceneManager.switchScene(SceneEnum.BATTLE_MENU);
+        // sceneManager.switchScene(SceneEnum.BATTLE_FIGHT, true);
+        sceneManager.switchScene(SceneEnum.BATTLE_MENU, true);
         
         // 初始化UI管理器
         uiManager = UIManager.getInstance();
@@ -123,5 +123,21 @@ public class Game {
 
     public static boolean isKeyPressed(int key) {
         return inputManager.isKeyPressed(key);
+    }
+
+    public static float getFrameHeight() {
+        return uiManager.battle_frame_height;
+    }
+
+    public static float getFrameWidth() {
+        return uiManager.battle_frame_width;
+    }
+
+    public static float getFrameLeft() {
+        return uiManager.battle_frame_left;
+    }
+
+    public static float getFrameBottom() {
+        return uiManager.battle_frame_bottom;
     }
 }

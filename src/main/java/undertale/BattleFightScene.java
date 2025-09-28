@@ -11,11 +11,13 @@ public class BattleFightScene extends Scene {
     @Override
     public void onEnter() {
         uiManager.setSelected(-1);
+        objectManager.initPlayerPosition();
     }
 
     @Override
     public void onExit() {
         uiManager.setSelected(0);
+        objectManager.clearBullets();
     }
 
     @Override
@@ -28,12 +30,13 @@ public class BattleFightScene extends Scene {
 
         objectManager.UpdateFightScene(deltaTime);
         uiManager.updatePlayerInBound();
+        SceneManager.getInstance().switchScene(SceneEnum.BATTLE_MENU);
     }
 
     @Override
     public void render() {
         enemyManager.render();
-        uiManager.renderBattleUI();
+        uiManager.renderBattleUI(null);
         objectManager.renderFightScene();
     }
 

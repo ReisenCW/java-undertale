@@ -27,7 +27,12 @@ public class EnemyManager {
 
     private void init() {
         // enemy_titan
-        Enemy titan = new Enemy("Titan", 999999, 999999, 50, 20, "check", "light", "banish", "single heal");
+        Enemy titan = new Enemy("Titan", 999999, 999999, 50, 20);
+        titan.addAct("check", "dark element boss.");
+        titan.addAct("light", "Your soul emits a gentle light.");
+        titan.addAct("banish", "Your soul emits a gentle light.\nThe titan's defense dropped to zero.");
+        titan.addAct("single heal", "You healed a small amount of HP.");
+
         float bodyBottom = uiManager.MENU_FRAME_BOTTOM - uiManager.MENU_FRAME_HEIGHT;
         float starBottom = bodyBottom - 45;
         Animation bodyAnimation = new Animation(0, false, 

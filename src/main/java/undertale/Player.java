@@ -25,7 +25,7 @@ public class Player extends GameObject {
     private Texture heartTexture;
 
     private float[] rgba;
-
+    
     public Player(String name) {
         this.name = name;
         heartTexture = Game.getTexture("heart");
@@ -231,5 +231,9 @@ public class Player extends GameObject {
 
     public void destroyTexture() {
         glDeleteTextures(heartTexture.getId());
+    }
+
+    public int getItemNumber() {
+        return 0;
     }
 }

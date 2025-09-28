@@ -12,7 +12,7 @@ public class Enemy {
     private int dropExp;
 
     private ArrayList<String> acts;
-
+    private ArrayList<String> descriptions;
     private static class AnimationEntry {
         String name;
         Animation animation;
@@ -32,24 +32,29 @@ public class Enemy {
 
     private ArrayList<AnimationEntry> animationEntries;
 
-    Enemy(String name, int maxHealth, int currentHealth, int dropGold, int dropExp, String... acts) {
+    Enemy(String name, int maxHealth, int currentHealth, int dropGold, int dropExp, ArrayList<String> acts, ArrayList<String> descriptions) {
         this.animationEntries = new ArrayList<>();
-        this.acts = new ArrayList<>();
+        this.acts = acts;
+        this.descriptions = descriptions;
         this.name = name;
         this.maxHealth = maxHealth;
         this.currentHealth = currentHealth;
         this.dropGold = dropGold;
         this.dropExp = dropExp;
-        for(String act : acts) {
-            this.acts.add(act);
-        }
-        if(this.acts.size() == 0) {
-            this.acts.add("check");
+        if (acts != null && !acts.isEmpty() && descriptions != null && !descriptions.isEmpty()) {
+            this.acts = acts;
+        } else {
+            this.acts = new ArrayList<>();
+            this.descriptions = new ArrayList<>();
         }
     }
 
     Enemy(String name, int maxHealth) {
-        this(name, maxHealth, maxHealth, 0, 0);
+        this(name, maxHealth, maxHealth, 0, 0, null, null);
+    }
+
+    Enemy(String name, int maxHealth, int currentHealth, int dropGold, int dropExp) {
+        this(name, maxHealth, currentHealth, dropGold, dropExp, null, null);
     }
 
     public void update(float deltaTime) {
@@ -121,5 +126,36 @@ public class Enemy {
 
     public ArrayList<String> getActs() {
         return acts;
+    }
+
+    public ArrayList<String> getDescriptions() {
+        return descriptions;
+    }
+
+    public String getActByIndex(int index) {
+        if (index >= 0 && index < acts.size()) {
+            return acts.get(index);
+        }
+        return null;
+    }
+
+    public String getDescriptionByIndex(int index) {
+        if (index >= 0 && index < descriptions.size()) {
+            return descriptions.get(index);
+        }
+        return null;
+    }
+
+    public void addAct(String act, String description) {
+        acts.add(act);
+        descriptions.add(description);
+    }
+
+    public String getActDescription(String act) {
+        int index = acts.indexOf(act);
+        if (index != -1 && index < descriptions.size()) {
+            return descriptions.get(index);
+        }
+        return null;
     }
 }

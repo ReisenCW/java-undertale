@@ -7,7 +7,6 @@ public class Renderer {
     private InputManager inputManager;
     private SceneManager sceneManager;
     private FontManager fontManager;
-    private EnemyManager enemyManager;
 
     private final int ESCAPING_X = 50;
     private final int ESCAPING_Y = 50;
@@ -16,7 +15,6 @@ public class Renderer {
         this.inputManager = inputManager;
         this.sceneManager = SceneManager.getInstance();
         this.fontManager = FontManager.getInstance();
-        this.enemyManager = EnemyManager.getInstance();
         init();
     }
 

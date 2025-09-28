@@ -1,5 +1,7 @@
 package undertale;
 
+import java.util.ArrayList;
+
 public class UIManager {
     private static UIManager instance;
     private Texture attack_normal;
@@ -56,6 +58,16 @@ public class UIManager {
     public int selectedItem = 0;
     public int selectedAction = -1;
 
+    // 打字机效果相关变量
+    private String lastText = null;
+    private ArrayList<String> displayLines = new ArrayList<>();
+    private int totalCharsToShow = 0;
+    private long typewriterStartTime = 0;
+    private boolean typewriterAllShown = false;
+    private final int TYPEWRITER_SPEED = 30; // 每秒显示字符数
+
+    private boolean textRendered = false;
+
     private UIManager() {
         // 初始化
         attack_normal = Game.getTexture("attack_normal");
@@ -95,11 +107,12 @@ public class UIManager {
         return instance;
     }
 
-    public void renderBattleUI() {
+    public void renderBattleUI(String roundText) {
         // 渲染按钮
         renderButtons();
         renderPlayerInfo();
         renderBattleFrame();
+        if(roundText == null) return;
         switch(menuState) {
             case FIGHT_SELECT_ENEMY, ACT_SELECT_ENEMY, MERCY_SELECT_ENEMY -> 
                 renderEnemyList();
@@ -109,8 +122,12 @@ public class UIManager {
                 renderItemList();
             case MERCY_SELECT_SPARE -> 
                 renderMercyList();
+            case ACT ->{
+                Enemy enemy = EnemyManager.getInstance().getEnemy(selectedEnemy); 
+                renderTextsInMenu(enemy.getDescriptionByIndex(selectedAct));
+            }
             case MAIN ->
-                renderTexts();
+                renderTextsInMenu(roundText);
         }
     }
 
@@ -142,10 +159,6 @@ public class UIManager {
     private void renderMercyList() {
         // spare单项
         fontManager.drawText("spare", MENU_FRAME_LEFT + 100, MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 50, 1.0f, 1.0f, 1.0f, 1.0f);
-    }
-
-    private void renderTexts() {
-        // 回合texts
     }
 
     private void renderButtons(){
@@ -184,7 +197,10 @@ public class UIManager {
     }
 
     public void updatePlayerMenuPosition() {
-        if(menuState == MenuState.MAIN) {
+        if(menuState == MenuState.FIGHT || menuState == MenuState.ACT || menuState == MenuState.ITEM || menuState == MenuState.MERCY) {
+            return;
+        }
+        else if(menuState == MenuState.MAIN) {
             int LEFT_OFFSET = 25;
             player.setPosition(LEFT_MARGIN + BTN_MARGIN + selectedAction * (BTN_WIDTH + BTN_MARGIN) + LEFT_OFFSET - player.getWidth() / 2, BOTTOM_MARGIN - BOTTOM_OFFSET  - BTN_HEIGHT/2 - player.getHeight()/2);
         }
@@ -210,13 +226,25 @@ public class UIManager {
 
     // 菜单“确定”操作
     public void handleMenuSelect() {
-        // Z确定
         if (menuState == MenuState.MAIN) {
             menuState = switch(selectedAction) {
                 case 0 -> MenuState.FIGHT_SELECT_ENEMY;
-                case 1 -> MenuState.ACT_SELECT_ENEMY;
-                case 2 -> MenuState.ITEM_SELECT_ITEM;
-                case 3 -> MenuState.MERCY_SELECT_ENEMY;
+                case 1 -> {
+                    // 若没有act，则不进入act菜单
+                    if(EnemyManager.getInstance().getEnemy(selectedEnemy).getActs().isEmpty()){
+                        yield MenuState.MAIN;
+                    }
+                    else
+                        yield MenuState.ACT_SELECT_ENEMY;
+                }
+                case 2 -> {
+                    if(player.getItemNumber() == 0){
+                        yield MenuState.MAIN;
+                    }
+                    else
+                        yield MenuState.ITEM_SELECT_ITEM;
+                }
+                    case 3 -> MenuState.MERCY_SELECT_ENEMY;
                 default -> MenuState.MAIN;
             };
         }
@@ -228,6 +256,13 @@ public class UIManager {
                 case ITEM_SELECT_ITEM -> MenuState.ITEM;
                 case MERCY_SELECT_ENEMY -> MenuState.MERCY_SELECT_SPARE;
                 case MERCY_SELECT_SPARE -> MenuState.MERCY;
+                case FIGHT, ACT, ITEM, MERCY -> {
+                    // 若文本已经全部显示切换到FightScene
+                    if(typewriterAllShown) {
+                        SceneManager.getInstance().shouldSwitch = true;
+                    }
+                    yield menuState;
+                }
                 default -> menuState;
             };
         }
@@ -243,6 +278,10 @@ public class UIManager {
                 menuState = MenuState.ACT_SELECT_ENEMY;
             case MERCY_SELECT_SPARE ->
                 menuState = MenuState.MERCY_SELECT_ENEMY;
+            case FIGHT, ACT, ITEM, MERCY -> {
+                // 打字机全部显示
+                showAll();
+            }
         }
     }
 
@@ -303,6 +342,81 @@ public class UIManager {
         }
     }
 
+
+
+    public void renderTextsInMenu(String text) {
+        // 打字机效果，X跳过全部显示，全部显示后Z才可继续
+        float left = MENU_FRAME_LEFT + 50;
+        float top = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 50;
+        float maxWidth = MENU_FRAME_WIDTH - 40;
+        float fontHeight = fontManager.getFontHeight() + 5;
+
+        // 若文本变化，重置打字机状态
+        if (lastText == null || !lastText.equals(text)) {
+            lastText = text;
+            displayLines.clear();
+            // 先按\n分割，再对每行做自动换行
+            String[] lines = text.split("\\n");
+            for (String rawLine : lines) {
+                int start = 0;
+                int len = rawLine.length();
+                while (start < len) {
+                    int end = start;
+                    while (end < len) {
+                        int nextSpace = rawLine.indexOf(' ', end);
+                        String sub = rawLine.substring(start, nextSpace == -1 ? len : nextSpace);
+                        if (fontManager.getTextWidth(sub) > maxWidth) break;
+                        end = nextSpace == -1 ? len : nextSpace + 1;
+                    }
+                    if (end == start) end++;
+                    String line = rawLine.substring(start, end);
+                    displayLines.add(line);
+                    start = end;
+                }
+            }
+            totalCharsToShow = 0;
+            typewriterStartTime = System.currentTimeMillis();
+            typewriterAllShown = false;
+        }
+
+        // 计算当前应显示的字符数
+        if (!typewriterAllShown) {
+            long elapsed = System.currentTimeMillis() - typewriterStartTime;
+            int chars = (int)(elapsed * TYPEWRITER_SPEED / 1000.0);
+            int total = 0;
+            for (String line : displayLines) total += line.length();
+            totalCharsToShow = Math.min(chars, total);
+            if (totalCharsToShow >= total) {
+                typewriterAllShown = true;
+            }
+        }
+
+        // 绘制文本
+        int shown = 0;
+        int rowIdx = 0;
+        for (String line : displayLines) {
+            int remain = totalCharsToShow - shown;
+            if (remain <= 0) break;
+            int toShow = Math.min(remain, line.length());
+            fontManager.drawText(line.substring(0, toShow), left, top + rowIdx * fontHeight, 1.0f, 1.0f, 1.0f, 1.0f);
+            shown += toShow;
+            rowIdx++;
+        }
+    }
+
+    public void showAll() {
+        if (!typewriterAllShown) {
+            int total = 0;
+            for (String line : displayLines) total += line.length();
+            totalCharsToShow = total;
+            typewriterAllShown = true;
+        }
+    }
+
+    public boolean isTypewriterAllShown() {
+        return typewriterAllShown;
+    }
+
     private void renderBattleFrame() {
         Texture.drawRect(battle_frame_left, battle_frame_bottom - battle_frame_height, battle_frame_width, battle_frame_height, 0.0f, 0.0f, 0.0f, 1.0f);        
         Texture.drawHollowRect(battle_frame_left, battle_frame_bottom - battle_frame_height, battle_frame_width, battle_frame_height, 1.0f, 1.0f, 1.0f, 1.0f, BATTLE_FRAME_LINE_WIDTH);
@@ -328,5 +442,12 @@ public class UIManager {
 
     public MenuState getMenuState() {
         return this.menuState;
+    }
+
+    public boolean isRenderPlayer() {
+        return switch (menuState) {
+            case ACT, FIGHT, ITEM, MERCY -> false;
+            default -> true;
+        };
     }
 }

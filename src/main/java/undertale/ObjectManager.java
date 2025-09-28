@@ -102,13 +102,21 @@ public class ObjectManager {
     }
 
     public void renderFightScene(){
+        renderFightScene(true, true);
+    }
+
+    public void renderFightScene(boolean renderBullets, boolean renderPlayer){
         // bullets
-        for (Bullet bullet : bullets) {
-            bullet.render();
+        if(renderBullets) {
+            for (Bullet bullet : bullets) {
+                bullet.render();
+            }
         }
 
         //player 
-        player.render();
+        if(renderPlayer) {
+            player.render();
+        }
     }
 
     public void renderMenuScene(){
@@ -118,5 +126,12 @@ public class ObjectManager {
 
     public void clearBullets() {
         bullets.clear();
+    }
+
+    public void initPlayerPosition() {
+        // 初始化玩家位置到战斗框中央
+        float startX = Game.getFrameLeft() + (Game.getFrameWidth() - player.getWidth()) / 2.0f;
+        float startY = Game.getFrameBottom() - (Game.getFrameHeight() + player.getHeight()) / 2.0f;
+        player.setPosition(startX, startY);
     }
 }
