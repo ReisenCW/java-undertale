@@ -25,12 +25,14 @@ public class Player extends GameObject {
     private Texture heartTexture;
 
     private float[] rgba;
+
+    private Item[] items;
     
     public Player(String name) {
         this.name = name;
         heartTexture = Game.getTexture("heart");
         
-        this.level = 1;
+        this.level = 4;
         this.maxHealth = 16 + 4 * this.level;
         this.currentHealth = this.maxHealth;
         this.attackPower = 1000;
@@ -49,6 +51,16 @@ public class Player extends GameObject {
 
         this.x = Game.getWindowWidth() / 2 - heartTexture.getWidth() / 2;
         this.y = Game.getWindowHeight() / 2 - heartTexture.getHeight() / 2;
+
+        items = new Item[8];
+        items[0] = new Item("Pie", "Tasty.", 99);
+        items[1] = new Item("Banana", "Potassium.", 20);
+        items[2] = new Item("Frisk Tea", "Tastes like hell.", 12);
+        items[3] = new Item("Silk Bind", "Hornet's favorite.", 30);
+        items[4] = new Item("Choco", "Too sweet.", 14);
+        items[5] = new Item("Snowman Piece", "A piece of a snowman.", 30);
+        items[6] = new Item("Dog Salad", "Wolf.", 12);
+        items[7] = new Item("Legendary Hero", "Your ATK increased by 4.", 45);
     }
 
     @Override
@@ -131,6 +143,13 @@ public class Player extends GameObject {
 
     public void setCurrentHealth(int currentHealth) {
         this.currentHealth = currentHealth;
+    }
+
+    public void heal(int healAmount) {
+        currentHealth += healAmount;
+        if (currentHealth > maxHealth) {
+            currentHealth = maxHealth;
+        }
     }
 
     public void setMaxHealth(int maxHealth) {
@@ -234,6 +253,13 @@ public class Player extends GameObject {
     }
 
     public int getItemNumber() {
-        return 0;
+        return items.length;
+    }
+
+    public Item getItemByIndex(int index) {
+        if (index < 0 || index >= items.length) {
+            throw new IndexOutOfBoundsException("Invalid item index: " + index);
+        }
+        return items[index];
     }
 }

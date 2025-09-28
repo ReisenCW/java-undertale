@@ -56,6 +56,7 @@ public class UIManager {
     public int selectedEnemy = 0;
     public int selectedAct = 0;
     public int selectedItem = 0;
+    public int itemListFirstIndex = 0;
     public int selectedAction = -1;
 
     // 打字机效果相关变量
@@ -65,8 +66,6 @@ public class UIManager {
     private long typewriterStartTime = 0;
     private boolean typewriterAllShown = false;
     private final int TYPEWRITER_SPEED = 30; // 每秒显示字符数
-
-    private boolean textRendered = false;
 
     private UIManager() {
         // 初始化
@@ -126,6 +125,13 @@ public class UIManager {
                 Enemy enemy = EnemyManager.getInstance().getEnemy(selectedEnemy); 
                 renderTextsInMenu(enemy.getDescriptionByIndex(selectedAct));
             }
+            case ITEM -> {
+                Item item = player.getItemByIndex(selectedItem);
+                int healAmount = item.getHealingAmount();
+                player.heal(healAmount);
+                String description = "You ate the " + item.getName() + ", healed " + healAmount + " HP.\n" + item.getAdditionalDescription();
+                renderTextsInMenu(description);
+            }
             case MAIN ->
                 renderTextsInMenu(roundText);
         }
@@ -152,8 +158,50 @@ public class UIManager {
     }
 
     private void renderItemList() {
-
-
+        // 一页显示4个，支持滚动
+        int itemCnt = player.getItemNumber();
+        float top = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 50;
+        float left = MENU_FRAME_LEFT + 100;
+        int itemsPerPage = 4;
+        float infoLeft = MENU_FRAME_LEFT + MENU_FRAME_WIDTH - 200; // 右侧回血信息位置
+        for (int i = 0; i < itemsPerPage; i++) {
+            int idx = itemListFirstIndex + i;
+            if (idx >= itemCnt) break;
+            Item item = player.getItemByIndex(idx);
+            float y = top + i * (fontManager.getFontHeight() + 20);
+            // 高亮当前选中项
+            if (idx == selectedItem) {
+                fontManager.drawText("> " + item.getName(), left, y, 1.0f, 1.0f, 0.5f, 1.0f);
+                // 显示回血信息
+                String healInfo = "+" + item.getHealingAmount() + " HP";
+                fontManager.drawText(healInfo, infoLeft, y, 1.0f, 1.0f, 1.0f, 1.0f);
+            } else {
+                fontManager.drawText(item.getName(), left, y, 1.0f, 1.0f, 1.0f, 1.0f);
+            }
+        }
+        // 分页指示器：竖直小方块，当前页为大实心，其余为小空心
+        int totalPages = Math.max(itemCnt - 3, 1);
+        int currentPage = itemListFirstIndex;
+        float indicatorX = MENU_FRAME_LEFT + MENU_FRAME_WIDTH - 30; // 靠近对话框右边框左侧
+        float indicatorTop = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 30;
+        float gap = 40;
+        for (int p = 0; p < totalPages; p++) {
+            float cx = indicatorX;
+            float cy = indicatorTop + p * gap;
+            if (p == currentPage) {
+                // 大实心方块
+                Texture.drawRect(cx, cy, 14, 14, 1.0f, 1.0f, 1.0f, 1.0f);
+            } else {
+                // 小空心方块
+                Texture.drawHollowRect(cx + 2, cy + 2, 10, 10, 1.0f, 1.0f, 1.0f, 1.0f, 2.0f);
+            }
+        }
+        if (itemListFirstIndex > 0) {
+            fontManager.drawText("↑", left - 40, top, 1.0f, 1.0f, 1.0f, 1.0f);
+        }
+        if (itemListFirstIndex + itemsPerPage < itemCnt) {
+            fontManager.drawText("↓", left - 40, top + (itemsPerPage - 1) * (fontManager.getFontHeight() + 20), 1.0f, 1.0f, 1.0f, 1.0f);
+        }
     }
 
     private void renderMercyList() {
@@ -208,7 +256,7 @@ public class UIManager {
             int row = switch(menuState) {
                 case FIGHT_SELECT_ENEMY, MERCY_SELECT_ENEMY -> selectedEnemy;
                 case ACT_SELECT_ACT -> selectedAct;
-                case ITEM_SELECT_ITEM -> selectedItem;
+                case ITEM_SELECT_ITEM -> selectedItem - itemListFirstIndex;
                 case MERCY_SELECT_SPARE -> 0;
                 default -> 0;
             };
@@ -286,11 +334,9 @@ public class UIManager {
     }
 
     public void menuSelectDown() {
-        // 向下选择，不需要循环
+        // 向下选择，item支持分页滚动
         switch(menuState) {
-            case MAIN -> {
-                return;
-            }
+            case MAIN -> {}
             case FIGHT_SELECT_ENEMY, MERCY_SELECT_ENEMY, ACT_SELECT_ENEMY -> {
                 if (selectedEnemy < EnemyManager.getInstance().getEnemyCount() - 1) {
                     selectedEnemy++;
@@ -303,23 +349,28 @@ public class UIManager {
                 }
             }
             case ITEM_SELECT_ITEM -> {
-                // item
-                return;
+                int itemCnt = player.getItemNumber();
+                int itemsPerPage = 4;
+                if (selectedItem < itemCnt - 1) {
+                    selectedItem++;
+                    if (selectedItem >= itemListFirstIndex + itemsPerPage) {
+                        itemListFirstIndex++;
+                    }
+                }
             }
             case MERCY_SELECT_SPARE -> {
                 if (selectedEnemy < EnemyManager.getInstance().getEnemyCount() - 1) {
                     selectedEnemy++;
                 }
             }
+            case FIGHT, ACT, ITEM, MERCY -> {}
         }
     }
 
     public void menuSelectUp() {
-        // 向上选择，不需要循环
+        // 向上选择，item支持分页滚动
         switch(menuState) {
-            case MAIN -> {
-                return;
-            }
+            case MAIN -> {}
             case FIGHT_SELECT_ENEMY, MERCY_SELECT_ENEMY, ACT_SELECT_ENEMY -> {
                 if (selectedEnemy > 0) {
                     selectedEnemy--;
@@ -331,14 +382,19 @@ public class UIManager {
                 }
             }
             case ITEM_SELECT_ITEM -> {
-                // item
-                return;
+                if (selectedItem > 0) {
+                    selectedItem--;
+                    if (selectedItem < itemListFirstIndex) {
+                        itemListFirstIndex--;
+                    }
+                }
             }
             case MERCY_SELECT_SPARE -> {
                 if (selectedEnemy > 0) {
                     selectedEnemy--;
                 }
             }
+            case FIGHT, ACT, ITEM, MERCY -> {}
         }
     }
 

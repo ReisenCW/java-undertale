@@ -6,9 +6,9 @@ public class BattleMenuScene extends Scene {
     private int round = 0;
 
     private String[] roundMessages = {
-        "The titan appeared",
-        "A swarm is coming",
-        "The titan's hands are moving"
+        "The titan appeared.",
+        "A swarm is coming.",
+        "The titan's hands are moving."
     };
 
     public BattleMenuScene(ObjectManager objectManager, InputManager inputManager) {
