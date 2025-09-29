@@ -5,60 +5,20 @@ import java.util.HashMap;
 public class TextureManager {
     private static TextureManager instance;
     private HashMap<String, Texture> textures;
+    private HashMap<String, String> textureFileMap;
 
     private TextureManager() {
         textures = new HashMap<>();
+        textureFileMap = Game.getConfigManager().textures;
         initTextures();
     }
 
     private void initTextures() {
-        // basic ui
-        loadTexture("heart", "img_heart.png");
-        loadTexture("hp_text", "img_hp.png");
-
-        // attack
-        loadTexture("attack_panel", "img_attack_panel.png");
-        loadTexture("attack_bar_white", "img_attack_bar_white.png");
-        loadTexture("attack_bar_black", "img_attack_bar_black.png");
-        
-        {
-            String baseName = "atk_animation/spr_slice_o_";
-            for(int i = 0; i < 7; i++) {
-                String fileName = baseName + i + ".png";
-                loadTexture("slice_" + i, fileName);
-            }
-        }
-
-        // bullets
-        loadTexture("test_bullet", "img_ball_bullet.png");
-        {
-            String[] menuOptions = {"attack", "act", "item", "mercy"};
-            String[] states = {"normal", "chosen"};
-            for (String option : menuOptions) {
-                for (String state : states) {
-                    String textureName = option + "_" + state;
-                    String fileName = "img_" + option + "_" + state + ".png";
-                    loadTexture(textureName, fileName);
-                }
-            }
-        }
-        // titan
-        loadTexture("titan_body", "enemy_titan/img_titan_body.png");
-        loadTexture("titan_star", "enemy_titan/img_titan_star.png");
-        for(int i = 0; i < 3; i++){
-            String folderName = "enemy_titan/img_titan_backwing_" + i;
-            for(int j = 0; j < 7; j++){
-                String fileName = "spr_titan_backwing_" + j + ".png";
-                loadTexture("titan_backwing_" + i + "_" + j, folderName + "/" + fileName);
-            }
-            folderName = "enemy_titan/img_titan_frontwing_" + i;
-            for(int j = 0; j < 7; j++){
-                String fileName = "spr_titan_backwing_" + j + ".png";
-                loadTexture("titan_frontwing_" + i + "_" + j, folderName + "/" + fileName);
-            }
+        for (String name : textureFileMap.keySet()) {
+            String filePath = textureFileMap.get(name);
+            loadTexture(name, filePath);
         }
     } 
-
     
     public static TextureManager getInstance() {
         if (instance == null) {

@@ -2,15 +2,12 @@ package undertale;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-
 public class Game {
     public static boolean DEBUG = true;
 
     private static Window gameWindow;
 
-    private static int WINDOW_WIDTH = 1280;
-    private static int WINDOW_HEIGHT = 720; 
-
+    public static ConfigManager configManager;
     private static Renderer renderer;
 	private static Player player;
     private static SceneManager sceneManager;
@@ -33,7 +30,8 @@ public class Game {
     }
 
 	private static void init() {
-        gameWindow = new Window(WINDOW_WIDTH, WINDOW_HEIGHT, "Undertale");
+        configManager = new ConfigManager();
+        gameWindow = new Window(configManager.WINDOW_WIDTH, configManager.WINDOW_HEIGHT, "Undertale");
         textureManager = TextureManager.getInstance();
         sceneManager = SceneManager.getInstance();
 		player = new Player("Frisk");
@@ -92,11 +90,11 @@ public class Game {
     }
 
     public static int getWindowWidth() {
-        return WINDOW_WIDTH;
+        return configManager.WINDOW_WIDTH;
     }
 
     public static int getWindowHeight() {
-        return WINDOW_HEIGHT;
+        return configManager.WINDOW_HEIGHT;
     }
 
     public static Renderer getRenderer() {
@@ -121,6 +119,10 @@ public class Game {
 
     public static Texture getTexture(String name) {
         return textureManager.getTexture(name);
+    }
+
+    public static ConfigManager getConfigManager() {
+        return configManager;
     }
 
     public static boolean isKeyPressed(int key) {

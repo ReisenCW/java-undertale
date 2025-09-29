@@ -31,7 +31,7 @@ public class ObjectManager {
         player.update(deltaTime);
     }
 
-    public void UpdateFightScene(float deltaTime){
+    public void updateFightScene(float deltaTime){
         // enemy
         enemyManager.update(deltaTime);
         // player

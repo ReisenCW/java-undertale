@@ -2,6 +2,7 @@ package undertale;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import java.util.HashMap;
 
 public class Player extends GameObject {
     private String name;
@@ -29,26 +30,27 @@ public class Player extends GameObject {
     private Item[] items;
     
     public Player(String name) {
-        this.name = name;
+        ConfigManager configManager = Game.getConfigManager();
+        HashMap<String, String> playerMap = configManager.playerMap;
         heartTexture = Game.getTexture("heart");
-        
-        this.level = 4;
-        this.maxHealth = 16 + 4 * this.level;
+        this.name = playerMap.getOrDefault("name", name);
+        this.level = Integer.parseInt(playerMap.getOrDefault("level", "4"));
+        this.maxHealth =  16 + 4 * this.level;
         this.currentHealth = this.maxHealth;
-        this.attackPower = 1000;
-        
-        this.vScale = 3.0f;
-        this.hScale = 3.0f;
+        this.attackPower = Integer.parseInt(playerMap.getOrDefault("attackPower", "1000"));
 
-        this.highSpeed = 180.0f;
-        this.lowSpeed = 80.0f;
+        this.vScale = Float.parseFloat(playerMap.getOrDefault("vScale", "3.0"));
+        this.hScale = Float.parseFloat(playerMap.getOrDefault("hScale", "3.0"));
+
+        this.highSpeed = Float.parseFloat(playerMap.getOrDefault("highSpeed", "180.0"));
+        this.lowSpeed = Float.parseFloat(playerMap.getOrDefault("lowSpeed", "80.0"));
         this.speed = highSpeed;
         
-        this.invisibleTime = 1500; // ms
+        this.invisibleTime = Integer.parseInt(playerMap.getOrDefault("invisibleTime", "1500")); // ms
         this.flashTime = 100; // ms 闪烁周期
         
         this.rgba = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
-
+        
         this.x = Game.getWindowWidth() / 2 - heartTexture.getWidth() / 2;
         this.y = Game.getWindowHeight() / 2 - heartTexture.getHeight() / 2;
 

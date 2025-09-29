@@ -35,7 +35,7 @@ public class BattleFightScene extends Scene {
         objectManager.createBullet(randomX, 0, 
         0, 90, 200, 4, testTexture);
 
-        objectManager.UpdateFightScene(deltaTime);
+        objectManager.updateFightScene(deltaTime);
         uiManager.updatePlayerInBound();
         SceneManager.getInstance().switchScene(SceneEnum.BATTLE_MENU);
     }
