@@ -24,6 +24,7 @@ public abstract class Scene {
     
     // 原有方法
     public abstract SceneEnum getCurrentScene();
+    public abstract void init();
     public abstract void update(float deltaTime);
     public abstract void render();
 }

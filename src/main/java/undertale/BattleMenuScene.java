@@ -3,7 +3,7 @@ package undertale;
 public class BattleMenuScene extends Scene {
     private UIManager uiManager = UIManager.getInstance();
     private EnemyManager enemyManager = EnemyManager.getInstance();
-    private int round = 0;
+    private int round;
 
     private String[] roundMessages = {
         "The titan appeared.",
@@ -13,17 +13,18 @@ public class BattleMenuScene extends Scene {
 
     public BattleMenuScene(ObjectManager objectManager, InputManager inputManager) {
         super(objectManager, inputManager);
+        init();
+    }
+
+    @Override
+    public void init() {
+        round = 1;
     }
 
     @Override
     public void onEnter() {
-        uiManager.menuState = UIManager.MenuState.MAIN;
-        uiManager.selectedEnemy = 0;
-        uiManager.selectedAct = 0;
-        uiManager.selectedItem = 0;
-        uiManager.selectedAction = 0;
         objectManager.clearBullets();
-        uiManager.setSelected(0);
+        uiManager.resetVars();
         round = Math.min(++round, roundMessages.length);
     }
 
@@ -35,6 +36,7 @@ public class BattleMenuScene extends Scene {
 
     @Override
     public void update(float deltaTime) {
+        uiManager.updatePlayerMenuPosition();
         objectManager.updateMenuScene(deltaTime);
         SceneManager.getInstance().switchScene(SceneEnum.BATTLE_FIGHT);
     }

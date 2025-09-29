@@ -3,9 +3,16 @@ package undertale;
 public class BattleFightScene extends Scene {
     private UIManager uiManager = UIManager.getInstance();
     private EnemyManager enemyManager = EnemyManager.getInstance();
+    private int round;
 
     public BattleFightScene(ObjectManager objectManager, InputManager inputManager) {
         super(objectManager, inputManager);
+        init();
+    }
+
+    @Override
+    public void init() {
+        round = 1;
     }
 
     @Override

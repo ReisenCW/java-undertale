@@ -27,7 +27,7 @@ public class EnemyManager {
 
     private void init() {
         // enemy_titan
-        Enemy titan = new Enemy("Titan", 999999, 999999, 50, 20);
+        Enemy titan = new Enemy("Titan", 5000, 5000, 50, 20);
         titan.addAct("check", "Dark element boss.\nEmit light, gather courage and use unleash to weaken it.");
         titan.addAct("light", "Your soul emits a gentle light.");
         titan.addAct("unleash", "Your soul emits a gentle light.\nThe titan's defense dropped to zero.");

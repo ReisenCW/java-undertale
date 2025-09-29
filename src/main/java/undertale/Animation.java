@@ -8,6 +8,8 @@ public class Animation {
     private float frameDuration; // Duration of each frame in seconds
     private float elapsedTime; // Time since the last frame change
     private boolean loop;
+    private boolean isEnd;
+    public boolean disappearAfterEnds;
     private boolean horizontalReverse;
     private boolean verticalReverse;
 
@@ -16,6 +18,8 @@ public class Animation {
     public Animation(float frameDuration, boolean loop, ArrayList<Texture> frames, boolean horizontalReverse, boolean verticalReverse) {
         this.frameDuration = frameDuration;
         this.loop = loop;
+        this.isEnd = false;
+        this.disappearAfterEnds = false;
         this.frames = frames;
         this.currentFrame = 0;
         this.elapsedTime = 0.0f;
@@ -49,6 +53,10 @@ public class Animation {
     public Texture getCurrentFrame() {
         if (frameCount == 0) return null;
         return frames.get(currentFrame);
+    }
+
+    public int getCurrentFrameIndex() {
+        return currentFrame;
     }
 
     public void setCurrentFrame(int index) {
@@ -91,9 +99,19 @@ public class Animation {
     }
 
     public void renderCurrentFrame(float x, float y, float scaleX, float scaleY, float angle, float r, float g, float b, float a) {
+        if(isEnd && disappearAfterEnds) return;
         Texture currentTexture = getCurrentFrame();
         if (currentTexture != null) {
             Texture.drawTexture(currentTexture.getId(), x, y, scaleX * currentTexture.getWidth(), scaleY * currentTexture.getHeight(), angle, r, g, b, a, horizontalReverse, verticalReverse);
+            if (!loop && currentFrame == frameCount - 1) {
+                isEnd = true;
+            } else {
+                isEnd = false;
+            }
         }
+    }
+
+    public boolean isFinished() {
+        return isEnd;
     }
 }

@@ -81,7 +81,7 @@ public class Enemy {
         }
     }
 
-    public void takeDamage(int damage) {
+    public void takeDamage(float damage) {
         currentHealth -= damage;
         if (currentHealth < 0) currentHealth = 0;
     }
@@ -157,5 +157,36 @@ public class Enemy {
             return descriptions.get(index);
         }
         return null;
+    }
+
+    public AnimationEntry getAnimationEntry(String name) {
+        for (AnimationEntry entry : animationEntries) {
+            if (entry.name.equals(name)) {
+                return entry;
+            }
+        }
+        return null;
+    }
+
+    public ArrayList<AnimationEntry> getAnimationEntries() {
+        return animationEntries;
+    }
+
+    public float getEntryLeft(String name) {
+        for (AnimationEntry entry : animationEntries) {
+            if (entry.name.equals(name)) {
+                return entry.left;
+            }
+        }
+        return 0;
+    }
+
+    public float getEntryBottom(String name) {
+        for (AnimationEntry entry : animationEntries) {
+            if (entry.name.equals(name)) {
+                return entry.bottom;
+            }
+        }
+        return 0;
     }
 }

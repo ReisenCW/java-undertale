@@ -12,17 +12,34 @@ public class TextureManager {
     }
 
     private void initTextures() {
+        // basic ui
         loadTexture("heart", "img_heart.png");
         loadTexture("hp_text", "img_hp.png");
-        loadTexture("test_bullet", "img_ball_bullet.png");
+
+        // attack
+        loadTexture("attack_panel", "img_attack_panel.png");
+        loadTexture("attack_bar_white", "img_attack_bar_white.png");
+        loadTexture("attack_bar_black", "img_attack_bar_black.png");
         
-        String[] menuOptions = {"attack", "act", "item", "mercy"};
-        String[] states = {"normal", "chosen"};
-        for (String option : menuOptions) {
-            for (String state : states) {
-                String textureName = option + "_" + state;
-                String fileName = "img_" + option + "_" + state + ".png";
-                loadTexture(textureName, fileName);
+        {
+            String baseName = "atk_animation/spr_slice_o_";
+            for(int i = 0; i < 7; i++) {
+                String fileName = baseName + i + ".png";
+                loadTexture("slice_" + i, fileName);
+            }
+        }
+
+        // bullets
+        loadTexture("test_bullet", "img_ball_bullet.png");
+        {
+            String[] menuOptions = {"attack", "act", "item", "mercy"};
+            String[] states = {"normal", "chosen"};
+            for (String option : menuOptions) {
+                for (String state : states) {
+                    String textureName = option + "_" + state;
+                    String fileName = "img_" + option + "_" + state + ".png";
+                    loadTexture(textureName, fileName);
+                }
             }
         }
         // titan
@@ -40,9 +57,6 @@ public class TextureManager {
                 loadTexture("titan_frontwing_" + i + "_" + j, folderName + "/" + fileName);
             }
         }
-
-        // attack
-        loadTexture("attack_panel", "img_attack_panel.png");
     } 
 
     

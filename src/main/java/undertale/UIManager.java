@@ -3,6 +3,7 @@ package undertale;
 import java.util.ArrayList;
 
 public class UIManager {
+
     private static UIManager instance;
     private Texture attack_normal;
     private Texture attack_chosen;
@@ -15,7 +16,9 @@ public class UIManager {
     private Texture[] buttons;
 
     private Texture attack_panel;
+    private Texture attack_bar[];
     private Texture hp_text;
+    private Animation attack_animation;
 
     public final int TOP_MARGIN = 0;
     public final int BOTTOM_MARGIN = Game.getWindowHeight();
@@ -37,6 +40,21 @@ public class UIManager {
     public float battle_frame_height;
     public float battle_frame_left;
     public float battle_frame_bottom;
+
+    // Attack bar 动画相关变量
+    private long attackBarStartTime = 0;
+    private boolean attackBarStopped = false;
+    private long attackBarBlinkStartTime = 0;
+    private long damageDisplayStartTime = 0;
+    private boolean showDamage  = false;
+    private long damageDisplayDuration = 2000; // 持续时间，单位ms
+
+
+    private float attack_bar_offset; // 从左到右
+    private int attack_bar_index; // 0白色 1黑色
+    private int attack_bar_duration; // 持续时间，单位ms
+    private float attackRate = 1.0f;
+
 
     private Player player;
 
@@ -73,6 +91,10 @@ public class UIManager {
     private UIManager() {
         // 初始化
         attack_panel = Game.getTexture("attack_panel");
+        attack_bar = new Texture[2];
+        attack_bar[0] = Game.getTexture("attack_bar_white");
+        attack_bar[1] = Game.getTexture("attack_bar_black");
+
         hp_text = Game.getTexture("hp_text");
 
         attack_normal = Game.getTexture("attack_normal");
@@ -85,6 +107,13 @@ public class UIManager {
         mercy_chosen = Game.getTexture("mercy_chosen");
         buttons = new Texture[]{attack_normal, act_normal, item_normal, mercy_normal,
                                 attack_chosen, act_chosen, item_chosen, mercy_chosen};
+
+        attack_animation = new Animation(0.2f, false);
+        for(int i = 0; i < 7; i++) {
+            attack_animation.addFrame(Game.getTexture("slice_" + i));
+        }
+        attack_animation.disappearAfterEnds = true;
+
         player = Game.getPlayer();
 
         BOTTOM_OFFSET = 20;
@@ -102,6 +131,10 @@ public class UIManager {
         battle_frame_left = MENU_FRAME_LEFT;
         battle_frame_bottom = MENU_FRAME_BOTTOM;
 
+        attack_bar_offset = 0.0f;
+        attack_bar_index = 0;
+        attack_bar_duration = 2100;
+
         fontManager = FontManager.getInstance();
     }
 
@@ -110,6 +143,41 @@ public class UIManager {
             instance = new UIManager();
         }
         return instance;
+    }
+
+    public void resetVars() {
+        resetStates();
+        resetTimeVars();
+        resetFrameSize();
+    }
+
+    private void resetStates() {
+        menuState = MenuState.MAIN;
+        selectedEnemy = 0;
+        selectedAct = 0;
+        selectedItem = 0;
+        selectedAction = 0;
+        itemListFirstIndex = 0;
+        setSelected(0);
+
+        attack_bar_offset = 0.0f;
+        attackRate = 1.0f;
+
+        showDamage = false;
+        attackBarStopped = false;
+    }
+
+    private void resetFrameSize() {
+        battle_frame_bottom = MENU_FRAME_BOTTOM;
+        battle_frame_height = MENU_FRAME_HEIGHT;
+        battle_frame_left = MENU_FRAME_LEFT;
+        battle_frame_width = MENU_FRAME_WIDTH;
+    }
+
+    private void resetTimeVars() {
+        attackBarStartTime = 0;
+        attackBarBlinkStartTime = 0;
+        damageDisplayStartTime = 0;
     }
 
     public void renderBattleUI(String roundText) {
@@ -137,6 +205,9 @@ public class UIManager {
                 player.heal(healAmount);
                 String description = "You ate the " + item.getName() + ", healed " + healAmount + " HP.\n" + item.getAdditionalDescription();
                 renderTextsInMenu(description);
+            }
+            case FIGHT -> {
+                renderFightPanel();
             }
             case MAIN ->
                 renderTextsInMenu(roundText);
@@ -252,6 +323,103 @@ public class UIManager {
         fontManager.drawText(hpText, HP_BAR_X + HP_BAR_WIDTH + 20, HEIGHT, 1.0f, 1.0f, 1.0f, 1.0f);
     }
 
+    private void renderFightPanel() {
+        Texture.drawTexture(attack_panel.getId(),
+                            MENU_FRAME_LEFT + BATTLE_FRAME_LINE_WIDTH, 
+                            MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + BATTLE_FRAME_LINE_WIDTH,
+                            MENU_FRAME_WIDTH, MENU_FRAME_HEIGHT);
+        renderAttackBar();
+        if(attackBarStopped) {
+            renderSlice();
+        }
+    }
+
+    private void renderAttackBar() {
+        float scaler = 1.7f;
+        float bar_x = MENU_FRAME_LEFT + BATTLE_FRAME_LINE_WIDTH + attack_bar_offset;
+        float bar_y = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT / 2 - scaler * attack_bar[attack_bar_index].getHeight() / 2 + BATTLE_FRAME_LINE_WIDTH;
+        Texture.drawTexture(attack_bar[attack_bar_index].getId(), bar_x, bar_y, scaler * attack_bar[attack_bar_index].getWidth(), scaler * attack_bar[attack_bar_index].getHeight());
+    }
+
+    private void renderSlice() {
+        // 在选中的敌人上绘制slice动画
+        Enemy enemy = EnemyManager.getInstance().getEnemy(selectedEnemy);
+        if (enemy == null) return;
+        float scaler = 2.0f;
+        float x = enemy.getEntryLeft("body") + enemy.getWidth("body") / 2 - scaler * attack_animation.getFrameWidth() / 2 - 50;
+        float y = enemy.getEntryBottom("body") - enemy.getHeight("body") / 2 - scaler * attack_animation.getFrameHeight() / 2;
+
+        attack_animation.renderCurrentFrame(x, y, scaler, scaler, 0, 1, 1, 1, 1);
+        int damage = (int)(player.getAttackPower() * attackRate);
+        float currentHealth = enemy.currentHealth;
+        // 结束动画后，显示造成的伤害
+        if (attack_animation.isFinished() && !showDamage) {
+            showDamage = true;
+            damageDisplayStartTime = System.currentTimeMillis();
+            enemy.takeDamage(damage);
+        }
+        if(showDamage){
+            currentHealth -= damage / damageDisplayDuration;
+            String text = String.valueOf(damage);
+            float textX = enemy.getEntryLeft("body") + enemy.getWidth("body") / 2 - fontManager.getTextWidth(text) / 2;
+            float textY = enemy.getEntryBottom("body") - enemy.getHeight("body") / 2 + 20;
+            fontManager.drawText(text, textX, textY, 1.0f, 0.0f, 0.0f, 1.0f);
+            float maxHealthLength = 900.0f;
+            float healthHeight = 20.0f;
+            float currentHealthLength = currentHealth / enemy.maxHealth * maxHealthLength;
+            float healthX = enemy.getEntryLeft("body") + enemy.getWidth("body") / 2 - maxHealthLength / 2 - 50;
+            float healthY = enemy.getEntryBottom("body") - enemy.getHeight("body") / 2 + 80;
+            Texture.drawRect(healthX, healthY, maxHealthLength, healthHeight, 1.0f, 0.0f, 0.0f, 1.0f);
+            Texture.drawRect(healthX, healthY, currentHealthLength, healthHeight, 0.0f, 1.0f, 0.0f, 1.0f);
+
+            long now = System.currentTimeMillis();
+            if (now - damageDisplayStartTime >= damageDisplayDuration) {
+                showDamage = false;
+                // 切换场景
+                SceneManager.getInstance().shouldSwitch = true;
+            }
+        }
+    }
+
+    private void renderBattleFrame() {
+        Texture.drawRect(battle_frame_left, battle_frame_bottom - battle_frame_height, battle_frame_width, battle_frame_height, 0.0f, 0.0f, 0.0f, 1.0f);        
+        Texture.drawHollowRect(battle_frame_left, battle_frame_bottom - battle_frame_height, battle_frame_width, battle_frame_height, 1.0f, 1.0f, 1.0f, 1.0f, BATTLE_FRAME_LINE_WIDTH);
+    }
+
+    public void updateAttackBarPosition() {
+        // 在attack_bar_duration内attack_bar_offset从0线性变到MENU_FRAME_WIDTH
+        // 需在FIGHT状态下每帧调用
+        if (attack_bar_duration <= 0) return;
+        // 记录开始时间
+        if (attackBarStartTime == 0) {
+            attackBarStartTime = System.currentTimeMillis();
+        }
+        long elapsed = System.currentTimeMillis() - attackBarStartTime;
+        float t = Math.min(1.0f, (float)elapsed / attack_bar_duration);
+        attack_bar_offset = t * MENU_FRAME_WIDTH;
+        // 计算attackRate为开口向上的二次函数，最中间为1，两边为0
+        float norm = t; // 0~1
+        float center = 0.5f;
+        attackRate = 1.0f - 4.0f * (norm - center) * (norm - center); // 抛物线
+        if (attackRate < 0.0f) attackRate = 0.0f;
+        if (t >= 1.0f) {
+            attack_bar_offset = MENU_FRAME_WIDTH;
+        }
+    }
+
+    public void updateAttackBarIndex() {
+        // 攻击后,按下Z,Attack bar会停止, 并且在index = 0和1之间来回切换, 每次切换持续时间为300ms
+        if (!attackBarStopped) return;
+        long now = System.currentTimeMillis();
+        if (attackBarBlinkStartTime == 0) {
+            attackBarBlinkStartTime = now;
+        }
+        long elapsed = now - attackBarBlinkStartTime;
+        int period = 300; // ms
+        int phase = (int)((elapsed / period) % 2);
+        attack_bar_index = phase;
+    }
+
     public void updatePlayerMenuPosition() {
         if(menuState == MenuState.FIGHT || menuState == MenuState.ACT || menuState == MenuState.ITEM || menuState == MenuState.MERCY) {
             return;
@@ -272,6 +440,67 @@ public class UIManager {
             player.setPosition(MENU_FRAME_LEFT + 60 - player.getWidth() / 2, MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 40 + row * (fontManager.getFontHeight() + 20) - player.getHeight() / 2);
         }
     }
+
+    public void renderTextsInMenu(String text) {
+        // 打字机效果，X跳过全部显示，全部显示后Z才可继续
+        float left = MENU_FRAME_LEFT + 50;
+        float top = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 50;
+        float maxWidth = MENU_FRAME_WIDTH - 40;
+        float fontHeight = fontManager.getFontHeight() + 5;
+
+        // 若文本变化，重置打字机状态
+        if (lastText == null || !lastText.equals(text)) {
+            lastText = text;
+            displayLines.clear();
+            // 先按\n分割，再对每行做自动换行
+            String[] lines = text.split("\\n");
+            for (String rawLine : lines) {
+                int start = 0;
+                int len = rawLine.length();
+                while (start < len) {
+                    int end = start;
+                    while (end < len) {
+                        int nextSpace = rawLine.indexOf(' ', end);
+                        String sub = rawLine.substring(start, nextSpace == -1 ? len : nextSpace);
+                        if (fontManager.getTextWidth(sub) > maxWidth) break;
+                        end = nextSpace == -1 ? len : nextSpace + 1;
+                    }
+                    if (end == start) end++;
+                    String line = rawLine.substring(start, end);
+                    displayLines.add(line);
+                    start = end;
+                }
+            }
+            totalCharsToShow = 0;
+            typewriterStartTime = System.currentTimeMillis();
+            typewriterAllShown = false;
+        }
+
+        // 计算当前应显示的字符数
+        if (!typewriterAllShown) {
+            long elapsed = System.currentTimeMillis() - typewriterStartTime;
+            int chars = (int)(elapsed * TYPEWRITER_SPEED / 1000.0);
+            int total = 0;
+            for (String line : displayLines) total += line.length();
+            totalCharsToShow = Math.min(chars, total);
+            if (totalCharsToShow >= total) {
+                typewriterAllShown = true;
+            }
+        }
+
+        // 绘制文本
+        int shown = 0;
+        int rowIdx = 0;
+        for (String line : displayLines) {
+            int remain = totalCharsToShow - shown;
+            if (remain <= 0) break;
+            int toShow = Math.min(remain, line.length());
+            fontManager.drawText(line.substring(0, toShow), left, top + rowIdx * fontHeight, 1.0f, 1.0f, 1.0f, 1.0f);
+            shown += toShow;
+            rowIdx++;
+        }
+    }
+
 
     public void updatePlayerInBound() {
         player.handlePlayerOutBound(battle_frame_left + BATTLE_FRAME_LINE_WIDTH, 
@@ -312,10 +541,17 @@ public class UIManager {
                 case ITEM_SELECT_ITEM -> MenuState.ITEM;
                 case MERCY_SELECT_ENEMY -> MenuState.MERCY_SELECT_SPARE;
                 case MERCY_SELECT_SPARE -> MenuState.MERCY;
-                case FIGHT, ACT, ITEM, MERCY -> {
+                case ACT, ITEM, MERCY -> {
                     // 若文本已经全部显示切换到FightScene
                     if(typewriterAllShown) {
                         SceneManager.getInstance().shouldSwitch = true;
+                    }
+                    yield menuState;
+                }
+                case FIGHT -> {
+                    // Attack bar停止
+                    if (!attackBarStopped) {
+                        attackBarStopped = true;
                     }
                     yield menuState;
                 }
@@ -406,68 +642,17 @@ public class UIManager {
         }
     }
 
-
-
-    public void renderTextsInMenu(String text) {
-        // 打字机效果，X跳过全部显示，全部显示后Z才可继续
-        float left = MENU_FRAME_LEFT + 50;
-        float top = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 50;
-        float maxWidth = MENU_FRAME_WIDTH - 40;
-        float fontHeight = fontManager.getFontHeight() + 5;
-
-        // 若文本变化，重置打字机状态
-        if (lastText == null || !lastText.equals(text)) {
-            lastText = text;
-            displayLines.clear();
-            // 先按\n分割，再对每行做自动换行
-            String[] lines = text.split("\\n");
-            for (String rawLine : lines) {
-                int start = 0;
-                int len = rawLine.length();
-                while (start < len) {
-                    int end = start;
-                    while (end < len) {
-                        int nextSpace = rawLine.indexOf(' ', end);
-                        String sub = rawLine.substring(start, nextSpace == -1 ? len : nextSpace);
-                        if (fontManager.getTextWidth(sub) > maxWidth) break;
-                        end = nextSpace == -1 ? len : nextSpace + 1;
-                    }
-                    if (end == start) end++;
-                    String line = rawLine.substring(start, end);
-                    displayLines.add(line);
-                    start = end;
-                }
+    void update(float deltaTime) {
+        if(menuState == MenuState.FIGHT) {
+            if (!attackBarStopped) {
+                updateAttackBarPosition();
+            } else {
+                updateAttackBarIndex();
+                attack_animation.updateAnimation(deltaTime);
             }
-            totalCharsToShow = 0;
-            typewriterStartTime = System.currentTimeMillis();
-            typewriterAllShown = false;
-        }
-
-        // 计算当前应显示的字符数
-        if (!typewriterAllShown) {
-            long elapsed = System.currentTimeMillis() - typewriterStartTime;
-            int chars = (int)(elapsed * TYPEWRITER_SPEED / 1000.0);
-            int total = 0;
-            for (String line : displayLines) total += line.length();
-            totalCharsToShow = Math.min(chars, total);
-            if (totalCharsToShow >= total) {
-                typewriterAllShown = true;
-            }
-        }
-
-        // 绘制文本
-        int shown = 0;
-        int rowIdx = 0;
-        for (String line : displayLines) {
-            int remain = totalCharsToShow - shown;
-            if (remain <= 0) break;
-            int toShow = Math.min(remain, line.length());
-            fontManager.drawText(line.substring(0, toShow), left, top + rowIdx * fontHeight, 1.0f, 1.0f, 1.0f, 1.0f);
-            shown += toShow;
-            rowIdx++;
         }
     }
-
+    
     public void showAll() {
         if (!typewriterAllShown) {
             int total = 0;
@@ -481,10 +666,7 @@ public class UIManager {
         return typewriterAllShown;
     }
 
-    private void renderBattleFrame() {
-        Texture.drawRect(battle_frame_left, battle_frame_bottom - battle_frame_height, battle_frame_width, battle_frame_height, 0.0f, 0.0f, 0.0f, 1.0f);        
-        Texture.drawHollowRect(battle_frame_left, battle_frame_bottom - battle_frame_height, battle_frame_width, battle_frame_height, 1.0f, 1.0f, 1.0f, 1.0f, BATTLE_FRAME_LINE_WIDTH);
-    }
+
 
     public void selectMoveRight() {
         if(menuState != MenuState.MAIN) return;

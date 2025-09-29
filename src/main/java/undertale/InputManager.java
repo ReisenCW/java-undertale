@@ -113,7 +113,6 @@ public class InputManager {
             uiManager.menuSelectDown();
             System.out.println("current menu state: " + uiManager.getMenuState() + " enemy select " + uiManager.selectedEnemy + " act select " + uiManager.selectedAct + " item select " + uiManager.selectedItem);
         }
-        uiManager.updatePlayerMenuPosition();
     }
 
     public void processInput() {
