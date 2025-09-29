@@ -14,6 +14,9 @@ public class UIManager {
     private Texture mercy_chosen;
     private Texture[] buttons;
 
+    private Texture attack_panel;
+    private Texture hp_text;
+
     public final int TOP_MARGIN = 0;
     public final int BOTTOM_MARGIN = Game.getWindowHeight();
     public final int LEFT_MARGIN = 0;
@@ -69,6 +72,9 @@ public class UIManager {
 
     private UIManager() {
         // 初始化
+        attack_panel = Game.getTexture("attack_panel");
+        hp_text = Game.getTexture("hp_text");
+
         attack_normal = Game.getTexture("attack_normal");
         attack_chosen = Game.getTexture("attack_chosen");
         act_normal = Game.getTexture("act_normal");
@@ -227,7 +233,9 @@ public class UIManager {
         // 绘制LV
         fontManager.drawText("LV " + player.getLevel(), OFFSET + BTN_WIDTH / 4 * 3, HEIGHT, 1.0f, 1.0f, 1.0f, 1.0f);
         // 绘制HP
-        fontManager.drawText("HP ", OFFSET + BTN_WIDTH * 3 / 2 + BTN_MARGIN, HEIGHT, 1.0f, 1.0f, 1.0f, 1.0f);
+        float hpLeft = OFFSET + BTN_WIDTH * 3 / 2 + BTN_MARGIN - hp_text.getWidth();
+        float hpTop = HEIGHT - hp_text.getHeight() * 2;
+        Texture.drawTexture(hp_text.getId(), hpLeft, hpTop, hp_text.getWidth() * 2, hp_text.getHeight() * 2);
         // 绘制HP条，用红色绘制maxHealth长度，再用黄色覆盖currentHealth长度
         float HP_BAR_WIDTH = player.getMaxHealth() * 3;
         float HP_BAR_CURRENT_WIDTH = player.getCurrentHealth() * 3;

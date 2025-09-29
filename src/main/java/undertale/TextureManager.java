@@ -13,6 +13,7 @@ public class TextureManager {
 
     private void initTextures() {
         loadTexture("heart", "img_heart.png");
+        loadTexture("hp_text", "img_hp.png");
         loadTexture("test_bullet", "img_ball_bullet.png");
         
         String[] menuOptions = {"attack", "act", "item", "mercy"};
@@ -39,6 +40,9 @@ public class TextureManager {
                 loadTexture("titan_frontwing_" + i + "_" + j, folderName + "/" + fileName);
             }
         }
+
+        // attack
+        loadTexture("attack_panel", "img_attack_panel.png");
     } 
 
     
