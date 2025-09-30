@@ -46,6 +46,14 @@ public abstract class GameObject {
         return y;
     }
 
+    public float getHeight() {
+        return 0;
+    }
+
+    public float getWidth() {
+        return 0;
+    }
+
     public void setDirection(float dirX, float dirY) {
         direction[0] = dirX;
         direction[1] = dirY;

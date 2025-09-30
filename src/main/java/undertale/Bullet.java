@@ -72,10 +72,12 @@ public class Bullet extends GameObject{
         this.vScale = vScale;
     }
 
+    @Override
     public float getWidth() {
         return hScale * texture.getWidth();
     }
 
+    @Override
     public float getHeight() {
         return vScale * texture.getHeight();
     }

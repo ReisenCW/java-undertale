@@ -55,34 +55,7 @@ public class ObjectManager {
     private boolean checkPlayerBulletCollisionReturnHit(Bullet bullet){
         if(!player.isAlive()) 
             return false;
-        // 椭圆子弹判定：仿射变换到单位圆
-        float a = bullet.getWidth() / 2; // 长轴
-        float b = bullet.getHeight() / 2; // 短轴
-        float theta = (float)Math.toRadians(bullet.getSelfAngle()); // 椭圆旋转角度
-        float bulletCenterX = bullet.getX() + a;
-        float bulletCenterY = bullet.getY() + b;
-
-        float playerRadius = Math.min(player.getWidth(), player.getHeight()) / 3;
-        float playerCenterX = player.getX() + player.getWidth() / 2;
-        float playerCenterY = player.getY() + player.getHeight() / 2;
-
-        // 步骤1：平移
-        float px = playerCenterX - bulletCenterX;
-        float py = playerCenterY - bulletCenterY;
-        // 步骤2：旋转（逆时针-θ）
-        float cosT = (float)Math.cos(-theta);
-        float sinT = (float)Math.sin(-theta);
-        float rx = px * cosT - py * sinT;
-        float ry = px * sinT + py * cosT;
-        // 步骤3：缩放
-        float sx = rx / a;
-        float sy = ry / b;
-        // 玩家半径也缩放，取均值
-        float rScaled = playerRadius / ((a + b) / 2);
-
-        // 判定：距离是否小于rScaled + 1（单位圆半径）
-        float dist = (float)Math.sqrt(sx * sx + sy * sy);
-        if (dist < rScaled + 1) {
+        if (CollisionDetector.checkRectCircleCollision(bullet, player)) {
             // 碰撞
             if (!player.isHurt()) {
                 player.takeDamage(bullet.getDamage());

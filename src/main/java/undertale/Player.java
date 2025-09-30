@@ -195,10 +195,12 @@ public class Player extends GameObject {
         this.hScale = hScale;
     }
 
+    @Override
     public float getWidth() {
         return hScale * heartTexture.getWidth();
     }
 
+    @Override
     public float getHeight() {
         return vScale * heartTexture.getHeight();
     }
