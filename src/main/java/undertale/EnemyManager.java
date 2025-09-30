@@ -7,8 +7,6 @@ public class EnemyManager {
 	private ArrayList<Enemy> enemies;
     private static EnemyManager enemyManager;
 
-    private TextureManager textureManager = TextureManager.getInstance();
-
     private float windowWidth = Game.getWindowWidth();
     private float windowCenterX = windowWidth / 2;
 
@@ -41,7 +39,7 @@ public class EnemyManager {
         Animation starAnimation = animationManager.getAnimation("titan_star");
         // 给所有backwing和frontwing添加动画
         Animation[] backwingAnimations = new Animation[4];
-        for (int i = 0; i < backwingAnimations.length - 1; i++) {
+        for (int i = 0; i < backwingAnimations.length; i++) {
             backwingAnimations[i] = animationManager.getAnimation("titan_backwing_" + i);
         }
         Animation[] frontwingAnimations = new Animation[3];

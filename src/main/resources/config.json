@@ -73,7 +73,9 @@
   "ui" : {
     "button_scaler" : 1.6,
     "bottom_offset" : 100.0,
-    "button_frame_line_width" : 3.0
+    "button_frame_line_width" : 3.0,
+    "button_width" : 110.0,
+    "button_height" : 42.0
   },
   "player": {
     "name": "Frisk",

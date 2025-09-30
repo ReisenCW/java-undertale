@@ -100,8 +100,8 @@ public class UIManager {
 
         BOTTOM_OFFSET = configManager.BOTTOM_OFFSET;
         SCALER = configManager.BUTTON_SCALER;
-        BTN_WIDTH = buttons[0].getWidth() * SCALER;
-        BTN_HEIGHT = buttons[0].getHeight() * SCALER;
+        BTN_WIDTH = configManager.BUTTON_WIDTH;
+        BTN_HEIGHT = configManager.BUTTON_HEIGHT;
         BTN_MARGIN = configManager.BUTTON_MARGIN;
         BATTLE_FRAME_LINE_WIDTH = configManager.BATTLE_FRAME_LINE_WIDTH;
 

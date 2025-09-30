@@ -11,6 +11,8 @@ public class ConfigManager {
     public final boolean debug;
     public final int WINDOW_WIDTH;
     public final int WINDOW_HEIGHT;
+    public final float BUTTON_WIDTH;
+    public final float BUTTON_HEIGHT;
     public final float MENU_FRAME_WIDTH;
     public final float MENU_FRAME_HEIGHT;
     public final float MENU_FRAME_LEFT;
@@ -31,6 +33,8 @@ public class ConfigManager {
         float button_scaler = 1.6f;
         float bottom_offset = 100.0f; 
         float button_frame_line_width = 3.0f;
+        float button_width = 110.0f;
+        float button_height = 42.0f;
         HashMap<String, String> texMap = new HashMap<>();
         HashMap<String, String> playerMapTmp = new HashMap<>();
         try {
@@ -52,6 +56,8 @@ public class ConfigManager {
                         if (ui.has("button_scaler")) button_scaler = ui.get("button_scaler").getAsFloat();
                         if (ui.has("bottom_offset")) bottom_offset = ui.get("bottom_offset").getAsFloat();
                         if (ui.has("button_frame_line_width")) button_frame_line_width = ui.get("button_frame_line_width").getAsFloat();
+                        if (ui.has("button_width")) button_width = ui.get("button_width").getAsFloat();
+                        if (ui.has("button_height")) button_height = ui.get("button_height").getAsFloat();
                     }
                     // player
                     if(obj.has("player")){
@@ -86,15 +92,12 @@ public class ConfigManager {
         this.BOTTOM_OFFSET = bottom_offset;
         this.BUTTON_SCALER = button_scaler;
         this.BATTLE_FRAME_LINE_WIDTH = button_frame_line_width;
-        
-        // 获取attack_normal的width和height
-        Texture attackNormal = new Texture(textures.get("attack_normal"));
-        float btnWidth = attackNormal.getWidth() * BUTTON_SCALER;
-        float btnHeight = attackNormal.getHeight() * BUTTON_SCALER;
-        this.BUTTON_MARGIN = (WINDOW_WIDTH - 4 * btnWidth) / 5;
+        this.BUTTON_WIDTH = button_width * this.BUTTON_SCALER;
+        this.BUTTON_HEIGHT = button_height * this.BUTTON_SCALER;
+        this.BUTTON_MARGIN = (WINDOW_WIDTH - 4 * BUTTON_WIDTH) / 5;
         this.MENU_FRAME_WIDTH = WINDOW_WIDTH - BUTTON_MARGIN * 2;
         this.MENU_FRAME_HEIGHT = WINDOW_HEIGHT / 3;
         this.MENU_FRAME_LEFT = BUTTON_MARGIN;
-        this.MENU_FRAME_BOTTOM = WINDOW_HEIGHT - BOTTOM_OFFSET - btnHeight;
+        this.MENU_FRAME_BOTTOM = WINDOW_HEIGHT - BOTTOM_OFFSET - BUTTON_HEIGHT;
     }
 }

@@ -20,10 +20,10 @@ public class Window {
     }
 
     public void init(int width, int height, String title){
-        GLFWErrorCallback.createPrint(System.err).set();
+		GLFWErrorCallback.createPrint(System.err).set();
         if ( !glfwInit() )
             throw new IllegalStateException("Unable to initialize GLFW");
-        		glfwDefaultWindowHints(); // optional, the current window hints are already the default
+        		glfwDefaultWindowHints();
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
         createWindow(width, height, title);
