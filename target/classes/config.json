@@ -70,6 +70,11 @@
     "width": 1280,
     "height": 720
   },
+  "ui" : {
+    "button_scaler" : 1.6,
+    "bottom_offset" : 100.0,
+    "button_frame_line_width" : 3.0
+  },
   "player": {
     "name": "Frisk",
     "level": 4,

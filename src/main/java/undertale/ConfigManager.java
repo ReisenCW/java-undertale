@@ -1,7 +1,5 @@
 package undertale;
 
-import java.io.File;
-import java.io.FileReader;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonElement;
@@ -13,6 +11,14 @@ public class ConfigManager {
     public final boolean debug;
     public final int WINDOW_WIDTH;
     public final int WINDOW_HEIGHT;
+    public final float MENU_FRAME_WIDTH;
+    public final float MENU_FRAME_HEIGHT;
+    public final float MENU_FRAME_LEFT;
+    public final float MENU_FRAME_BOTTOM;
+    public final float BUTTON_SCALER;
+    public final float BUTTON_MARGIN;
+    public final float BOTTOM_OFFSET;
+    public final float BATTLE_FRAME_LINE_WIDTH;
     public final HashMap<String, String> textures;
     public final HashMap<String, String> playerMap;
 
@@ -22,6 +28,9 @@ public class ConfigManager {
         boolean debugVal = false;
         int widthVal = 1280;
         int heightVal = 720;
+        float button_scaler = 1.6f;
+        float bottom_offset = 100.0f; 
+        float button_frame_line_width = 3.0f;
         HashMap<String, String> texMap = new HashMap<>();
         HashMap<String, String> playerMapTmp = new HashMap<>();
         try {
@@ -36,6 +45,13 @@ public class ConfigManager {
                         JsonObject win = obj.getAsJsonObject("window");
                         if (win.has("width")) widthVal = win.get("width").getAsInt();
                         if (win.has("height")) heightVal = win.get("height").getAsInt();
+                    }
+                    // ui
+                    if (obj.has("ui")) {
+                        JsonObject ui = obj.getAsJsonObject("ui");
+                        if (ui.has("button_scaler")) button_scaler = ui.get("button_scaler").getAsFloat();
+                        if (ui.has("bottom_offset")) bottom_offset = ui.get("bottom_offset").getAsFloat();
+                        if (ui.has("button_frame_line_width")) button_frame_line_width = ui.get("button_frame_line_width").getAsFloat();
                     }
                     // player
                     if(obj.has("player")){
@@ -67,5 +83,18 @@ public class ConfigManager {
         this.WINDOW_HEIGHT = heightVal;
         this.textures = texMap;
         this.playerMap = playerMapTmp;
+        this.BOTTOM_OFFSET = bottom_offset;
+        this.BUTTON_SCALER = button_scaler;
+        this.BATTLE_FRAME_LINE_WIDTH = button_frame_line_width;
+        
+        // 获取attack_normal的width和height
+        Texture attackNormal = new Texture(textures.get("attack_normal"));
+        float btnWidth = attackNormal.getWidth() * BUTTON_SCALER;
+        float btnHeight = attackNormal.getHeight() * BUTTON_SCALER;
+        this.BUTTON_MARGIN = (WINDOW_WIDTH - 4 * btnWidth) / 5;
+        this.MENU_FRAME_WIDTH = WINDOW_WIDTH - BUTTON_MARGIN * 2;
+        this.MENU_FRAME_HEIGHT = WINDOW_HEIGHT / 3;
+        this.MENU_FRAME_LEFT = BUTTON_MARGIN;
+        this.MENU_FRAME_BOTTOM = WINDOW_HEIGHT - BOTTOM_OFFSET - btnHeight;
     }
 }

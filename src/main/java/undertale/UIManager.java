@@ -25,17 +25,17 @@ public class UIManager {
     public final int LEFT_MARGIN = 0;
     public final int RIGHT_MARGIN = Game.getWindowWidth();
 
-    public final int BOTTOM_OFFSET;
+    public final float BOTTOM_OFFSET;
     public final float SCALER;
     public final float BTN_WIDTH;
     public final float BTN_HEIGHT;
     public final float BTN_MARGIN;
 
-    public static final float BATTLE_FRAME_LINE_WIDTH = 3.0f;
-    public float MENU_FRAME_WIDTH;
-    public float MENU_FRAME_HEIGHT;
-    public float MENU_FRAME_LEFT;
-    public float MENU_FRAME_BOTTOM;
+    public final float BATTLE_FRAME_LINE_WIDTH;
+    public final float MENU_FRAME_WIDTH;
+    public final float MENU_FRAME_HEIGHT;
+    public final float MENU_FRAME_LEFT;
+    public final float MENU_FRAME_BOTTOM;
     public float battle_frame_width;
     public float battle_frame_height;
     public float battle_frame_left;
@@ -59,6 +59,8 @@ public class UIManager {
     private Player player;
 
     private FontManager fontManager;
+    private AnimationManager uiAnimationManager;
+
     public enum MenuState { 
         MAIN, 
         FIGHT_SELECT_ENEMY,
@@ -89,7 +91,31 @@ public class UIManager {
     private final int TYPEWRITER_SPEED = 30; // 每秒显示字符数
 
     private UIManager() {
-        // 初始化
+        fontManager = FontManager.getInstance();
+        uiAnimationManager = AnimationManager.getInstance();
+        ConfigManager configManager = Game.getConfigManager();
+        player = Game.getPlayer();
+        
+        loadResources();
+
+        BOTTOM_OFFSET = configManager.BOTTOM_OFFSET;
+        SCALER = configManager.BUTTON_SCALER;
+        BTN_WIDTH = buttons[0].getWidth() * SCALER;
+        BTN_HEIGHT = buttons[0].getHeight() * SCALER;
+        BTN_MARGIN = configManager.BUTTON_MARGIN;
+        BATTLE_FRAME_LINE_WIDTH = configManager.BATTLE_FRAME_LINE_WIDTH;
+
+        battle_frame_width = MENU_FRAME_WIDTH = configManager.MENU_FRAME_WIDTH;
+        battle_frame_height = MENU_FRAME_HEIGHT = configManager.MENU_FRAME_HEIGHT;
+        battle_frame_left = MENU_FRAME_LEFT = configManager.MENU_FRAME_LEFT;
+        battle_frame_bottom = MENU_FRAME_BOTTOM = configManager.MENU_FRAME_BOTTOM;
+
+        attack_bar_offset = 0.0f;
+        attack_bar_index = 0;
+        attack_bar_duration = 2100;
+    }
+
+    private void loadResources() {
         attack_panel = Game.getTexture("attack_panel");
         attack_bar = new Texture[2];
         attack_bar[0] = Game.getTexture("attack_bar_white");
@@ -107,35 +133,8 @@ public class UIManager {
         mercy_chosen = Game.getTexture("mercy_chosen");
         buttons = new Texture[]{attack_normal, act_normal, item_normal, mercy_normal,
                                 attack_chosen, act_chosen, item_chosen, mercy_chosen};
-
-        attack_animation = new Animation(0.2f, false);
-        for(int i = 0; i < 7; i++) {
-            attack_animation.addFrame(Game.getTexture("slice_" + i));
-        }
+        attack_animation = uiAnimationManager.getAnimation("attack_animation");
         attack_animation.disappearAfterEnds = true;
-
-        player = Game.getPlayer();
-
-        BOTTOM_OFFSET = 20;
-        SCALER = 1.6f;
-        BTN_WIDTH = buttons[0].getWidth() * SCALER;
-        BTN_HEIGHT = buttons[0].getHeight() * SCALER;
-        BTN_MARGIN = (RIGHT_MARGIN - LEFT_MARGIN - 4 * BTN_WIDTH) / 5;
-
-        MENU_FRAME_WIDTH = RIGHT_MARGIN - LEFT_MARGIN - BTN_MARGIN * 2;
-        MENU_FRAME_HEIGHT = (BOTTOM_MARGIN - TOP_MARGIN) / 3;
-        MENU_FRAME_LEFT = LEFT_MARGIN + BTN_MARGIN;
-        MENU_FRAME_BOTTOM = BOTTOM_MARGIN - BOTTOM_OFFSET - BTN_HEIGHT - 80;
-        battle_frame_width = MENU_FRAME_WIDTH;
-        battle_frame_height = MENU_FRAME_HEIGHT;
-        battle_frame_left = MENU_FRAME_LEFT;
-        battle_frame_bottom = MENU_FRAME_BOTTOM;
-
-        attack_bar_offset = 0.0f;
-        attack_bar_index = 0;
-        attack_bar_duration = 2100;
-
-        fontManager = FontManager.getInstance();
     }
 
     public static UIManager getInstance() {
