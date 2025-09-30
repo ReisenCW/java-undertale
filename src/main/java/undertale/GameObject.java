@@ -150,4 +150,11 @@ public abstract class GameObject {
             selfAngle = speedAngle;
         }
     }
+
+    public boolean isInBound(float left, float right, float top, float bottom) {
+        return x - getWidth() >= left &&
+        x + getWidth() <= right &&
+        y + getHeight() >= top && 
+        y - getHeight() <= bottom;
+    }
 }

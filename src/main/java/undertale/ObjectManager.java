@@ -46,6 +46,8 @@ public class ObjectManager {
             if (checkPlayerBulletCollisionReturnHit(bullet)) {
                 toRemove.add(bullet);
             }
+            // 判断子弹是否超出窗口
+            
         }
         for (Bullet bullet : toRemove) {
             bullets.remove(bullet);

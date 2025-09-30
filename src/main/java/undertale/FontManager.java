@@ -25,7 +25,7 @@ public class FontManager {
     private float[] charWidths = new float[CHAR_COUNT];
 
     private FontManager() {
-        loadFont("PixelOperator-Bold.ttf");
+        loadFont("determinationmonoweb-webfont.ttf");
     }
 
     public static FontManager getInstance() {

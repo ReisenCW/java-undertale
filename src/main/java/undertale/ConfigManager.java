@@ -31,7 +31,7 @@ public class ConfigManager {
         int widthVal = 1280;
         int heightVal = 720;
         float button_scaler = 1.6f;
-        float bottom_offset = 100.0f; 
+        float bottom_offset = 20.0f; 
         float button_frame_line_width = 3.0f;
         float button_width = 110.0f;
         float button_height = 42.0f;
@@ -98,6 +98,6 @@ public class ConfigManager {
         this.MENU_FRAME_WIDTH = WINDOW_WIDTH - BUTTON_MARGIN * 2;
         this.MENU_FRAME_HEIGHT = WINDOW_HEIGHT / 3;
         this.MENU_FRAME_LEFT = BUTTON_MARGIN;
-        this.MENU_FRAME_BOTTOM = WINDOW_HEIGHT - BOTTOM_OFFSET - BUTTON_HEIGHT;
+        this.MENU_FRAME_BOTTOM = WINDOW_HEIGHT - BOTTOM_OFFSET - BUTTON_HEIGHT - 80;
     }
 }

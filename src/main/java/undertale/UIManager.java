@@ -446,6 +446,7 @@ public class UIManager {
         float top = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 50;
         float maxWidth = MENU_FRAME_WIDTH - 40;
         float fontHeight = fontManager.getFontHeight() + 5;
+        final int LINE_PAUSE_MS = 250; // 每行间隔停顿时间，单位ms
 
         // 若文本变化，重置打字机状态
         if (lastText == null || !lastText.equals(text)) {
@@ -475,14 +476,31 @@ public class UIManager {
             typewriterAllShown = false;
         }
 
-        // 计算当前应显示的字符数
+        // 计算当前应显示的字符数（带行间停顿）
         if (!typewriterAllShown) {
             long elapsed = System.currentTimeMillis() - typewriterStartTime;
-            int chars = (int)(elapsed * TYPEWRITER_SPEED / 1000.0);
             int total = 0;
-            for (String line : displayLines) total += line.length();
-            totalCharsToShow = Math.min(chars, total);
-            if (totalCharsToShow >= total) {
+            int charsToShow = 0;
+            for (int i = 0; i < displayLines.size(); i++) {
+                String line = displayLines.get(i);
+                // 每行前有LINE_PAUSE_MS停顿
+                long lineStart = (long)(total / (double)TYPEWRITER_SPEED * 1000) + i * LINE_PAUSE_MS;
+                long lineElapsed = elapsed - lineStart;
+                if (lineElapsed > 0) {
+                    int lineChars = Math.min(line.length(), (int)(lineElapsed * TYPEWRITER_SPEED / 1000.0));
+                    charsToShow += lineChars;
+                }
+                // 若本行未全部显示，后续行不显示
+                if (lineElapsed < (line.length() * 1000.0 / TYPEWRITER_SPEED)) {
+                    break;
+                }
+                total += line.length();
+            }
+            // 限制最大
+            int allChars = 0;
+            for (String l : displayLines) allChars += l.length();
+            totalCharsToShow = Math.min(charsToShow, allChars);
+            if (totalCharsToShow >= allChars) {
                 typewriterAllShown = true;
             }
         }
