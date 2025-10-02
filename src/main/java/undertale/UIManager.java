@@ -360,9 +360,10 @@ public class UIManager {
         if(showDamage){
             currentHealth -= damage / damageDisplayDuration;
             String text = String.valueOf(damage);
-            float textX = enemy.getEntryLeft("body") + enemy.getWidth("body") / 2 - fontManager.getTextWidth(text) / 2;
+            float dmgTextScaler = 2.5f;
+            float textX = (RIGHT_MARGIN + LEFT_MARGIN) / 2 - fontManager.getTextWidth(text) / 2 * dmgTextScaler;
             float textY = enemy.getEntryBottom("body") - enemy.getHeight("body") / 2 + 20;
-            fontManager.drawText(text, textX, textY, 1.0f, 0.0f, 0.0f, 1.0f);
+            fontManager.drawText(text, textX, textY, dmgTextScaler, 1.0f, 0.0f, 0.0f, 1.0f);
             float maxHealthLength = 900.0f;
             float healthHeight = 20.0f;
             float currentHealthLength = currentHealth / enemy.maxHealth * maxHealthLength;

@@ -23,6 +23,7 @@ public class ConfigManager {
     public final float BATTLE_FRAME_LINE_WIDTH;
     public final HashMap<String, String> textures;
     public final HashMap<String, String> playerMap;
+    public final HashMap<String, String> fonts;
 
     private final String CONFIG_PATH = "config.json";
 
@@ -37,6 +38,7 @@ public class ConfigManager {
         float button_height = 42.0f;
         HashMap<String, String> texMap = new HashMap<>();
         HashMap<String, String> playerMapTmp = new HashMap<>();
+        HashMap<String, String> fontsMap = new HashMap<>();
         try {
             // 使用类加载器读取 resources 下的 config.json
             java.io.InputStream in = getClass().getClassLoader().getResourceAsStream(CONFIG_PATH);
@@ -79,6 +81,15 @@ public class ConfigManager {
                             }
                         }
                     }
+                    // fonts
+                    if (obj.has("fonts")) {
+                        for (JsonElement el : obj.getAsJsonArray("fonts")) {
+                            JsonObject font = el.getAsJsonObject();
+                            if (font.has("key") && font.has("path")) {
+                                fontsMap.put(font.get("key").getAsString(), font.get("path").getAsString());
+                            }
+                        }
+                    }
                 }
             }
         } catch (Exception e) {
@@ -89,6 +100,7 @@ public class ConfigManager {
         this.WINDOW_HEIGHT = heightVal;
         this.textures = texMap;
         this.playerMap = playerMapTmp;
+        this.fonts = fontsMap;
         this.BOTTOM_OFFSET = bottom_offset;
         this.BUTTON_SCALER = button_scaler;
         this.BATTLE_FRAME_LINE_WIDTH = button_frame_line_width;

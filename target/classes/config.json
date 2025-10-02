@@ -66,6 +66,10 @@
     {"key": "slice_5", "path": "atk_animation/spr_slice_o_5.png"},
     {"key": "slice_6", "path": "atk_animation/spr_slice_o_6.png"}
   ],
+  "fonts": [
+    {"key": "determination", "path": "determinationmonoweb-webfont.ttf"},
+    {"key": "pixel", "path": "PixelOperator-Bold.ttf"}
+  ],
   "window" : {
     "width": 1280,
     "height": 720
