@@ -381,7 +381,10 @@ public class UIManager {
             String text = String.valueOf((int)damage);
             float dmgTextScaler = 2.5f;
             float textX = (RIGHT_MARGIN + LEFT_MARGIN) / 2 - fontManager.getTextWidth(text) / 2 * dmgTextScaler;
-            float textY = enemy.getEntryBottom("body") - enemy.getHeight("body") / 2 + 20;
+            float textBaseY = enemy.getEntryBottom("body") - enemy.getHeight("body") / 2 + 40;
+            float moveTotalTime = damageDisplayDuration / 3; // 上升和下降共1/3时间
+            float theta = (float)(Math.min(Math.PI,(Math.PI * (System.currentTimeMillis() - damageDisplayStartTime) / moveTotalTime)));
+            float textY = textBaseY - 40 * (float)Math.sin(theta);
             fontManager.drawText(text, textX, textY, dmgTextScaler, 1.0f, 0.0f, 0.0f, 1.0f);
             // 血条
             float maxHealthLength = 900.0f;
