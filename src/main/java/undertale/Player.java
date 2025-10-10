@@ -55,14 +55,14 @@ public class Player extends GameObject {
         this.y = Game.getWindowHeight() / 2 - heartTexture.getHeight() / 2;
 
         items = new Item[8];
-        items[0] = new Item("Pie", "Tasty.", 99);
-        items[1] = new Item("Banana", "Potassium.", 20);
-        items[2] = new Item("Frisk Tea", "Tastes like hell.", 12);
-        items[3] = new Item("Silk Bind", "Hornet's favorite.", 30);
-        items[4] = new Item("Choco", "Too sweet.", 14);
-        items[5] = new Item("Snowman Piece", "A piece of a snowman.", 30);
-        items[6] = new Item("Dog Salad", "Wolf.", 12);
-        items[7] = new Item("Legendary Hero", "Your ATK increased by 4.", 45);
+        items[0] = new Item("Pie", "* Tasty.", 99);
+        items[1] = new Item("Banana", "* Potassium.", 20);
+        items[2] = new Item("Frisk Tea", "* Tastes like hell.", 12);
+        items[3] = new Item("Silk Bind", "* Hornet's favorite.", 30);
+        items[4] = new Item("Choco", "* Too sweet.", 14);
+        items[5] = new Item("Snowman Piece", "* A piece of a snowman.", 30);
+        items[6] = new Item("Dog Salad", "* Wolf.", 12);
+        items[7] = new Item("Legendary Hero", "* Your ATK increased by 4.", 45);
     }
 
     @Override

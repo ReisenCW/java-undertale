@@ -43,18 +43,30 @@ public class UIManager {
     public float battle_frame_bottom;
 
     // Attack bar 动画相关变量
-    private long attackBarStartTime = 0;
     private boolean attackBarStopped = false;
-    private long attackBarBlinkStartTime = 0;
-    private long damageDisplayStartTime = 0;
+    // 伤害显示
     private boolean showDamage  = false;
     private long damageDisplayDuration = 2000; // 持续时间，单位ms
+    private float displayedHealth = 0f; // 造成伤害时显示的血量,动态变化
+    private float damagePerMilliSecond = 0f;
 
-
+    // miss显示
+    private boolean showMiss = false;
+    private final long MISS_DISPLAY_DURATION = 1500; // ms
+    // attackBar位置
     private float attack_bar_offset; // 从左到右
     private int attack_bar_index; // 0白色 1黑色
     private int attack_bar_duration; // 持续时间，单位ms
+
+    // 伤害倍率
     private float attackRate = 1.0f;
+
+    // time elapsed相关变量
+    private float attackBarElapsed = 0f;
+    private float attackBarBlinkElapsed = 0f;
+    private float damageDisplayElapsed = 0f;
+    private float typewriterElapsed = 0f;
+    private float missDisplayElapsed = 0f;
 
 
     private Player player;
@@ -88,14 +100,8 @@ public class UIManager {
     private ArrayList<String> displayLines = new ArrayList<>();
     private ArrayList<Boolean> isRawNewline = new ArrayList<>();
     private int totalCharsToShow = 0;
-    private long typewriterStartTime = 0;
     private boolean typewriterAllShown = false;
     private final int TYPEWRITER_SPEED = 30; // 每秒显示字符数
-
-    // 新增成员变量
-    private boolean showMiss = false;
-    private long missDisplayStartTime = 0;
-    private final long MISS_DISPLAY_DURATION = 1500; // ms
 
     private UIManager() {
         fontManager = FontManager.getInstance();
@@ -182,9 +188,11 @@ public class UIManager {
     }
 
     private void resetTimeVars() {
-        attackBarStartTime = 0;
-        attackBarBlinkStartTime = 0;
-        damageDisplayStartTime = 0;
+        attackBarElapsed = 0f;
+        attackBarBlinkElapsed = 0f;
+        damageDisplayElapsed = 0f;
+        typewriterElapsed = 0f;
+        missDisplayElapsed = 0f;
     }
 
     public void renderBattleUI(String roundText) {
@@ -210,7 +218,7 @@ public class UIManager {
                 Item item = player.getItemByIndex(selectedItem);
                 int healAmount = item.getHealingAmount();
                 player.heal(healAmount);
-                String description = "You ate the " + item.getName() + ", healed " + healAmount + " HP.\n" + item.getAdditionalDescription();
+                String description = "* You ate the " + item.getName() + ", healed " + healAmount + " HP.\n" + item.getAdditionalDescription();
                 renderTextsInMenu(description);
             }
             case FIGHT -> {
@@ -363,19 +371,36 @@ public class UIManager {
         float y = enemy.getEntryBottom("body") - enemy.getHeight("body") / 2 - scaler * attack_animation.getFrameHeight() / 2;
 
         attack_animation.renderCurrentFrame(x, y, scaler, scaler, 0, 1, 1, 1, 1);
-        int damage = (int)(player.getAttackPower() * attackRate);
-        float currentHealth = enemy.currentHealth;
-        currentHealth -= damage / damageDisplayDuration; // 需要拆分到有deltatime的update里
-        // 结束动画后，显示造成的伤害
-        if (attack_animation.isFinished() && !showDamage) {
-            showDamage = true;
-            damageDisplayStartTime = System.currentTimeMillis();
-            enemy.takeDamage(damage);
-        }
-        renderDamage(enemy, currentHealth, damage);
+        renderDamage(enemy, player.getAttackPower() * attackRate);
     }
 
-    private void renderDamage(Enemy enemy, float currentHealth, float damage) {
+    private void updateSliceHpDisplay(float deltaTime) {
+        Enemy enemy = EnemyManager.getInstance().getEnemy(selectedEnemy);
+        if (attack_animation.isFinished() && !showDamage) {
+            int damage = (int)(player.getAttackPower() * attackRate);
+            showDamage = true;
+            displayedHealth = enemy.currentHealth;
+            damageDisplayElapsed = 0f;
+            enemy.takeDamage(damage);
+            damagePerMilliSecond = (float)damage / damageDisplayDuration * 8;
+        }
+        if(showDamage) {
+            displayedHealth -= damagePerMilliSecond * deltaTime * 1000;
+            if(displayedHealth < enemy.currentHealth) {
+                displayedHealth = enemy.currentHealth;
+            }
+            
+            damageDisplayElapsed += deltaTime * 1000;
+            if (damageDisplayElapsed >= damageDisplayDuration) {
+                showDamage = false;
+                damageDisplayElapsed = 0f;
+                // 切换场景
+                SceneManager.getInstance().shouldSwitch = true;
+            }
+        }
+    }
+
+    private void renderDamage(Enemy enemy, float damage) {
         if (showDamage && enemy != null) {
             // 伤害数字
             String text = String.valueOf((int)damage);
@@ -383,24 +408,19 @@ public class UIManager {
             float textX = (RIGHT_MARGIN + LEFT_MARGIN) / 2 - fontManager.getTextWidth(text) / 2 * dmgTextScaler;
             float textBaseY = enemy.getEntryBottom("body") - enemy.getHeight("body") / 2 + 40;
             float moveTotalTime = damageDisplayDuration / 3; // 上升和下降共1/3时间
-            float theta = (float)(Math.min(Math.PI,(Math.PI * (System.currentTimeMillis() - damageDisplayStartTime) / moveTotalTime)));
+            float theta = (float)(Math.min(Math.PI,(Math.PI * damageDisplayElapsed) / moveTotalTime));
             float textY = textBaseY - 40 * (float)Math.sin(theta);
             fontManager.drawText(text, textX, textY, dmgTextScaler, 1.0f, 0.0f, 0.0f, 1.0f);
+
             // 血条
             float maxHealthLength = 900.0f;
             float healthHeight = 20.0f;
-            float currentHealthLength = currentHealth / enemy.maxHealth * maxHealthLength;
+            float currentHealthLength = displayedHealth / enemy.maxHealth * maxHealthLength;
             float healthX = enemy.getEntryLeft("body") + enemy.getWidth("body") / 2 - maxHealthLength / 2 - 50;
             float healthY = enemy.getEntryBottom("body") - enemy.getHeight("body") / 2 + 80;
+
             Texture.drawRect(healthX, healthY, maxHealthLength, healthHeight, 1.0f, 0.0f, 0.0f, 1.0f);
             Texture.drawRect(healthX, healthY, currentHealthLength, healthHeight, 0.0f, 1.0f, 0.0f, 1.0f);
-
-            long now = System.currentTimeMillis();
-            if (now - damageDisplayStartTime >= damageDisplayDuration) {
-                showDamage = false;
-                // 切换场景
-                SceneManager.getInstance().shouldSwitch = true;
-            }
         }
     }
 
@@ -413,13 +433,13 @@ public class UIManager {
             float baseMissY = enemy.getEntryBottom("body") - enemy.getHeight("body") / 2 - miss_text.getHeight() / 2 * missScaler + 50;
             // sin从0到pi变化，振幅50
             float moveTotalTime = MISS_DISPLAY_DURATION / 2; // 上升和下降共1/2时间
-            float theta = (float)(Math.PI * (System.currentTimeMillis() - missDisplayStartTime) / moveTotalTime);
+            float theta = (float)(Math.PI * missDisplayElapsed / moveTotalTime);
             float missY = baseMissY - 50 * Math.max(0, (float)Math.sin(theta));
             Texture.drawTexture(miss_text.getId(), missX, missY, miss_text.getWidth() * missScaler, miss_text.getHeight() * missScaler);
 
-            long now = System.currentTimeMillis();
-            if (now - missDisplayStartTime >= MISS_DISPLAY_DURATION) {
+            if (missDisplayElapsed >= MISS_DISPLAY_DURATION) {
                 showMiss = false;
+                missDisplayElapsed = 0f;
                 SceneManager.getInstance().shouldSwitch = true;
             }
         }
@@ -430,16 +450,12 @@ public class UIManager {
         Texture.drawHollowRect(battle_frame_left, battle_frame_bottom - battle_frame_height, battle_frame_width, battle_frame_height, 1.0f, 1.0f, 1.0f, 1.0f, BATTLE_FRAME_LINE_WIDTH);
     }
 
-    public void updateAttackBarPosition() {
+    public void updateAttackBarPosition(float deltaTime) {
         // 在attack_bar_duration内attack_bar_offset从0线性变到MENU_FRAME_WIDTH
         // 需在FIGHT状态下每帧调用
         if (attack_bar_duration <= 0) return;
-        // 记录开始时间
-        if (attackBarStartTime == 0) {
-            attackBarStartTime = System.currentTimeMillis();
-        }
-        long elapsed = System.currentTimeMillis() - attackBarStartTime;
-        float t = Math.min(1.0f, (float)elapsed / attack_bar_duration);
+        attackBarElapsed += deltaTime * 1000f;
+        float t = Math.min(1.0f, (float)attackBarElapsed / attack_bar_duration);
         attack_bar_offset = t * MENU_FRAME_WIDTH;
         // 计算attackRate为开口向上的二次函数，最中间为1，两边为0
         float norm = t; // 0~1
@@ -453,22 +469,18 @@ public class UIManager {
         // 检查attackBar是否到最右且未按Z
         if (attack_bar_offset >= MENU_FRAME_WIDTH && !attackBarStopped && !showMiss) {
             showMiss = true;
-            missDisplayStartTime = System.currentTimeMillis();
+            missDisplayElapsed = 0f;
             // attackBar和attackPanel消失
             attackBarStopped = true;
         }
     }
 
-    public void updateAttackBarIndex() {
+    public void updateAttackBarIndex(float deltaTime) {
         // 攻击后,按下Z,Attack bar会停止, 并且在index = 0和1之间来回切换, 每次切换持续时间为300ms
         if (!attackBarStopped) return;
-        long now = System.currentTimeMillis();
-        if (attackBarBlinkStartTime == 0) {
-            attackBarBlinkStartTime = now;
-        }
-        long elapsed = now - attackBarBlinkStartTime;
+        attackBarBlinkElapsed += deltaTime * 1000f;
         int period = 300; // ms
-        int phase = (int)((elapsed / period) % 2);
+        int phase = (int)((attackBarBlinkElapsed / period) % 2);
         attack_bar_index = phase;
     }
 
@@ -529,26 +541,24 @@ public class UIManager {
                 }
             }
             totalCharsToShow = 0;
-            typewriterStartTime = System.currentTimeMillis();
             typewriterAllShown = false;
         }
 
         // 计算当前应显示的字符数（仅原始\n换行才停顿）
         if (!typewriterAllShown) {
-            long elapsed = System.currentTimeMillis() - typewriterStartTime;
             int total = 0;
             int charsToShow = 0;
             for (int i = 0; i < displayLines.size(); i++) {
                 String line = displayLines.get(i);
                 boolean pause = isRawNewline != null && isRawNewline.size() > i && isRawNewline.get(i);
-                long lineStart = (long)(total / (double)TYPEWRITER_SPEED * 1000) + (pause ? i * LINE_PAUSE_MS : 0);
-                long lineElapsed = elapsed - lineStart;
+                float lineStart = (float)total / TYPEWRITER_SPEED + (pause ? i * 0.25f : 0); // 0.25秒行间停顿
+                float lineElapsed = typewriterElapsed - lineStart;
                 if (lineElapsed > 0) {
-                    int lineChars = Math.min(line.length(), (int)(lineElapsed * TYPEWRITER_SPEED / 1000.0));
+                    int lineChars = Math.min(line.length(), (int)(lineElapsed * TYPEWRITER_SPEED));
                     charsToShow += lineChars;
                 }
                 // 若本行未全部显示，后续行不显示
-                if (lineElapsed < (line.length() * 1000.0 / TYPEWRITER_SPEED)) {
+                if (lineElapsed < ((float)line.length() / TYPEWRITER_SPEED)) {
                     break;
                 }
                 total += line.length();
@@ -718,11 +728,18 @@ public class UIManager {
     void update(float deltaTime) {
         if(menuState == MenuState.FIGHT) {
             if (!attackBarStopped) {
-                updateAttackBarPosition();
+                updateAttackBarPosition(deltaTime);
             } else {
-                updateAttackBarIndex();
+                updateSliceHpDisplay(deltaTime);
+                updateAttackBarIndex(deltaTime);
                 attack_animation.updateAnimation(deltaTime);
             }
+        }
+        if (showMiss) {
+            missDisplayElapsed += deltaTime;
+        }
+        if (!typewriterAllShown) {
+            typewriterElapsed += deltaTime;
         }
     }
     
