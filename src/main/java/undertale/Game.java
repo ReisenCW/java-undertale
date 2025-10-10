@@ -2,8 +2,6 @@ package undertale;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-import org.lwjgl.glfw.GLFWErrorCallback;
-
 public class Game {
     public static boolean DEBUG = true;
 
@@ -56,7 +54,6 @@ public class Game {
         
         // 初始化渲染器
         renderer = new Renderer(inputManager);
-
 	}
 
 	private static void loop() {

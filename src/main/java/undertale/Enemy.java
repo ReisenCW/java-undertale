@@ -11,6 +11,8 @@ public class Enemy {
     private int dropGold;
     private int dropExp;
 
+    public boolean isYellow;
+
     private ArrayList<String> acts;
     private ArrayList<String> descriptions;
     private static class AnimationEntry {
@@ -41,6 +43,7 @@ public class Enemy {
         this.currentHealth = currentHealth;
         this.dropGold = dropGold;
         this.dropExp = dropExp;
+        this.isYellow = false;
         if (acts != null && !acts.isEmpty() && descriptions != null && !descriptions.isEmpty()) {
             this.acts = acts;
         } else {

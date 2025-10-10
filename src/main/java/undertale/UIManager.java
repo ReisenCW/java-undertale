@@ -226,6 +226,19 @@ public class UIManager {
             }
             case MAIN ->
                 renderTextsInMenu(roundText);
+            case MERCY -> {
+                String text = "* You spared the enemy.";
+                Enemy enemy = EnemyManager.getInstance().getEnemy(selectedEnemy);
+                if(enemy != null){
+                    if(!enemy.isYellow) {
+                        text += "\n* But the enemy's name isn't yellow.";
+                    }
+                    else{
+                        text += "\n* You won!\n* You earned " + enemy.getDropExp() + " EXP and " + enemy.getDropGold() + " gold.";
+                    }
+                }
+                renderTextsInMenu(text);
+            }
         }
     }
 
@@ -235,7 +248,8 @@ public class UIManager {
         float left = MENU_FRAME_LEFT + 100;
         for (int i = 0; i < enemyCnt; i++) {
             Enemy enemy = EnemyManager.getInstance().getEnemy(i);
-            fontManager.drawText(enemy.getName(), left, top + i * (fontManager.getFontHeight() + 20), 1.0f, 1.0f, 1.0f, 1.0f);
+            float blue = enemy.isYellow ? 0.0f : 1.0f;
+            fontManager.drawText(enemy.getName(), left, top + i * (fontManager.getFontHeight() + 20), 1.0f, 1.0f, blue, 1.0f);
         }
     }
 
@@ -374,32 +388,6 @@ public class UIManager {
         renderDamage(enemy, player.getAttackPower() * attackRate);
     }
 
-    private void updateSliceHpDisplay(float deltaTime) {
-        Enemy enemy = EnemyManager.getInstance().getEnemy(selectedEnemy);
-        if (attack_animation.isFinished() && !showDamage) {
-            int damage = (int)(player.getAttackPower() * attackRate);
-            showDamage = true;
-            displayedHealth = enemy.currentHealth;
-            damageDisplayElapsed = 0f;
-            enemy.takeDamage(damage);
-            damagePerMilliSecond = (float)damage / damageDisplayDuration * 8;
-        }
-        if(showDamage) {
-            displayedHealth -= damagePerMilliSecond * deltaTime * 1000;
-            if(displayedHealth < enemy.currentHealth) {
-                displayedHealth = enemy.currentHealth;
-            }
-            
-            damageDisplayElapsed += deltaTime * 1000;
-            if (damageDisplayElapsed >= damageDisplayDuration) {
-                showDamage = false;
-                damageDisplayElapsed = 0f;
-                // 切换场景
-                SceneManager.getInstance().shouldSwitch = true;
-            }
-        }
-    }
-
     private void renderDamage(Enemy enemy, float damage) {
         if (showDamage && enemy != null) {
             // 伤害数字
@@ -448,6 +436,112 @@ public class UIManager {
     private void renderBattleFrame() {
         Texture.drawRect(battle_frame_left, battle_frame_bottom - battle_frame_height, battle_frame_width, battle_frame_height, 0.0f, 0.0f, 0.0f, 1.0f);        
         Texture.drawHollowRect(battle_frame_left, battle_frame_bottom - battle_frame_height, battle_frame_width, battle_frame_height, 1.0f, 1.0f, 1.0f, 1.0f, BATTLE_FRAME_LINE_WIDTH);
+    }
+
+    public void renderTextsInMenu(String text) {
+        // 打字机效果，X跳过全部显示，全部显示后Z才可继续
+        float left = MENU_FRAME_LEFT + 50;
+        float top = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 50;
+        float maxWidth = MENU_FRAME_WIDTH - 40;
+        float fontHeight = fontManager.getFontHeight() + 5;
+
+        // 若文本变化，重置打字机状态
+        if (lastText == null || !lastText.equals(text)) {
+            lastText = text;
+            displayLines.clear();
+            isRawNewline.clear();
+            // 先按\n分割，再对每行做自动换行
+            String[] lines = text.split("\\n");
+            for (String rawLine : lines) {
+                int start = 0;
+                int len = rawLine.length();
+                boolean first = true;
+                while (start < len) {
+                    int end = start;
+                    while (end < len) {
+                        int nextSpace = rawLine.indexOf(' ', end);
+                        String sub = rawLine.substring(start, nextSpace == -1 ? len : nextSpace);
+                        if (fontManager.getTextWidth(sub) > maxWidth) break;
+                        end = nextSpace == -1 ? len : nextSpace + 1;
+                    }
+                    if (end == start) end++;
+                    String line = rawLine.substring(start, end);
+                    displayLines.add(line);
+                    isRawNewline.add(first); // 只有原始\n的第一行才true
+                    first = false;
+                    start = end;
+                }
+            }
+            totalCharsToShow = 0;
+            typewriterElapsed = 0f;
+            typewriterAllShown = false;
+        }
+
+        // 计算当前应显示的字符数（仅原始\n换行才停顿）
+        if (!typewriterAllShown) {
+            int total = 0;
+            int charsToShow = 0;
+            for (int i = 0; i < displayLines.size(); i++) {
+                String line = displayLines.get(i);
+                boolean pause = isRawNewline != null && isRawNewline.size() > i && isRawNewline.get(i);
+                float lineStart = (float)total / TYPEWRITER_SPEED + (pause ? i * 0.25f : 0); // 0.25秒行间停顿
+                float lineElapsed = typewriterElapsed - lineStart;
+                if (lineElapsed > 0) {
+                    int lineChars = Math.min(line.length(), (int)(lineElapsed * TYPEWRITER_SPEED));
+                    charsToShow += lineChars;
+                }
+                // 若本行未全部显示，后续行不显示
+                if (lineElapsed < ((float)line.length() / TYPEWRITER_SPEED)) {
+                    break;
+                }
+                total += line.length();
+            }
+            // 限制最大
+            int allChars = 0;
+            for (String l : displayLines) allChars += l.length();
+            totalCharsToShow = Math.min(charsToShow, allChars);
+            if (totalCharsToShow >= allChars) {
+                typewriterAllShown = true;
+            }
+        }
+
+        // 绘制文本
+        int shown = 0;
+        int rowIdx = 0;
+        for (String line : displayLines) {
+            int remain = totalCharsToShow - shown;
+            if (remain <= 0) break;
+            int toShow = Math.min(remain, line.length());
+            fontManager.drawText(line.substring(0, toShow), left, top + rowIdx * fontHeight, 1.0f, 1.0f, 1.0f, 1.0f);
+            shown += toShow;
+            rowIdx++;
+        }
+    }
+
+    private void updateSliceHpDisplay(float deltaTime) {
+        Enemy enemy = EnemyManager.getInstance().getEnemy(selectedEnemy);
+        if (attack_animation.isFinished() && !showDamage) {
+            int damage = (int)(player.getAttackPower() * attackRate);
+            showDamage = true;
+            displayedHealth = enemy.currentHealth;
+            damageDisplayElapsed = 0f;
+            enemy.takeDamage(damage);
+            damagePerMilliSecond = (float)damage / damageDisplayDuration * 8;
+        }
+        if(showDamage) {
+            displayedHealth -= damagePerMilliSecond * deltaTime * 1000;
+            if(displayedHealth < enemy.currentHealth) {
+                displayedHealth = enemy.currentHealth;
+            }
+            
+            damageDisplayElapsed += deltaTime * 1000;
+            if (damageDisplayElapsed >= damageDisplayDuration) {
+                showDamage = false;
+                damageDisplayElapsed = 0f;
+                // 切换场景
+                SceneManager.getInstance().shouldSwitch = true;
+            }
+        }
     }
 
     public void updateAttackBarPosition(float deltaTime) {
@@ -502,86 +596,6 @@ public class UIManager {
             };
             // 渲染在list
             player.setPosition(MENU_FRAME_LEFT + 60 - player.getWidth() / 2, MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 40 + row * (fontManager.getFontHeight() + 20) - player.getHeight() / 2);
-        }
-    }
-
-    public void renderTextsInMenu(String text) {
-        // 打字机效果，X跳过全部显示，全部显示后Z才可继续
-        float left = MENU_FRAME_LEFT + 50;
-        float top = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 50;
-        float maxWidth = MENU_FRAME_WIDTH - 40;
-        float fontHeight = fontManager.getFontHeight() + 5;
-        final int LINE_PAUSE_MS = 250; // 每行间隔停顿时间，单位ms
-
-        // 若文本变化，重置打字机状态
-        if (lastText == null || !lastText.equals(text)) {
-            lastText = text;
-            displayLines.clear();
-            isRawNewline.clear();
-            // 先按\n分割，再对每行做自动换行
-            String[] lines = text.split("\\n");
-            for (String rawLine : lines) {
-                int start = 0;
-                int len = rawLine.length();
-                boolean first = true;
-                while (start < len) {
-                    int end = start;
-                    while (end < len) {
-                        int nextSpace = rawLine.indexOf(' ', end);
-                        String sub = rawLine.substring(start, nextSpace == -1 ? len : nextSpace);
-                        if (fontManager.getTextWidth(sub) > maxWidth) break;
-                        end = nextSpace == -1 ? len : nextSpace + 1;
-                    }
-                    if (end == start) end++;
-                    String line = rawLine.substring(start, end);
-                    displayLines.add(line);
-                    isRawNewline.add(first); // 只有原始\n的第一行才true
-                    first = false;
-                    start = end;
-                }
-            }
-            totalCharsToShow = 0;
-            typewriterAllShown = false;
-        }
-
-        // 计算当前应显示的字符数（仅原始\n换行才停顿）
-        if (!typewriterAllShown) {
-            int total = 0;
-            int charsToShow = 0;
-            for (int i = 0; i < displayLines.size(); i++) {
-                String line = displayLines.get(i);
-                boolean pause = isRawNewline != null && isRawNewline.size() > i && isRawNewline.get(i);
-                float lineStart = (float)total / TYPEWRITER_SPEED + (pause ? i * 0.25f : 0); // 0.25秒行间停顿
-                float lineElapsed = typewriterElapsed - lineStart;
-                if (lineElapsed > 0) {
-                    int lineChars = Math.min(line.length(), (int)(lineElapsed * TYPEWRITER_SPEED));
-                    charsToShow += lineChars;
-                }
-                // 若本行未全部显示，后续行不显示
-                if (lineElapsed < ((float)line.length() / TYPEWRITER_SPEED)) {
-                    break;
-                }
-                total += line.length();
-            }
-            // 限制最大
-            int allChars = 0;
-            for (String l : displayLines) allChars += l.length();
-            totalCharsToShow = Math.min(charsToShow, allChars);
-            if (totalCharsToShow >= allChars) {
-                typewriterAllShown = true;
-            }
-        }
-
-        // 绘制文本
-        int shown = 0;
-        int rowIdx = 0;
-        for (String line : displayLines) {
-            int remain = totalCharsToShow - shown;
-            if (remain <= 0) break;
-            int toShow = Math.min(remain, line.length());
-            fontManager.drawText(line.substring(0, toShow), left, top + rowIdx * fontHeight, 1.0f, 1.0f, 1.0f, 1.0f);
-            shown += toShow;
-            rowIdx++;
         }
     }
 
@@ -647,6 +661,7 @@ public class UIManager {
     public void handleMenuCancel() {
         // X返回上一级
         switch(menuState) {
+            case MAIN -> {}
             case FIGHT_SELECT_ENEMY,  ACT_SELECT_ENEMY, MERCY_SELECT_ENEMY, ITEM_SELECT_ITEM ->
                 menuState = MenuState.MAIN;
             case ACT_SELECT_ACT ->
