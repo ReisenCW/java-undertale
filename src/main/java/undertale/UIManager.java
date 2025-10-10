@@ -18,6 +18,7 @@ public class UIManager {
     private Texture attack_panel;
     private Texture attack_bar[];
     private Texture hp_text;
+    private Texture miss_text;
     private Animation attack_animation;
 
     public final int TOP_MARGIN = 0;
@@ -91,6 +92,11 @@ public class UIManager {
     private boolean typewriterAllShown = false;
     private final int TYPEWRITER_SPEED = 30; // 每秒显示字符数
 
+    // 新增成员变量
+    private boolean showMiss = false;
+    private long missDisplayStartTime = 0;
+    private final long MISS_DISPLAY_DURATION = 1500; // ms
+
     private UIManager() {
         fontManager = FontManager.getInstance();
         uiAnimationManager = AnimationManager.getInstance();
@@ -123,6 +129,7 @@ public class UIManager {
         attack_bar[1] = Game.getTexture("attack_bar_black");
 
         hp_text = Game.getTexture("hp_text");
+        miss_text = Game.getTexture("miss");
 
         attack_normal = Game.getTexture("attack_normal");
         attack_chosen = Game.getTexture("attack_chosen");
@@ -324,14 +331,20 @@ public class UIManager {
     }
 
     private void renderFightPanel() {
-        Texture.drawTexture(attack_panel.getId(),
-                            MENU_FRAME_LEFT + BATTLE_FRAME_LINE_WIDTH, 
-                            MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + BATTLE_FRAME_LINE_WIDTH,
-                            MENU_FRAME_WIDTH, MENU_FRAME_HEIGHT);
-        renderAttackBar();
-        if(attackBarStopped) {
-            renderSlice();
+        if (!showMiss){
+            Texture.drawTexture(attack_panel.getId(),
+                                MENU_FRAME_LEFT + BATTLE_FRAME_LINE_WIDTH, 
+                                MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + BATTLE_FRAME_LINE_WIDTH,
+                                MENU_FRAME_WIDTH, MENU_FRAME_HEIGHT);
+            renderAttackBar();
+            if(attackBarStopped) {
+                renderSlice();
+            }
         }
+        else {
+            renderMiss();
+        }
+
     }
 
     private void renderAttackBar() {
@@ -352,19 +365,25 @@ public class UIManager {
         attack_animation.renderCurrentFrame(x, y, scaler, scaler, 0, 1, 1, 1, 1);
         int damage = (int)(player.getAttackPower() * attackRate);
         float currentHealth = enemy.currentHealth;
+        currentHealth -= damage / damageDisplayDuration; // 需要拆分到有deltatime的update里
         // 结束动画后，显示造成的伤害
         if (attack_animation.isFinished() && !showDamage) {
             showDamage = true;
             damageDisplayStartTime = System.currentTimeMillis();
             enemy.takeDamage(damage);
         }
-        if(showDamage){
-            currentHealth -= damage / damageDisplayDuration; // 需要拆分到有deltatime的update里
-            String text = String.valueOf(damage);
+        renderDamage(enemy, currentHealth, damage);
+    }
+
+    private void renderDamage(Enemy enemy, float currentHealth, float damage) {
+        if (showDamage && enemy != null) {
+            // 伤害数字
+            String text = String.valueOf((int)damage);
             float dmgTextScaler = 2.5f;
             float textX = (RIGHT_MARGIN + LEFT_MARGIN) / 2 - fontManager.getTextWidth(text) / 2 * dmgTextScaler;
             float textY = enemy.getEntryBottom("body") - enemy.getHeight("body") / 2 + 20;
             fontManager.drawText(text, textX, textY, dmgTextScaler, 1.0f, 0.0f, 0.0f, 1.0f);
+            // 血条
             float maxHealthLength = 900.0f;
             float healthHeight = 20.0f;
             float currentHealthLength = currentHealth / enemy.maxHealth * maxHealthLength;
@@ -377,6 +396,27 @@ public class UIManager {
             if (now - damageDisplayStartTime >= damageDisplayDuration) {
                 showDamage = false;
                 // 切换场景
+                SceneManager.getInstance().shouldSwitch = true;
+            }
+        }
+    }
+
+    private void renderMiss() {
+        Enemy enemy = EnemyManager.getInstance().getEnemy(selectedEnemy);
+        float missScaler = 0.6f;
+        if (enemy == null) return;
+        if (showMiss) {
+            float missX = (RIGHT_MARGIN + LEFT_MARGIN) / 2 - miss_text.getWidth() / 2 * missScaler;
+            float baseMissY = enemy.getEntryBottom("body") - enemy.getHeight("body") / 2 - miss_text.getHeight() / 2 * missScaler + 50;
+            // sin从0到pi变化，振幅50
+            float moveTotalTime = MISS_DISPLAY_DURATION / 2; // 上升和下降共1/2时间
+            float theta = (float)(Math.PI * (System.currentTimeMillis() - missDisplayStartTime) / moveTotalTime);
+            float missY = baseMissY - 50 * Math.max(0, (float)Math.sin(theta));
+            Texture.drawTexture(miss_text.getId(), missX, missY, miss_text.getWidth() * missScaler, miss_text.getHeight() * missScaler);
+
+            long now = System.currentTimeMillis();
+            if (now - missDisplayStartTime >= MISS_DISPLAY_DURATION) {
+                showMiss = false;
                 SceneManager.getInstance().shouldSwitch = true;
             }
         }
@@ -405,6 +445,14 @@ public class UIManager {
         if (attackRate < 0.0f) attackRate = 0.0f;
         if (t >= 1.0f) {
             attack_bar_offset = MENU_FRAME_WIDTH;
+        }
+
+        // 检查attackBar是否到最右且未按Z
+        if (attack_bar_offset >= MENU_FRAME_WIDTH && !attackBarStopped && !showMiss) {
+            showMiss = true;
+            missDisplayStartTime = System.currentTimeMillis();
+            // attackBar和attackPanel消失
+            attackBarStopped = true;
         }
     }
 

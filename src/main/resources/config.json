@@ -2,6 +2,7 @@
   "textures": [
     {"key": "heart", "path": "img_heart.png"},
     {"key": "hp_text", "path": "img_hp.png"},
+    {"key": "miss", "path": "img_miss.png"},
     {"key": "attack_panel", "path": "img_attack_panel.png"},
     {"key": "attack_bar_white", "path": "img_attack_bar_white.png"},
     {"key": "attack_bar_black", "path": "img_attack_bar_black.png"},
