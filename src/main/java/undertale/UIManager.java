@@ -85,6 +85,7 @@ public class UIManager {
     // 打字机效果相关变量
     private String lastText = null;
     private ArrayList<String> displayLines = new ArrayList<>();
+    private ArrayList<Boolean> isRawNewline = new ArrayList<>();
     private int totalCharsToShow = 0;
     private long typewriterStartTime = 0;
     private boolean typewriterAllShown = false;
@@ -358,7 +359,7 @@ public class UIManager {
             enemy.takeDamage(damage);
         }
         if(showDamage){
-            currentHealth -= damage / damageDisplayDuration;
+            currentHealth -= damage / damageDisplayDuration; // 需要拆分到有deltatime的update里
             String text = String.valueOf(damage);
             float dmgTextScaler = 2.5f;
             float textX = (RIGHT_MARGIN + LEFT_MARGIN) / 2 - fontManager.getTextWidth(text) / 2 * dmgTextScaler;
@@ -453,11 +454,13 @@ public class UIManager {
         if (lastText == null || !lastText.equals(text)) {
             lastText = text;
             displayLines.clear();
+            isRawNewline.clear();
             // 先按\n分割，再对每行做自动换行
             String[] lines = text.split("\\n");
             for (String rawLine : lines) {
                 int start = 0;
                 int len = rawLine.length();
+                boolean first = true;
                 while (start < len) {
                     int end = start;
                     while (end < len) {
@@ -469,6 +472,8 @@ public class UIManager {
                     if (end == start) end++;
                     String line = rawLine.substring(start, end);
                     displayLines.add(line);
+                    isRawNewline.add(first); // 只有原始\n的第一行才true
+                    first = false;
                     start = end;
                 }
             }
@@ -477,15 +482,15 @@ public class UIManager {
             typewriterAllShown = false;
         }
 
-        // 计算当前应显示的字符数（带行间停顿）
+        // 计算当前应显示的字符数（仅原始\n换行才停顿）
         if (!typewriterAllShown) {
             long elapsed = System.currentTimeMillis() - typewriterStartTime;
             int total = 0;
             int charsToShow = 0;
             for (int i = 0; i < displayLines.size(); i++) {
                 String line = displayLines.get(i);
-                // 每行前有LINE_PAUSE_MS停顿
-                long lineStart = (long)(total / (double)TYPEWRITER_SPEED * 1000) + i * LINE_PAUSE_MS;
+                boolean pause = isRawNewline != null && isRawNewline.size() > i && isRawNewline.get(i);
+                long lineStart = (long)(total / (double)TYPEWRITER_SPEED * 1000) + (pause ? i * LINE_PAUSE_MS : 0);
                 long lineElapsed = elapsed - lineStart;
                 if (lineElapsed > 0) {
                     int lineChars = Math.min(line.length(), (int)(lineElapsed * TYPEWRITER_SPEED / 1000.0));
@@ -518,7 +523,6 @@ public class UIManager {
             rowIdx++;
         }
     }
-
 
     public void updatePlayerInBound() {
         player.handlePlayerOutBound(battle_frame_left + BATTLE_FRAME_LINE_WIDTH, 

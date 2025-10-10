@@ -18,7 +18,7 @@ public class BattleMenuScene extends Scene {
 
     @Override
     public void init() {
-        round = 1;
+        round = 0;
     }
 
     @Override
