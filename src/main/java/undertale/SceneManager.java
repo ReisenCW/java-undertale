@@ -9,12 +9,13 @@ public class SceneManager {
     private Scene currentScene;
     public boolean shouldSwitch = false;
 
+    static {
+        instance = new SceneManager();
+    }
+
     private SceneManager() {}
 
     public static SceneManager getInstance() {
-        if (instance == null) {
-            instance = new SceneManager();
-        }
         return instance;
     }
 

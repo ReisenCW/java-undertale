@@ -7,6 +7,10 @@ public class TextureManager {
     private HashMap<String, Texture> textures;
     private HashMap<String, String> textureFileMap;
 
+    static {
+        instance = new TextureManager();
+    }
+
     private TextureManager() {
         textures = new HashMap<>();
         textureFileMap = Game.getConfigManager().textures;
@@ -21,9 +25,6 @@ public class TextureManager {
     } 
     
     public static TextureManager getInstance() {
-        if (instance == null) {
-            instance = new TextureManager();
-        }
         return instance;
     }
 

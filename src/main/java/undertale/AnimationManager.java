@@ -7,6 +7,10 @@ public class AnimationManager {
     private static AnimationManager instance;
     private TextureManager textureManager;
 
+    static {
+        instance = new AnimationManager();
+    }
+
     private AnimationManager() {
         textureManager = TextureManager.getInstance();
         animations = new HashMap<>();
@@ -71,9 +75,6 @@ public class AnimationManager {
     }
 
     public static AnimationManager getInstance() {
-        if (instance == null) {
-            instance = new AnimationManager();
-        }
         return instance;
     }
 

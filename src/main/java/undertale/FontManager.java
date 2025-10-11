@@ -22,6 +22,10 @@ public class FontManager {
     private final int FONT_SIZE = 32;
     private final int FIRST_CHAR = 32, CHAR_COUNT = 96; // ASCII 32~127
 
+    static {
+        instance = new FontManager();
+    }
+
     // 字体缓存结构
     private static class FontData {
         int textureId;
@@ -41,9 +45,6 @@ public class FontManager {
     }
 
     public static FontManager getInstance() {
-        if (instance == null) {
-            instance = new FontManager();
-        }
         return instance;
     }
 

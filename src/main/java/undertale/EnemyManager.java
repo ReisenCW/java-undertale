@@ -10,15 +10,16 @@ public class EnemyManager {
     private float windowWidth = Game.getWindowWidth();
     private float windowCenterX = windowWidth / 2;
 
+    static {
+        enemyManager = new EnemyManager();
+    }
+
 	private EnemyManager() {
 		enemies = new ArrayList<>();
         init();
     }
 
     public static EnemyManager getInstance() {
-        if (enemyManager == null) {
-            enemyManager = new EnemyManager();
-        }
         return enemyManager;
     }
 

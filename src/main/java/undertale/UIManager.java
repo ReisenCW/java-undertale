@@ -103,6 +103,10 @@ public class UIManager {
     private boolean typewriterAllShown = false;
     private final int TYPEWRITER_SPEED = 30; // 每秒显示字符数
 
+    static {
+        instance = new UIManager();
+    }
+
     private UIManager() {
         fontManager = FontManager.getInstance();
         uiAnimationManager = AnimationManager.getInstance();
@@ -152,9 +156,6 @@ public class UIManager {
     }
 
     public static UIManager getInstance() {
-        if (instance == null) {
-            instance = new UIManager();
-        }
         return instance;
     }
 
