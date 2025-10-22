@@ -28,6 +28,12 @@ public class ObjectManager {
         return bullet;
     }
 
+    public void addBullet(Bullet bullet) {
+        if (bullet != null) {
+            bullets.add(bullet);
+        }
+    }
+
     public void updateMenuScene(float deltaTime){
         // enemy
         enemyManager.update(deltaTime);
@@ -51,7 +57,6 @@ public class ObjectManager {
                 toRemove.add(bullet);
             }
             // 判断子弹是否超出窗口
-            
         }
         for (Bullet bullet : toRemove) {
             bullets.remove(bullet);

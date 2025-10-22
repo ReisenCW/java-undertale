@@ -6,6 +6,7 @@ import undertale.Enemy.EnemyManager;
 import undertale.GameMain.InputManager;
 import undertale.GameMain.UIManager;
 import undertale.GameObject.ObjectManager;
+import undertale.Scene.Rounds.*;
 
 public class BattleFightScene extends Scene {
     private UIManager uiManager = UIManager.getInstance();
@@ -22,7 +23,7 @@ public class BattleFightScene extends Scene {
     public void init() {
         round = 1;
         rounds = new ArrayList<>();
-        rounds.add(new Round(10000));
+        rounds.add(new RoundSwarm(10000));
     }
 
     @Override

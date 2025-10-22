@@ -66,13 +66,14 @@
     {"key": "slice_4", "path": "atk_animation/spr_slice_o_4.png"},
     {"key": "slice_5", "path": "atk_animation/spr_slice_o_5.png"},
     {"key": "slice_6", "path": "atk_animation/spr_slice_o_6.png"},
-    {"key": "spawn_1", "path": "spr_titan_spawn_idle_0.png"},
-    {"key": "spawn_2", "path": "spr_titan_spawn_idle_1.png"},
-    {"key": "spawn_3", "path": "spr_titan_spawn_idle_2.png"},
-    {"key": "spawn_4", "path": "spr_titan_spawn_idle_3.png"},
-    {"key": "spawn_5", "path": "spr_titan_spawn_idle_4.png"},
-    {"key": "spawn_6", "path": "spr_titan_spawn_idle_5.png"},
-    {"key": "spawn_7", "path": "spr_titan_spawn_idle_6.png"}
+    {"key": "spawn_0", "path": "titan_spawn/spr_titan_spawn_idle_0.png"},
+    {"key": "spawn_1", "path": "titan_spawn/spr_titan_spawn_idle_1.png"},
+    {"key": "spawn_2", "path": "titan_spawn/spr_titan_spawn_idle_2.png"},
+    {"key": "spawn_3", "path": "titan_spawn/spr_titan_spawn_idle_3.png"},
+    {"key": "spawn_4", "path": "titan_spawn/spr_titan_spawn_idle_4.png"},
+    {"key": "spawn_5", "path": "titan_spawn/spr_titan_spawn_idle_5.png"},
+    {"key": "spawn_6", "path": "titan_spawn/spr_titan_spawn_idle_6.png"},
+    {"key": "spawn_7", "path": "titan_spawn/spr_titan_spawn_idle_7.png"}
   ],
   "fonts": [
     {"key": "determination", "path": "determinationmonoweb-webfont.ttf"},

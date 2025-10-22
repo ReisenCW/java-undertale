@@ -77,8 +77,8 @@ public class AnimationManager {
 
         // titan_spawn_animation
         {
-            Animation titan_spawn_animation = new Animation(0.3f, true);
-            for (int i = 1; i <= 7; i++) {
+            Animation titan_spawn_animation = new Animation(2.0f, true);
+            for (int i = 0; i <= 7; i++) {
                 titan_spawn_animation.addFrame(textureManager.getTexture("spawn_" + i));
             }
             animations.put("titan_spawn_animation", titan_spawn_animation);
