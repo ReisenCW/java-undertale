@@ -157,11 +157,4 @@ public abstract class GameObject {
         y + getHeight() >= top && 
         y - getHeight() <= bottom;
     }
-
-    public void reset() {
-        speed = 0.0f;
-        direction[0] = 0.0f;
-        direction[1] = 0.0f;
-        speedAngle = 0.0f;
-    }
 }

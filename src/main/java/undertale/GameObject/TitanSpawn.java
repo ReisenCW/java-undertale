@@ -23,10 +23,10 @@ public class TitanSpawn extends Bullet{
     }
 
     private void updateCurrentSpeed(float deltaTime) {
-        // 每3.5秒: 周期开始瞄准玩家；前3秒速度按 sin 包络上升再下降；第4秒静止
+        // 每3秒: 周期开始瞄准玩家；前2.5秒速度按 sin 包络上升再下降；第3秒静止
         cycleTimerSec += deltaTime;
-        if (cycleTimerSec >= 3.5f && aimTime > 0) {
-            cycleTimerSec -= 3.5f;
+        if (cycleTimerSec >= 3.0f && aimTime > 0) {
+            cycleTimerSec -= 3.0f;
             aimedThisCycle = false; // 新周期开始
         }
 
@@ -42,11 +42,11 @@ public class TitanSpawn extends Bullet{
             aimTime--;
             aimedThisCycle = true;
         }
-        // 速度包络：0~3秒为 maxSpeed * sin(pi * t / 3)，3~3.5秒为0
+        // 速度包络：0~2.5秒为 maxSpeed * sin(pi * t / 2.5)，2.5~3秒为0
         float t = cycleTimerSec;
         float speed;
-        if (t < 3.0f) {
-            speed = (float)(maxSpeed * Math.sin(Math.PI * (t / 3.0f)));
+        if (t < 2.5f) {
+            speed = (float)(maxSpeed * Math.sin(Math.PI * (t / 2.5f)));
         } else {
             if(aimTime > 0) {
                 speed = 0.0f;

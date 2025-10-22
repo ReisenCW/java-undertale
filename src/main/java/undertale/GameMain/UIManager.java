@@ -53,6 +53,13 @@ public class UIManager {
     public float battle_frame_left;
     public float battle_frame_bottom;
 
+    // battle frame moving
+    private boolean bfMoving = false;
+    private float bfMoveElapsedMs = 0f;
+    private float bfMoveDurationMs = 0f;
+    private float bfStartW, bfStartH, bfStartL, bfStartB;
+    private float bfTargetW, bfTargetH, bfTargetL, bfTargetB;
+
     // Attack bar 动画相关变量
     private boolean attackBarStopped = false;
     // 伤害显示
@@ -78,7 +85,6 @@ public class UIManager {
     private float damageDisplayElapsed = 0f;
     private float typewriterElapsed = 0f;
     private float missDisplayElapsed = 0f;
-
 
     private Player player;
 
@@ -173,7 +179,6 @@ public class UIManager {
     public void resetVars() {
         resetStates();
         resetTimeVars();
-        resetFrameSize();
     }
 
     private void resetStates() {
@@ -193,13 +198,6 @@ public class UIManager {
         attackBarStopped = false;
     }
 
-    private void resetFrameSize() {
-        battle_frame_bottom = MENU_FRAME_BOTTOM;
-        battle_frame_height = MENU_FRAME_HEIGHT;
-        battle_frame_left = MENU_FRAME_LEFT;
-        battle_frame_width = MENU_FRAME_WIDTH;
-    }
-
     private void resetTimeVars() {
         attackBarElapsed = 0f;
         attackBarBlinkElapsed = 0f;
@@ -208,11 +206,14 @@ public class UIManager {
         missDisplayElapsed = 0f;
     }
 
-    public void renderBattleUI(String roundText) {
-        // 渲染按钮
+    public void renderBattleUI() {
+        // 渲染按钮, 玩家信息, 战斗框架
         renderButtons();
         renderPlayerInfo();
         renderBattleFrame();
+    }
+
+    public void renderFrameContents(String roundText) {
         if(roundText == null) return;
         switch(menuState) {
             case FIGHT_SELECT_ENEMY, ACT_SELECT_ENEMY, MERCY_SELECT_ENEMY -> 
@@ -223,8 +224,8 @@ public class UIManager {
                 renderItemList();
             case MERCY_SELECT_SPARE -> 
                 renderMercyList();
-            case ACT ->{
-                Enemy enemy = EnemyManager.getInstance().getEnemy(selectedEnemy); 
+            case ACT -> {
+                Enemy enemy = EnemyManager.getInstance().getEnemy(selectedEnemy);
                 renderTextsInMenu(enemy.getDescriptionByIndex(selectedAct));
             }
             case ITEM -> {
@@ -727,17 +728,43 @@ public class UIManager {
     }
 
     public void moveBattleFrame(float deltaTime, float duration, float targetWidth, float targetHeight, float targetLeft, float targetBottom) {
-        // 按sin函数平滑移动
-        float t = Math.min(1.0f, (deltaTime * 1000) / duration);
-        float smoothT = (float)(0.5f - 0.5f * Math.cos(Math.PI * t)); 
-        battle_frame_width += (targetWidth - battle_frame_width) * smoothT;
-        battle_frame_height += (targetHeight - battle_frame_height) * smoothT;
-        battle_frame_left += (targetLeft - battle_frame_left) * smoothT;
-        battle_frame_bottom += (targetBottom - battle_frame_bottom) * smoothT;
+        if (duration <= 0) {
+            battle_frame_width = targetWidth;
+            battle_frame_height = targetHeight;
+            battle_frame_left = targetLeft;
+            battle_frame_bottom = targetBottom;
+            bfMoving = false;
+            return;
+        }
+
+        if (!bfMoving) {
+            bfMoving = true;
+            bfMoveElapsedMs = 0f;
+            bfMoveDurationMs = duration;
+            bfStartW = battle_frame_width;
+            bfStartH = battle_frame_height;
+            bfStartL = battle_frame_left;
+            bfStartB = battle_frame_bottom;
+            bfTargetW = targetWidth;
+            bfTargetH = targetHeight;
+            bfTargetL = targetLeft;
+            bfTargetB = targetBottom;
+        }
+
+        bfMoveElapsedMs += deltaTime * 1000.0f;
+        float t = Math.min(1.0f, bfMoveElapsedMs / bfMoveDurationMs);
+        float smoothT = (float)(0.5f - 0.5f * Math.cos(Math.PI * t));
+
+        battle_frame_width = bfStartW + (bfTargetW - bfStartW) * smoothT;
+        battle_frame_height = bfStartH + (bfTargetH - bfStartH) * smoothT;
+        battle_frame_left = bfStartL + (bfTargetL - bfStartL) * smoothT;
+        battle_frame_bottom = bfStartB + (bfTargetB - bfStartB) * smoothT;
+
+        if (t >= 1.0f) bfMoving = false;
     }
 
     public void menuSelectUp() {
-        // 向上选择，item支持分页滚动
+        // 向上选择, item支持分页滚动
         switch(menuState) {
             case MAIN -> {}
             case FIGHT_SELECT_ENEMY, MERCY_SELECT_ENEMY, ACT_SELECT_ENEMY -> {
@@ -778,9 +805,9 @@ public class UIManager {
             }
         }
         if (showMiss) {
-            missDisplayElapsed += deltaTime;
+            missDisplayElapsed += deltaTime * 1000.0f;
         }
-        if (!typewriterAllShown) {
+        if (!typewriterAllShown && bfMoving != false) {
             typewriterElapsed += deltaTime;
         }
     }
@@ -797,8 +824,6 @@ public class UIManager {
     public boolean isTypewriterAllShown() {
         return typewriterAllShown;
     }
-
-
 
     public void selectMoveRight() {
         if(menuState != MenuState.MAIN) return;

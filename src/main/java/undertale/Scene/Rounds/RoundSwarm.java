@@ -58,7 +58,7 @@ public class RoundSwarm extends Round{
 
     @Override
     public void moveBattleFrame(float deltaTime) {
-        float edge = 50.0f;
+        float edge = 300.0f;
         float centerX = Game.getWindowWidth() / 2.0f;
         float centerY = Game.getWindowHeight() / 2.0f;
         uiManager.moveBattleFrame(deltaTime, frameMoveTime, edge, edge, centerX - edge / 2, centerY + edge / 2);

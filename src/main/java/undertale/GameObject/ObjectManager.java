@@ -112,8 +112,8 @@ public class ObjectManager {
         bullets.clear();
     }
 
-    public void resetPlayer() {
-        player.reset();
+    public void allowPlayerMovement(boolean allow) {
+        player.isMovable = allow;
     }
 
     public void initPlayerPosition() {

@@ -24,7 +24,7 @@ public class BattleFightScene extends Scene {
     public void init() {
         round = 0;
         rounds = new ArrayList<>();
-        rounds.add(new RoundSwarm(10000, 1000));
+        rounds.add(new RoundSwarm(10000, 1500));
         roundTime = 0;
     }
 
@@ -34,11 +34,12 @@ public class BattleFightScene extends Scene {
         round = Math.min(round + 1, rounds.size());
         uiManager.setSelected(-1);
         objectManager.initPlayerPosition();
+        objectManager.allowPlayerMovement(true);
     }
 
     @Override
     public void onExit() {
-        objectManager.resetPlayer();
+        objectManager.allowPlayerMovement(false);
         uiManager.setSelected(0);
         objectManager.clearBullets();
     }
@@ -63,7 +64,7 @@ public class BattleFightScene extends Scene {
     @Override
     public void render() {
         enemyManager.render();
-        uiManager.renderBattleUI(null);
+        uiManager.renderBattleUI();
         objectManager.renderFightScene();
     }
 
