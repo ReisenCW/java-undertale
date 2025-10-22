@@ -96,8 +96,8 @@
     "attackPower": 1000,
     "vScale": 3.0,
     "hScale": 3.0,
-    "highSpeed": 180.0,
-    "lowSpeed": 80.0,
+    "highSpeed": 280.0,
+    "lowSpeed": 150.0,
     "invisibleTime": 1500
   },
   "debug": true

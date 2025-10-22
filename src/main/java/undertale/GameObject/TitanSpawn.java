@@ -7,7 +7,7 @@ import undertale.GameMain.Game;
 public class TitanSpawn extends Bullet{
     private Animation animation;
     private float maxSpeed;
-    private int currentAlpha;
+    private float currentAlpha;
 
     private float cycleTimerSec = 0f;
     private boolean aimedThisCycle = false;
@@ -19,7 +19,7 @@ public class TitanSpawn extends Bullet{
         setNavi(false);
         this.animation = animation;
         this.maxSpeed = maxSpeed;
-        this.currentAlpha = 0;
+        this.currentAlpha = 0.0f;
     }
 
     private void updateCurrentSpeed(float deltaTime) {
@@ -63,11 +63,11 @@ public class TitanSpawn extends Bullet{
 
     @Override
     public void update(float deltaTime) {
-        // 在2秒内, alpha从0增加到255
-        if (currentAlpha < 255) {
-            currentAlpha += Utilities.getChangeStep(0, 255, deltaTime, 2.0f).intValue();
-            if (currentAlpha > 255) {
-                currentAlpha = 255;
+        // 在1秒内, alpha从0增加到255
+        if (currentAlpha < 1.0f) {
+            currentAlpha += Utilities.getChangeStep(0.0f, 1.0f, deltaTime, 1.0f).floatValue();
+            if (currentAlpha > 1.0f) {
+                currentAlpha = 1.0f;
             }
         }
         else{
@@ -79,7 +79,7 @@ public class TitanSpawn extends Bullet{
     
     @Override
     public void render() {
-        animation.renderCurrentFrame(this.x, this.y, getHScale(), getVScale(), this.getSelfAngle(), 255, 255, 255, currentAlpha);
+        animation.renderCurrentFrame(this.x, this.y, getHScale(), getVScale(), this.getSelfAngle(), 1.0f, 1.0f, 1.0f, currentAlpha);
     }
 
     @Override

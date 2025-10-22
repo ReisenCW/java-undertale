@@ -89,8 +89,6 @@ public class Game {
 		inputManager.processInput();
         // ui更新
         uiManager.update(deltaTime);
-        // 场景更新
-        sceneManager.getCurrentScene().update(deltaTime);
     }
 
     private static void render() {

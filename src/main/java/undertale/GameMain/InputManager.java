@@ -103,19 +103,15 @@ public class InputManager {
         }
         if(isKeyTriggered(GLFW_KEY_Z)) {
             uiManager.handleMenuSelect();
-            System.out.println("current menu state: " + uiManager.getMenuState());
         }
         if(isKeyTriggered(GLFW_KEY_X)) {
             uiManager.handleMenuCancel();
-            System.out.println("current menu state: " + uiManager.getMenuState());
         }
         if(isKeyTriggered(GLFW_KEY_UP)) {
             uiManager.menuSelectUp();
-            System.out.println("current menu state: " + uiManager.getMenuState() + " enemy select " + uiManager.selectedEnemy + " act select " + uiManager.selectedAct + " item select " + uiManager.selectedItem);
         }
         if(isKeyTriggered(GLFW_KEY_DOWN)) {
             uiManager.menuSelectDown();
-            System.out.println("current menu state: " + uiManager.getMenuState() + " enemy select " + uiManager.selectedEnemy + " act select " + uiManager.selectedAct + " item select " + uiManager.selectedItem);
         }
     }
 

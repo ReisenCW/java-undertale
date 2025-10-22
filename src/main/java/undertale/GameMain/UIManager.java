@@ -183,6 +183,7 @@ public class UIManager {
         selectedItem = 0;
         selectedAction = 0;
         itemListFirstIndex = 0;
+        attack_animation.setCurrentFrame(0);
         setSelected(0);
 
         attack_bar_offset = 0.0f;
@@ -446,7 +447,7 @@ public class UIManager {
     }
 
     private void renderBattleFrame() {
-        Texture.drawRect(battle_frame_left, battle_frame_bottom - battle_frame_height, battle_frame_width, battle_frame_height, 0.0f, 0.0f, 0.0f, 1.0f);        
+        Texture.drawRect(battle_frame_left, battle_frame_bottom - battle_frame_height, battle_frame_width, battle_frame_height, 0.0f, 0.0f, 0.0f, 1.0f);
         Texture.drawHollowRect(battle_frame_left, battle_frame_bottom - battle_frame_height, battle_frame_width, battle_frame_height, 1.0f, 1.0f, 1.0f, 1.0f, BATTLE_FRAME_LINE_WIDTH);
     }
 
@@ -658,9 +659,13 @@ public class UIManager {
                     yield menuState;
                 }
                 case FIGHT -> {
-                    // Attack bar停止
+                    // Attack bar停止 — 开始攻击时重置相关动画以保证slice动画每次都能播放
                     if (!attackBarStopped) {
                         attackBarStopped = true;
+                        // reset slice动画
+                        if (attack_animation != null) {
+                            attack_animation.reset();
+                        }
                     }
                     yield menuState;
                 }
@@ -719,6 +724,16 @@ public class UIManager {
             }
             case FIGHT, ACT, ITEM, MERCY -> {}
         }
+    }
+
+    public void moveBattleFrame(float deltaTime, float duration, float targetWidth, float targetHeight, float targetLeft, float targetBottom) {
+        // 按sin函数平滑移动
+        float t = Math.min(1.0f, (deltaTime * 1000) / duration);
+        float smoothT = (float)(0.5f - 0.5f * Math.cos(Math.PI * t)); 
+        battle_frame_width += (targetWidth - battle_frame_width) * smoothT;
+        battle_frame_height += (targetHeight - battle_frame_height) * smoothT;
+        battle_frame_left += (targetLeft - battle_frame_left) * smoothT;
+        battle_frame_bottom += (targetBottom - battle_frame_bottom) * smoothT;
     }
 
     public void menuSelectUp() {

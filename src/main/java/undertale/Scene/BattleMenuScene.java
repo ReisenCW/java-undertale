@@ -9,6 +9,7 @@ public class BattleMenuScene extends Scene {
     private UIManager uiManager = UIManager.getInstance();
     private EnemyManager enemyManager = EnemyManager.getInstance();
     private int round;
+    private long roundTime;
 
     private String[] roundMessages = {
         "* The titan appeared.",
@@ -24,6 +25,7 @@ public class BattleMenuScene extends Scene {
     @Override
     public void init() {
         round = 0;
+        roundTime = 0;
     }
 
     @Override
@@ -31,6 +33,7 @@ public class BattleMenuScene extends Scene {
         objectManager.clearBullets();
         uiManager.resetVars();
         round = Math.min(++round, roundMessages.length);
+        roundTime = 0;
     }
 
     @Override
@@ -41,6 +44,11 @@ public class BattleMenuScene extends Scene {
 
     @Override
     public void update(float deltaTime) {
+        // 开始1s, BattleFrame恢复到原来位置
+        roundTime += deltaTime * 1000;
+        if (roundTime < 1000) {
+            resetBattleFrame(deltaTime);
+        }
         uiManager.updatePlayerMenuPosition();
         objectManager.updateMenuScene(deltaTime);
         SceneManager.getInstance().switchScene(SceneEnum.BATTLE_FIGHT);
@@ -56,5 +64,9 @@ public class BattleMenuScene extends Scene {
     @Override
     public SceneEnum getCurrentScene() {
         return SceneEnum.BATTLE_MENU;
+    }
+
+    private void resetBattleFrame(float deltaTime) {
+        uiManager.moveBattleFrame(deltaTime, 1000f, uiManager.battle_frame_width, uiManager.battle_frame_height, uiManager.battle_frame_left, uiManager.battle_frame_bottom);
     }
 }

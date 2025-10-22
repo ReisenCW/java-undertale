@@ -1,10 +1,12 @@
 package undertale.Scene.Rounds;
 
 public abstract class Round {
-    private long roundDuration; // 回合持续时间
+    protected long roundDuration; // 回合持续时间
+    protected long frameMoveTime;
 
-    public Round(long duration) {
+    public Round(long duration, long frameMoveTime) {
         this.roundDuration = duration;
+        this.frameMoveTime = frameMoveTime;
     }
 
     public abstract void updateRound(float deltaTime);
@@ -12,4 +14,10 @@ public abstract class Round {
     public long getRoundDuration() {
         return roundDuration;
     }
+
+    public long getFrameMoveTime() {
+        return frameMoveTime;
+    }
+
+    public void moveBattleFrame(float deltaTime) {}
 }

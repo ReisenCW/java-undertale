@@ -34,7 +34,7 @@ public class AnimationManager {
             // 给所有backwing和frontwing添加动画
             Animation[] backwingAnimations = new Animation[4];
             for (int i = 0; i < backwingAnimations.length - 1; i++) {
-                backwingAnimations[i] = new Animation(0.4f, true,
+                backwingAnimations[i] = new Animation(0.2f, true,
                     textureManager.getTexture("titan_backwing_" + i + "_0"),
                     textureManager.getTexture("titan_backwing_" + i + "_1"),
                     textureManager.getTexture("titan_backwing_" + i + "_2"),
@@ -43,7 +43,7 @@ public class AnimationManager {
                     textureManager.getTexture("titan_backwing_" + i + "_5"),
                     textureManager.getTexture("titan_backwing_" + i + "_6"));
             }
-            backwingAnimations[backwingAnimations.length - 1] = new Animation(0.4f, true, true, false,
+            backwingAnimations[backwingAnimations.length - 1] = new Animation(0.2f, true, true, false,
                 textureManager.getTexture("titan_backwing_0_0"),
                 textureManager.getTexture("titan_backwing_0_1"),
                 textureManager.getTexture("titan_backwing_0_2"),
@@ -54,7 +54,7 @@ public class AnimationManager {
             
             Animation[] frontwingAnimations = new Animation[3];
             for (int i = 0; i < frontwingAnimations.length; i++) {
-                frontwingAnimations[i] = new Animation(0.4f, true,
+                frontwingAnimations[i] = new Animation(0.2f, true,
                     textureManager.getTexture("titan_frontwing_" + i + "_0"),
                     textureManager.getTexture("titan_frontwing_" + i + "_1"),
                     textureManager.getTexture("titan_frontwing_" + i + "_2"),
@@ -77,7 +77,7 @@ public class AnimationManager {
 
         // titan_spawn_animation
         {
-            Animation titan_spawn_animation = new Animation(2.0f, true);
+            Animation titan_spawn_animation = new Animation(1.0f, true);
             for (int i = 0; i <= 7; i++) {
                 titan_spawn_animation.addFrame(textureManager.getTexture("spawn_" + i));
             }

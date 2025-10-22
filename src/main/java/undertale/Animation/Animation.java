@@ -65,6 +65,7 @@ public class Animation {
         if (index >= 0 && index < frameCount) {
             currentFrame = index;
             elapsedTime = 0.0f; // Reset elapsed time when manually setting frame
+            isEnd = false;
         }
     }
 
@@ -115,5 +116,11 @@ public class Animation {
 
     public boolean isFinished() {
         return isEnd;
+    }
+    
+    public void reset() {
+        this.currentFrame = 0;
+        this.elapsedTime = 0.0f;
+        this.isEnd = false;
     }
 }

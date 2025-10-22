@@ -112,6 +112,10 @@ public class ObjectManager {
         bullets.clear();
     }
 
+    public void resetPlayer() {
+        player.reset();
+    }
+
     public void initPlayerPosition() {
         // 初始化玩家位置到战斗框中央
         float startX = Game.getFrameLeft() + (Game.getFrameWidth() - player.getWidth()) / 2.0f;
