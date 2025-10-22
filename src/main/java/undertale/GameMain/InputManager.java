@@ -1,0 +1,157 @@
+package undertale.GameMain;
+
+import static org.lwjgl.glfw.GLFW.*;
+
+import undertale.GameObject.Player;
+import undertale.Scene.SceneManager;
+import undertale.Utils.Timer;
+
+public class InputManager {
+    private Window window;
+    private boolean[] keyStates = new boolean[GLFW_KEY_LAST + 1];
+    private boolean[] wasKeyPressed = new boolean[GLFW_KEY_LAST + 1];
+    
+    // escape
+    public final long ESCAPE_HOLD_TIME = 2000; // 按住2秒退出
+    private boolean isEscaping = false;
+    private Timer escapeTimer = new Timer();
+    
+    // player
+    private Player player;
+
+    // scene
+    private SceneManager sceneManager;
+
+    // UI
+    private UIManager uiManager;
+
+    InputManager(Window window, Player player) {
+        this.window = window;
+        this.player = player;
+        this.sceneManager = SceneManager.getInstance();
+        this.uiManager = UIManager.getInstance();
+    }
+
+    private void updateKeyState() {
+        glfwPollEvents();
+        // 先保存上一帧状态
+        for (int key = GLFW_KEY_SPACE; key <= GLFW_KEY_LAST; key++) {
+            wasKeyPressed[key] = keyStates[key];
+        }
+        // 再更新当前帧状态
+        for (int key = GLFW_KEY_SPACE; key <= GLFW_KEY_LAST; key++) {
+            keyStates[key] = (glfwGetKey(window.getWindow(), key) == GLFW_PRESS);
+        }
+    }
+
+    private void handleEscaping() {
+        if (isKeyPressed(GLFW_KEY_ESCAPE)) {
+            if (!isEscaping) {
+                isEscaping = true;
+                escapeTimer.setTimerStart();
+            }
+            // 按住ESCAPE键超过2秒则退出
+            if(escapeTimer.isTimeElapsed(ESCAPE_HOLD_TIME)) {
+                org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose(window.getWindow(), true);
+                return;
+            }
+        } else {
+            if (isEscaping) {
+                isEscaping = false;
+            }
+        }
+    }
+
+    private void handleDebug(){
+        // 按下f12切换debug模式
+        if(Game.DEBUG && isKeyTriggered(GLFW_KEY_F12)) {
+            Game.DEBUG = false;
+            System.out.println("Debug mode OFF");
+        } else if(!Game.DEBUG && isKeyTriggered(GLFW_KEY_F12)) {
+            Game.DEBUG = true;
+            System.out.println("Debug mode ON");
+        }
+    }
+
+    private void handlePlayerMovement() {
+        if(!player.isMovable || !player.isAlive()) {
+            player.setDirectionX(0);
+            player.setDirectionY(0);
+            return;
+        }
+        // 通过上下左右箭头移动
+        if (isKeyPressed(GLFW_KEY_UP))
+            player.setDirectionY(-1);
+        else if (isKeyPressed(GLFW_KEY_DOWN))
+            player.setDirectionY(1);
+        else
+            player.setDirectionY(0);
+        if (isKeyPressed(GLFW_KEY_LEFT))
+            player.setDirectionX(-1);
+        else if (isKeyPressed(GLFW_KEY_RIGHT))
+            player.setDirectionX(1);
+        else
+            player.setDirectionX(0);
+    }
+
+    private void handleMenuChoose() {
+        if(isKeyTriggered(GLFW_KEY_RIGHT)) {
+            uiManager.selectMoveRight();
+        }
+        if(isKeyTriggered(GLFW_KEY_LEFT)) {
+            uiManager.selectMoveLeft();
+        }
+        if(isKeyTriggered(GLFW_KEY_Z)) {
+            uiManager.handleMenuSelect();
+            System.out.println("current menu state: " + uiManager.getMenuState());
+        }
+        if(isKeyTriggered(GLFW_KEY_X)) {
+            uiManager.handleMenuCancel();
+            System.out.println("current menu state: " + uiManager.getMenuState());
+        }
+        if(isKeyTriggered(GLFW_KEY_UP)) {
+            uiManager.menuSelectUp();
+            System.out.println("current menu state: " + uiManager.getMenuState() + " enemy select " + uiManager.selectedEnemy + " act select " + uiManager.selectedAct + " item select " + uiManager.selectedItem);
+        }
+        if(isKeyTriggered(GLFW_KEY_DOWN)) {
+            uiManager.menuSelectDown();
+            System.out.println("current menu state: " + uiManager.getMenuState() + " enemy select " + uiManager.selectedEnemy + " act select " + uiManager.selectedAct + " item select " + uiManager.selectedItem);
+        }
+    }
+
+    public void processInput() {
+        updateKeyState();
+        handleEscaping();
+        handleDebug();
+        switch(sceneManager.getCurrentScene().getCurrentScene()) {
+            case BATTLE_FIGHT -> handlePlayerMovement();
+            case BATTLE_MENU -> handleMenuChoose();
+            default -> {
+            }
+        }
+    }
+
+    /**
+     * 检查某个键当前是否被按下
+     */
+    public boolean isKeyPressed(int key) {
+        if (key < GLFW_KEY_SPACE || key > GLFW_KEY_LAST) return false;
+        return keyStates[key];
+    }
+
+    /**
+     * 检查某个键是否被触发（从未按下到按下）
+     */
+    public boolean isKeyTriggered(int key){
+        if (key < GLFW_KEY_SPACE || key > GLFW_KEY_LAST) return false;
+        return keyStates[key] && !wasKeyPressed[key];
+    }
+
+    public boolean isEscaping() {
+        return isEscaping;
+    }
+
+    public Timer getEscapeTimer() {
+        return escapeTimer;
+    }
+}
