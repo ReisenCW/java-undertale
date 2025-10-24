@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import undertale.Animation.Animation;
-import undertale.GameObject.Player;
 
 public class Enemy {
     private String name;
