@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import undertale.Animation.Animation;
+import undertale.GameObject.Player;
 
 public class Enemy {
     private String name;
@@ -17,6 +18,7 @@ public class Enemy {
 
     private ArrayList<String> acts;
     private ArrayList<String> descriptions;
+    private ArrayList<Runnable> actFunctions;
     private static class AnimationEntry {
         String name;
         Animation animation;
@@ -36,18 +38,19 @@ public class Enemy {
 
     private ArrayList<AnimationEntry> animationEntries;
 
-    Enemy(String name, int maxHealth, int currentHealth, int dropGold, int dropExp, ArrayList<String> acts, ArrayList<String> descriptions) {
+    Enemy(String name, int maxHealth, int currentHealth, int dropGold, int dropExp, ArrayList<String> acts, ArrayList<String> descriptions, Runnable... actFunctions) {
         this.animationEntries = new ArrayList<>();
-        this.acts = acts;
-        this.descriptions = descriptions;
+        this.actFunctions = new ArrayList<>();
+        Collections.addAll(this.actFunctions, actFunctions);
         this.name = name;
         this.maxHealth = maxHealth;
         this.currentHealth = currentHealth;
         this.dropGold = dropGold;
         this.dropExp = dropExp;
         this.isYellow = false;
-        if (acts != null && !acts.isEmpty() && descriptions != null && !descriptions.isEmpty()) {
+        if (acts != null && !acts.isEmpty() && descriptions != null && !descriptions.isEmpty() && acts.size() == descriptions.size()) {
             this.acts = acts;
+            this.descriptions = descriptions;
         } else {
             this.acts = new ArrayList<>();
             this.descriptions = new ArrayList<>();
@@ -133,6 +136,10 @@ public class Enemy {
         return acts;
     }
 
+    public ArrayList<Runnable> getActFunctions() {
+        return actFunctions;
+    }
+
     public ArrayList<String> getDescriptions() {
         return descriptions;
     }
@@ -154,6 +161,13 @@ public class Enemy {
     public void addAct(String act, String description) {
         acts.add(act);
         descriptions.add(description);
+        actFunctions.add(() -> {});
+    }
+
+    public void addAct(String act, String description, Runnable actFunction) {
+        acts.add(act);
+        descriptions.add(description);
+        actFunctions.add(actFunction);
     }
 
     public String getActDescription(String act) {

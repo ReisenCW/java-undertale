@@ -6,6 +6,7 @@ import java.util.Iterator;
 import undertale.Animation.Animation;
 import undertale.Animation.AnimationManager;
 import undertale.GameMain.Game;
+import undertale.GameObject.Player;
 import undertale.Utils.ConfigManager;
 
 public class EnemyManager {
@@ -34,10 +35,27 @@ public class EnemyManager {
         AnimationManager animationManager = AnimationManager.getInstance();
 
         Enemy titan = new Enemy("Titan", 5000, 5000, 50, 20);
-        titan.addAct("check", "Dark element boss.\nEmit light, gather courage and use unleash to weaken it.");
-        titan.addAct("light", "Your soul emits a gentle light.");
-        titan.addAct("unleash", "Your soul emits a gentle light.\nThe titan's defense dropped to zero.");
-        titan.addAct("single heal", "You healed a small amount of HP.");
+        titan.addAct(
+            "check",
+            "* Dark element boss.\n* Emit light, gather courage and use unleash to weaken it."
+        );
+        titan.addAct(
+            "light",
+            "* Your soul emits a gentle light."
+        );
+        titan.addAct(
+            "unleash",
+            "* Your soul emits a gentle light.\n* The titan's defense dropped to zero."
+        );
+        titan.addAct(
+            "single heal",
+            "* You healed a small amount of HP.",
+            () -> {
+                Player player = Game.getPlayer();
+                int healAmount = 8 + (int)(Math.random() * 16);
+                player.heal(healAmount);
+            }
+        );
 
         float bodyBottom = configManager.MENU_FRAME_BOTTOM - configManager.MENU_FRAME_HEIGHT;
         float starBottom = bodyBottom - 45;

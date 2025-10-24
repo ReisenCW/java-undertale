@@ -259,7 +259,12 @@ public class UIManager extends UIBase {
             menuState = switch(menuState) {
                 case FIGHT_SELECT_ENEMY -> MenuState.FIGHT;
                 case ACT_SELECT_ENEMY -> MenuState.ACT_SELECT_ACT;
-                case ACT_SELECT_ACT -> MenuState.ACT;
+                case ACT_SELECT_ACT -> {
+                    // 执行act对应函数
+                    Enemy enemy = enemyManager.getEnemy(selectedEnemy);
+                    enemy.getActFunctions().get(selectedAct).run();
+                    yield MenuState.ACT;
+                }
                 case ITEM_SELECT_ITEM -> MenuState.ITEM;
                 case MERCY_SELECT_ENEMY -> MenuState.MERCY_SELECT_SPARE;
                 case MERCY_SELECT_SPARE -> MenuState.MERCY;
