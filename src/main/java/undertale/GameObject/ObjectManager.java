@@ -7,7 +7,6 @@ import java.util.TimerTask;
 import undertale.Enemy.EnemyManager;
 import undertale.GameMain.Game;
 import undertale.Texture.Texture;
-import undertale.Utils.GameUtilities;
 
 public class ObjectManager {
     private Player player;

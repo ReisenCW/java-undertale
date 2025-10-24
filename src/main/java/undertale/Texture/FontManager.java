@@ -31,9 +31,9 @@ public class FontManager {
     // 字体缓存结构
     private static class FontData {
         int textureId;
-        ByteBuffer fontData;
         STBTTFontinfo fontInfo;
         float[] charWidths;
+        STBTTBakedChar.Buffer charData; // 缓存字符数据
     }
     private HashMap<String, FontData> fontCache = new HashMap<>();
     private String currentFontKey = "determination";
@@ -77,13 +77,13 @@ public class FontManager {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, BITMAP_W, BITMAP_H, 0, GL_ALPHA, GL_UNSIGNED_BYTE, bitmap);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            charData.free();
+
 
             FontData fd = new FontData();
             fd.textureId = textureId;
-            fd.fontData = fontData;
             fd.fontInfo = fontInfo;
             fd.charWidths = charWidths;
+            fd.charData = charData; // 缓存字符数据
             fontCache.put(fontKey, fd);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -139,18 +139,18 @@ public class FontManager {
         drawText(text, x, y, 1.0f, r, g, b, a, currentFontKey);
     }
 
-    // 获取字符数据（每次都重新bake，建议优化为成员变量缓存）
+    // 获取字符数据
     private STBTTBakedChar.Buffer getCharData(FontData fd) {
-        STBTTBakedChar.Buffer charData = STBTTBakedChar.malloc(CHAR_COUNT);
-        ByteBuffer bitmap = BufferUtils.createByteBuffer(BITMAP_W * BITMAP_H);
-        stbtt_BakeFontBitmap(fd.fontData, FONT_SIZE, bitmap, BITMAP_W, BITMAP_H, FIRST_CHAR, charData);
-        return charData;
+        return fd.charData; // 直接返回缓存的字符数据
     }
 
     public void destroy() {
         for (FontData fd : fontCache.values()) {
             glDeleteTextures(fd.textureId);
             fd.fontInfo.free();
+            if (fd.charData != null) {
+                fd.charData.free(); // 释放缓存的字符数据
+            }
         }
     }
 
