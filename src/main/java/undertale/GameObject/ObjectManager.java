@@ -114,6 +114,9 @@ public class ObjectManager {
 
     public void allowPlayerMovement(boolean allow) {
         player.isMovable = allow;
+        if(!allow) {
+            player.setDirection(0.0f, 0.0f);
+        }
     }
 
     public void initPlayerPosition() {
