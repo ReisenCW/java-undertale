@@ -5,14 +5,8 @@ import java.util.ArrayList;
 import undertale.Texture.FontManager;
 import undertale.Utils.ConfigManager;
 
-public class MenuTypeWriter {
+public class MenuTypeWriter extends UIBase {
     private FontManager fontManager;
-    private ConfigManager configManager;
-
-    private float MENU_FRAME_LEFT;
-    private float MENU_FRAME_BOTTOM;
-    private float MENU_FRAME_WIDTH;
-    private float MENU_FRAME_HEIGHT;
 
     private float typewriterElapsed;
 
@@ -25,21 +19,13 @@ public class MenuTypeWriter {
     private final int TYPEWRITER_SPEED = 30; // 每秒显示字符数
 
     public MenuTypeWriter(ConfigManager configManager, FontManager fontManager) {
+        super(configManager);
         this.fontManager = fontManager;
-        this.configManager = configManager;
         displayLines = new ArrayList<>();
         isRawNewline = new ArrayList<>();
-        initFrame();
         reset();
     }
 
-    private void initFrame() {
-        MENU_FRAME_LEFT = configManager.MENU_FRAME_LEFT;
-        MENU_FRAME_BOTTOM = configManager.MENU_FRAME_BOTTOM;
-        MENU_FRAME_WIDTH = configManager.MENU_FRAME_WIDTH;
-        MENU_FRAME_HEIGHT = configManager.MENU_FRAME_HEIGHT;
-    }
-    
     public void reset() {
         typewriterElapsed = 0f;
         lastText = null;

@@ -1,13 +1,11 @@
 package undertale.GameMain;
 
-import java.io.ObjectInputFilter.Config;
-
 import undertale.GameObject.Player;
 import undertale.Texture.FontManager;
 import undertale.Texture.Texture;
 import undertale.Utils.ConfigManager;
 
-public class BgUIManager {
+public class BgUIManager extends UIBase {
     private FontManager fontManager;
     private Player player;
 
@@ -22,23 +20,8 @@ public class BgUIManager {
     private Texture mercy_chosen;
     private Texture[] buttons;
 
-    public final int TOP_MARGIN = 0;
-    public final int BOTTOM_MARGIN = Game.getWindowHeight();
-    public final int LEFT_MARGIN = 0;
-    public final int RIGHT_MARGIN = Game.getWindowWidth();
-
-    public final float BOTTOM_OFFSET;
-    public final float SCALER;
-    public final float BTN_WIDTH;
-    public final float BTN_HEIGHT;
-    public final float BTN_MARGIN;
-
     public BgUIManager(ConfigManager configManager, FontManager fontManager, Player player) {
-        BOTTOM_OFFSET = configManager.BOTTOM_OFFSET;
-        SCALER = configManager.BUTTON_SCALER;
-        BTN_WIDTH = configManager.BUTTON_WIDTH;
-        BTN_HEIGHT = configManager.BUTTON_HEIGHT;
-        BTN_MARGIN = configManager.BUTTON_MARGIN;
+        super(configManager);
 
         this.fontManager = fontManager;
         this.player = player;
