@@ -165,6 +165,7 @@ public class ObjectManager {
                 Texture currentTexture = bullet.getCurrentTexture();
                 if (currentTexture != null) {
                     BulletRenderer.BulletRenderData br = bulletRenderer.new BulletRenderData(
+                        bullet.getId(),
                         currentTexture.getId(),
                         bullet.getX(),
                         bullet.getY(),
@@ -173,7 +174,8 @@ public class ObjectManager {
                         bullet.getVScale(),
                         currentTexture.getWidth(),
                         currentTexture.getHeight(),
-                        bullet.getRgba()
+                        bullet.rgba,
+                        bullet.getAnimation() != null
                     );
                     bulletRenderer.addBulletRenderData(br);
                 }

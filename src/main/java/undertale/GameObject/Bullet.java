@@ -4,6 +4,8 @@ import undertale.Animation.Animation;
 import undertale.Texture.Texture;
 
 public class Bullet extends GameObject{
+    private static int nextId = 0;
+    private int id;
     private int damage;
     private float hScale;
     private float vScale;
@@ -16,6 +18,7 @@ public class Bullet extends GameObject{
 
 
     public Bullet(float x, float y, float selfAngle, float speedAngle, float speed, int damage, Texture texture) {
+        this.id = nextId++;
         this.rgba = new float[]{1.0f, 1.0f, 1.0f, 1.0f}; // 默认白色不透明
         this.x = x;
         this.y = y;
@@ -33,6 +36,7 @@ public class Bullet extends GameObject{
     }
 
     public Bullet(float x, float y, float selfAngle, float speedAngle, float speed, int damage, Animation animation) {
+        this.id = nextId++;
         this.rgba = new float[]{1.0f, 1.0f, 1.0f, 1.0f}; // 默认白色不透明
         this.x = x;
         this.y = y;
@@ -63,8 +67,8 @@ public class Bullet extends GameObject{
         this.rgba[3] = a;
     }
 
-    public float[] getRgba() {
-        return rgba;
+    public int getId() {
+        return id;
     }
 
     public void render(){
@@ -86,6 +90,10 @@ public class Bullet extends GameObject{
 
     public int getDamage() {
         return damage;
+    }
+
+    public Animation getAnimation() {
+        return animation;
     }
 
     public void setDamage(int damage) {
