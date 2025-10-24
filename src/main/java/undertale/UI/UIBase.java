@@ -1,5 +1,6 @@
-package undertale.GameMain;
+package undertale.UI;
 
+import undertale.GameMain.Game;
 import undertale.Utils.ConfigManager;
 
 public abstract class UIBase {

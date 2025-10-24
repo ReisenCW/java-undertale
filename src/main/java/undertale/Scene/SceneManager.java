@@ -2,6 +2,8 @@ package undertale.Scene;
 
 import java.util.HashMap;
 
+import undertale.Scene.Scene.SceneEnum;
+
 // 新增场景管理器
 public class SceneManager {
     private static SceneManager instance;

@@ -64,7 +64,7 @@ public class ObjectManager {
     }
 
     private boolean checkPlayerBulletCollisionReturnHit(Bullet bullet){
-        if(!player.isAlive()) 
+        if(!player.isAlive())
             return false;
         if (CollisionDetector.checkRectCircleCollision(bullet, player)) {
             // 碰撞
@@ -104,7 +104,7 @@ public class ObjectManager {
     }
 
     public void renderMenuScene(){
-        // player 
+        // player
         player.render();
     }
 

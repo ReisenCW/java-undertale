@@ -1,8 +1,9 @@
-package undertale.GameMain;
+package undertale.UI;
 
 import undertale.Animation.Animation;
 import undertale.Animation.AnimationManager;
 import undertale.Enemy.Enemy;
+import undertale.GameMain.Game;
 import undertale.GameObject.Player;
 import undertale.Scene.SceneManager;
 import undertale.Texture.FontManager;

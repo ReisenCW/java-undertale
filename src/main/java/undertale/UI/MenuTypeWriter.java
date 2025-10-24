@@ -1,4 +1,4 @@
-package undertale.GameMain;
+package undertale.UI;
 
 import java.util.ArrayList;
 

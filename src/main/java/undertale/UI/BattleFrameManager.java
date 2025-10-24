@@ -1,4 +1,4 @@
-package undertale.GameMain;
+package undertale.UI;
 
 import undertale.GameObject.Player;
 import undertale.Texture.Texture;

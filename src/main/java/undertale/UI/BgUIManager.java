@@ -1,5 +1,6 @@
-package undertale.GameMain;
+package undertale.UI;
 
+import undertale.GameMain.Game;
 import undertale.GameObject.Player;
 import undertale.Texture.FontManager;
 import undertale.Texture.Texture;

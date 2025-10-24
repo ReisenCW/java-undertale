@@ -7,11 +7,11 @@ import undertale.GameObject.Player;
 import undertale.Scene.BattleFightScene;
 import undertale.Scene.BattleMenuScene;
 import undertale.Scene.Scene;
-import undertale.Scene.SceneEnum;
 import undertale.Scene.SceneManager;
 import undertale.Texture.FontManager;
 import undertale.Texture.Texture;
 import undertale.Texture.TextureManager;
+import undertale.UI.UIManager;
 import undertale.Utils.ConfigManager;
 import undertale.Utils.Timer;
 
@@ -53,14 +53,14 @@ public class Game {
         fontManager = FontManager.getInstance();
 
         // 初始化场景管理器并注册场景
-        sceneManager.registerScene(SceneEnum.BATTLE_MENU, 
+        sceneManager.registerScene(Scene.SceneEnum.BATTLE_MENU, 
         new BattleMenuScene(objectManager, inputManager));
-        sceneManager.registerScene(SceneEnum.BATTLE_FIGHT, 
+        sceneManager.registerScene(Scene.SceneEnum.BATTLE_FIGHT,
         new BattleFightScene(objectManager, inputManager));
         
         // 初始场景
-        // sceneManager.switchScene(SceneEnum.BATTLE_FIGHT, true);
-        sceneManager.switchScene(SceneEnum.BATTLE_MENU, true);
+        // sceneManager.switchScene(Scene.SceneEnum.BATTLE_FIGHT, true);
+        sceneManager.switchScene(Scene.SceneEnum.BATTLE_MENU, true);
         
         // 初始化UI管理器
         uiManager = UIManager.getInstance();

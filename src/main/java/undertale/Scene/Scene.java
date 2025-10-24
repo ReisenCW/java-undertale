@@ -1,11 +1,15 @@
 package undertale.Scene;
 
 import undertale.GameMain.InputManager;
-import undertale.GameMain.UIManager;
 import undertale.GameObject.ObjectManager;
 import undertale.Texture.TextureManager;
+import undertale.UI.UIManager;
 
 public abstract class Scene {
+    public enum SceneEnum {
+        BATTLE_MENU,
+        BATTLE_FIGHT,
+    }
     protected SceneManager sceneManager;
     protected ObjectManager objectManager;
     protected InputManager inputManager;

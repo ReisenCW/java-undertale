@@ -1,7 +1,8 @@
-package undertale.GameMain;
+package undertale.UI;
 
 import undertale.Enemy.Enemy;
 import undertale.Enemy.EnemyManager;
+import undertale.GameMain.Game;
 import undertale.GameObject.Player;
 import undertale.Item.Item;
 import undertale.Scene.SceneManager;
@@ -99,13 +100,13 @@ public class UIManager extends UIBase {
             case FIGHT_SELECT_ENEMY, ACT_SELECT_ENEMY, MERCY_SELECT_ENEMY -> 
                 renderEnemyList();
             case ACT_SELECT_ACT -> 
-                renderActList(EnemyManager.getInstance().getEnemy(selectedEnemy));
+                renderActList(enemyManager.getEnemy(selectedEnemy));
             case ITEM_SELECT_ITEM -> 
                 renderItemList();
             case MERCY_SELECT_SPARE -> 
                 renderMercyList();
             case ACT -> {
-                Enemy enemy = EnemyManager.getInstance().getEnemy(selectedEnemy);
+                Enemy enemy = enemyManager.getEnemy(selectedEnemy);
                 menuTypeWriter.renderTextsInMenu(enemy.getDescriptionByIndex(selectedAct));
             }
             case ITEM -> {
@@ -122,7 +123,7 @@ public class UIManager extends UIBase {
                 menuTypeWriter.renderTextsInMenu(roundText);
             case MERCY -> {
                 String text = "* You spared the enemy.";
-                Enemy enemy = EnemyManager.getInstance().getEnemy(selectedEnemy);
+                Enemy enemy = enemyManager.getEnemy(selectedEnemy);
                 if(enemy != null){
                     if(!enemy.isYellow) {
                         text += "\n* But the enemy's name isn't yellow.";
@@ -137,11 +138,11 @@ public class UIManager extends UIBase {
     }
 
     private void renderEnemyList() {
-        int enemyCnt = EnemyManager.getInstance().getEnemyCount();
+        int enemyCnt = enemyManager.getEnemyCount();
         float top = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 50;
         float left = MENU_FRAME_LEFT + 100;
         for (int i = 0; i < enemyCnt; i++) {
-            Enemy enemy = EnemyManager.getInstance().getEnemy(i);
+            Enemy enemy = enemyManager.getEnemy(i);
             float blue = enemy.isYellow ? 0.0f : 1.0f;
             fontManager.drawText(enemy.getName(), left, top + i * (fontManager.getFontHeight() + 20), 1.0f, 1.0f, blue, 1.0f);
         }
@@ -237,7 +238,7 @@ public class UIManager extends UIBase {
                 case 0 -> MenuState.FIGHT_SELECT_ENEMY;
                 case 1 -> {
                     // 若没有act，则不进入act菜单
-                    if(EnemyManager.getInstance().getEnemy(selectedEnemy).getActs().isEmpty()){
+                    if(enemyManager.getEnemy(selectedEnemy).getActs().isEmpty()){
                         yield MenuState.MAIN;
                     }
                     else
@@ -302,12 +303,12 @@ public class UIManager extends UIBase {
         switch(menuState) {
             case MAIN -> {}
             case FIGHT_SELECT_ENEMY, MERCY_SELECT_ENEMY, ACT_SELECT_ENEMY -> {
-                if (selectedEnemy < EnemyManager.getInstance().getEnemyCount() - 1) {
+                if (selectedEnemy < enemyManager.getEnemyCount() - 1) {
                     selectedEnemy++;
                 }
             }
             case ACT_SELECT_ACT -> {
-                Enemy enemy = EnemyManager.getInstance().getEnemy(selectedEnemy);
+                Enemy enemy = enemyManager.getEnemy(selectedEnemy);
                 if (selectedAct < enemy.getActs().size() - 1) {
                     selectedAct++;
                 }
@@ -323,7 +324,7 @@ public class UIManager extends UIBase {
                 }
             }
             case MERCY_SELECT_SPARE -> {
-                if (selectedEnemy < EnemyManager.getInstance().getEnemyCount() - 1) {
+                if (selectedEnemy < enemyManager.getEnemyCount() - 1) {
                     selectedEnemy++;
                 }
             }
@@ -370,7 +371,7 @@ public class UIManager extends UIBase {
         battleFrameManager.moveBattleFrame(deltaTime, duration, targetWidth, targetHeight, targetLeft, targetBottom);
     }
 
-    void update(float deltaTime) {
+    public void update(float deltaTime) {
         if(menuState == MenuState.FIGHT) {
             attackAnimManager.updateAttackAnim(deltaTime, enemyManager.getEnemy(selectedEnemy));
         }

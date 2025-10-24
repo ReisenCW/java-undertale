@@ -4,9 +4,9 @@ import undertale.Animation.Animation;
 import undertale.Animation.AnimationManager;
 import undertale.GameObject.Player;
 import undertale.GameObject.TitanSpawn;
+import undertale.UI.UIManager;
 import undertale.GameObject.ObjectManager;
 import undertale.GameMain.Game;
-import undertale.GameMain.UIManager;
 
 public class RoundSwarm extends Round{
     private ObjectManager objectManager;

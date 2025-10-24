@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 import undertale.Enemy.EnemyManager;
 import undertale.GameMain.InputManager;
-import undertale.GameMain.UIManager;
 import undertale.GameObject.ObjectManager;
 import undertale.Scene.Rounds.*;
+import undertale.UI.UIManager;
 
 public class BattleFightScene extends Scene {
     private UIManager uiManager = UIManager.getInstance();

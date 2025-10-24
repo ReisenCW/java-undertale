@@ -2,8 +2,8 @@ package undertale.Scene;
 
 import undertale.Enemy.EnemyManager;
 import undertale.GameMain.InputManager;
-import undertale.GameMain.UIManager;
 import undertale.GameObject.ObjectManager;
+import undertale.UI.UIManager;
 
 public class BattleMenuScene extends Scene {
     private UIManager uiManager = UIManager.getInstance();
