@@ -7,9 +7,10 @@ public class Bullet extends GameObject{
     private int damage;
     private float hScale;
     private float vScale;
-    private float[] rgba;
+    protected float[] rgba;
     public boolean bound;
     public boolean destroyableOnHit;
+    public boolean isColli;
     protected Texture texture;
     protected Animation animation;
 
@@ -28,6 +29,7 @@ public class Bullet extends GameObject{
         this.vScale = 1.0f;
         this.bound = true;
         this.destroyableOnHit = true;
+        this.isColli = true;
     }
 
     public Bullet(float x, float y, float selfAngle, float speedAngle, float speed, int damage, Animation animation) {

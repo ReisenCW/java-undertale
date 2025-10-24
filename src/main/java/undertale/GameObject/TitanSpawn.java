@@ -6,7 +6,6 @@ import undertale.GameMain.Game;
 
 public class TitanSpawn extends Bullet{
     private float maxSpeed;
-    private float currentAlpha;
 
     private float cycleTimerSec = 0f;
     private boolean aimedThisCycle = false;
@@ -17,7 +16,11 @@ public class TitanSpawn extends Bullet{
         setNavi(false);
         this.destroyableOnHit = false;
         this.maxSpeed = maxSpeed;
-        this.currentAlpha = 0.0f;
+        // 创建动画副本，避免多个实例共享同一个动画状态
+        this.animation = new Animation(animation.getFrameDuration(), animation.isLoop(), animation.getFrames());
+
+        this.rgba[3] = 0.0f; // 初始透明
+        this.isColli = false; // 初始无判定
     }
 
     private void updateCurrentSpeed(float deltaTime) {
@@ -61,14 +64,17 @@ public class TitanSpawn extends Bullet{
 
     @Override
     public void update(float deltaTime) {
-        // 在1秒内, alpha从0增加到255
-        if (currentAlpha < 1.0f) {
-            currentAlpha += GameUtilities.getChangeStep(0.0f, 1.0f, deltaTime, 1.0f).floatValue();
-            if (currentAlpha > 1.0f) {
-                currentAlpha = 1.0f;
+        // 在1秒内, alpha从0增加到1
+        if (rgba[3] < 1.0f) {
+            rgba[3] += GameUtilities.getChangeStep(0.0f, 1.0f, deltaTime, 1.0f).floatValue();
+            if (rgba[3] > 1.0f) {
+                rgba[3] = 1.0f;
             }
-        }
-        else{
+        } else {
+            // 完全显现, 恢复判定
+            if(!this.isColli){
+                this.isColli = true;
+            }
             updateCurrentSpeed(deltaTime);
         }
         super.update(deltaTime);
@@ -77,7 +83,7 @@ public class TitanSpawn extends Bullet{
     
     @Override
     public void render() {
-        animation.renderCurrentFrame(this.x, this.y, getHScale(), getVScale(), this.getSelfAngle(), 1.0f, 1.0f, 1.0f, currentAlpha);
+        animation.renderCurrentFrame(this.x, this.y, getHScale(), getVScale(), this.getSelfAngle(), rgba[0], rgba[1], rgba[2], rgba[3]);
     }
 
     @Override

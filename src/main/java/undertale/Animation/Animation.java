@@ -118,6 +118,18 @@ public class Animation {
         return isEnd;
     }
     
+    public float getFrameDuration() {
+        return frameDuration;
+    }
+
+    public boolean isLoop() {
+        return loop;
+    }
+
+    public ArrayList<Texture> getFrames() {
+        return new ArrayList<>(frames); // 返回副本避免修改
+    }
+    
     public void reset() {
         this.currentFrame = 0;
         this.elapsedTime = 0.0f;
