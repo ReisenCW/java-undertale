@@ -1,5 +1,7 @@
 package undertale.GameObject;
 
+import undertale.Utils.GameUtilities;
+
 public class CollisionDetector {
     // 必须为player / bullet
     public static boolean checkRectCollision(GameObject obj1, GameObject obj2) {
@@ -10,9 +12,7 @@ public class CollisionDetector {
     }
 
     public static boolean checkCircleCollision(GameObject obj1, GameObject obj2) {
-        float dx = obj1.getX() - obj2.getX();
-        float dy = obj1.getY() - obj2.getY();
-        float distance = (float) Math.sqrt(dx * dx + dy * dy);
+        float distance = (float) Math.sqrt(GameUtilities.getDistSquared(obj1, obj2));
         return distance < (obj1.getWidth() / 2 + obj2.getWidth() / 2);
     }
 

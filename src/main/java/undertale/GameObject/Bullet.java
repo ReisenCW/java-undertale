@@ -4,14 +4,12 @@ import undertale.Texture.Texture;
 
 public class Bullet extends GameObject{
     private int damage;
-
     private float hScale;
     private float vScale;
-    private Texture texture;
-    
-    private boolean destroyableOnHit = true;
-
     private float[] rgba;
+    public boolean bound;
+    public boolean destroyableOnHit;
+    private Texture texture;
 
 
     public Bullet(float x, float y, float selfAngle, float speedAngle, float speed, int damage, Texture texture) {
@@ -25,6 +23,8 @@ public class Bullet extends GameObject{
         this.texture = texture;
         this.hScale = 1.0f;
         this.vScale = 1.0f;
+        this.bound = true;
+        this.destroyableOnHit = true;
     }
 
     @Override
@@ -84,11 +84,18 @@ public class Bullet extends GameObject{
         return vScale * texture.getHeight();
     }
 
-    public void setDestroyableOnHit(boolean destroyableOnHit) {
-        this.destroyableOnHit = destroyableOnHit;
-    }
-
-    public boolean isDestroyableOnHit() {
-        return destroyableOnHit;
+    public void reset(float x, float y, float selfAngle, float speedAngle, float speed, int damage, Texture texture) {
+        this.rgba = new float[]{1.0f, 1.0f, 1.0f, 1.0f}; // 默认白色不透明
+        this.x = x;
+        this.y = y;
+        setSelfAngle(selfAngle);
+        setSpeedAngle(speedAngle);
+        this.speed = speed;
+        this.damage = damage;
+        this.texture = texture;
+        this.hScale = 1.0f;
+        this.vScale = 1.0f;
+        this.destroyableOnHit = true;
+        this.bound = true;
     }
 }

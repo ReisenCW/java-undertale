@@ -1,7 +1,7 @@
 package undertale.GameObject;
 
 import undertale.Animation.Animation;
-import undertale.Utils.Utilities;
+import undertale.Utils.GameUtilities;
 import undertale.GameMain.Game;
 
 public class TitanSpawn extends Bullet{
@@ -15,8 +15,8 @@ public class TitanSpawn extends Bullet{
 
     public TitanSpawn(float x, float y, float maxSpeed, int damage, Animation animation) {
         super(x, y, 0, 0, 0, damage, null);
-        setDestroyableOnHit(false);
         setNavi(false);
+        this.destroyableOnHit = false;
         this.animation = animation;
         this.maxSpeed = maxSpeed;
         this.currentAlpha = 0.0f;
@@ -65,7 +65,7 @@ public class TitanSpawn extends Bullet{
     public void update(float deltaTime) {
         // 在1秒内, alpha从0增加到255
         if (currentAlpha < 1.0f) {
-            currentAlpha += Utilities.getChangeStep(0.0f, 1.0f, deltaTime, 1.0f).floatValue();
+            currentAlpha += GameUtilities.getChangeStep(0.0f, 1.0f, deltaTime, 1.0f).floatValue();
             if (currentAlpha > 1.0f) {
                 currentAlpha = 1.0f;
             }
