@@ -140,18 +140,18 @@ public class Game {
     }
 
     public static float getFrameHeight() {
-        return uiManager.battle_frame_height;
+        return uiManager.getFrameHeight();
     }
 
     public static float getFrameWidth() {
-        return uiManager.battle_frame_width;
+        return uiManager.getFrameWidth();
     }
 
     public static float getFrameLeft() {
-        return uiManager.battle_frame_left;
+        return uiManager.getFrameLeft();
     }
 
     public static float getFrameBottom() {
-        return uiManager.battle_frame_bottom;
+        return uiManager.getFrameBottom();
     }
 }

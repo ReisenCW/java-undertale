@@ -3,7 +3,6 @@ package undertale.GameMain;
 import undertale.Animation.Animation;
 import undertale.Animation.AnimationManager;
 import undertale.Enemy.Enemy;
-import undertale.Enemy.EnemyManager;
 import undertale.GameObject.Player;
 import undertale.Scene.SceneManager;
 import undertale.Texture.FontManager;

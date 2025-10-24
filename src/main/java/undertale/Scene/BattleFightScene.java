@@ -57,7 +57,7 @@ public class BattleFightScene extends Scene {
             SceneManager.getInstance().shouldSwitch = true;
         }
         objectManager.updateFightScene(deltaTime);
-        uiManager.updatePlayerInBound();
+        uiManager.makePlayerInFrame();
         SceneManager.getInstance().switchScene(SceneEnum.BATTLE_MENU);
     }
 

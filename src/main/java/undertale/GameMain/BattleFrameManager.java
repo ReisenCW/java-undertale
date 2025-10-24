@@ -1,0 +1,98 @@
+package undertale.GameMain;
+
+import undertale.GameObject.Player;
+import undertale.Texture.Texture;
+import undertale.Utils.ConfigManager;
+
+public class BattleFrameManager extends UIBase{
+    Player player;
+    
+    public float battle_frame_width;
+    public float battle_frame_height;
+    public float battle_frame_left;
+    public float battle_frame_bottom;
+
+    // battle frame moving
+    private boolean bfMoving = false;
+    private float bfMoveElapsedMs = 0f;
+    private float bfMoveDurationMs = 0f;
+    private float bfStartW, bfStartH, bfStartL, bfStartB;
+    private float bfTargetW, bfTargetH, bfTargetL, bfTargetB;
+
+    public BattleFrameManager(ConfigManager configManager, Player player) {
+        super(configManager);
+        this.player = player;
+        battle_frame_width = configManager.MENU_FRAME_WIDTH;
+        battle_frame_height = configManager.MENU_FRAME_HEIGHT;
+        battle_frame_left = configManager.MENU_FRAME_LEFT;
+        battle_frame_bottom = configManager.MENU_FRAME_BOTTOM;
+    }
+
+    public void renderBattleFrame() {
+        Texture.drawRect(battle_frame_left, battle_frame_bottom - battle_frame_height, battle_frame_width, battle_frame_height, 0.0f, 0.0f, 0.0f, 1.0f);
+        Texture.drawHollowRect(battle_frame_left, battle_frame_bottom - battle_frame_height, battle_frame_width, battle_frame_height, 1.0f, 1.0f, 1.0f, 1.0f, BATTLE_FRAME_LINE_WIDTH);
+    }
+
+    public void makePlayerInFrame() {
+        player.handlePlayerOutBound(battle_frame_left + BATTLE_FRAME_LINE_WIDTH,
+                battle_frame_left + battle_frame_width - BATTLE_FRAME_LINE_WIDTH,
+                battle_frame_bottom - battle_frame_height + BATTLE_FRAME_LINE_WIDTH,
+                battle_frame_bottom - BATTLE_FRAME_LINE_WIDTH);
+    }
+
+    public void moveBattleFrame(float deltaTime, float duration, float targetWidth, float targetHeight, float targetLeft, float targetBottom) {
+        if (duration <= 0) {
+            battle_frame_width = targetWidth;
+            battle_frame_height = targetHeight;
+            battle_frame_left = targetLeft;
+            battle_frame_bottom = targetBottom;
+            bfMoving = false;
+            return;
+        }
+
+        if (!bfMoving) {
+            bfMoving = true;
+            bfMoveElapsedMs = 0f;
+            bfMoveDurationMs = duration;
+            bfStartW = battle_frame_width;
+            bfStartH = battle_frame_height;
+            bfStartL = battle_frame_left;
+            bfStartB = battle_frame_bottom;
+            bfTargetW = targetWidth;
+            bfTargetH = targetHeight;
+            bfTargetL = targetLeft;
+            bfTargetB = targetBottom;
+        }
+
+        bfMoveElapsedMs += deltaTime * 1000.0f;
+        float t = Math.min(1.0f, bfMoveElapsedMs / bfMoveDurationMs);
+        float smoothT = (float)(0.5f - 0.5f * Math.cos(Math.PI * t));
+
+        battle_frame_width = bfStartW + (bfTargetW - bfStartW) * smoothT;
+        battle_frame_height = bfStartH + (bfTargetH - bfStartH) * smoothT;
+        battle_frame_left = bfStartL + (bfTargetL - bfStartL) * smoothT;
+        battle_frame_bottom = bfStartB + (bfTargetB - bfStartB) * smoothT;
+
+        if (t >= 1.0f) bfMoving = false;
+    }
+
+    public float getFrameLeft() {
+        return battle_frame_left;
+    }
+
+    public float getFrameBottom() {
+        return battle_frame_bottom;
+    }
+
+    public float getFrameWidth() {
+        return battle_frame_width;
+    }
+
+    public float getFrameHeight() {
+        return battle_frame_height;
+    }
+
+    public boolean isFrameMoving() {
+        return bfMoving;
+    }
+}

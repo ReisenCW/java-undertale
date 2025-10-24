@@ -1,7 +1,5 @@
 package undertale.GameMain;
 
-import undertale.Animation.Animation;
-import undertale.Animation.AnimationManager;
 import undertale.Enemy.Enemy;
 import undertale.Enemy.EnemyManager;
 import undertale.GameObject.Player;
@@ -12,19 +10,21 @@ import undertale.Texture.Texture;
 import undertale.Utils.ConfigManager;
 
 public class UIManager extends UIBase {
+    public enum MenuState { 
+        MAIN,
+        FIGHT_SELECT_ENEMY,
+        FIGHT,
+        ACT_SELECT_ENEMY,
+        ACT_SELECT_ACT,
+        ACT,
+        ITEM_SELECT_ITEM,
+        ITEM,
+        MERCY_SELECT_ENEMY,
+        MERCY_SELECT_SPARE,
+        MERCY
+    }
+
     private static UIManager instance;
-
-    public float battle_frame_width;
-    public float battle_frame_height;
-    public float battle_frame_left;
-    public float battle_frame_bottom;
-
-    // battle frame moving
-    private boolean bfMoving = false;
-    private float bfMoveElapsedMs = 0f;
-    private float bfMoveDurationMs = 0f;
-    private float bfStartW, bfStartH, bfStartL, bfStartB;
-    private float bfTargetW, bfTargetH, bfTargetL, bfTargetB;
 
     private Player player;
 
@@ -33,20 +33,9 @@ public class UIManager extends UIBase {
     private MenuTypeWriter menuTypeWriter;
     private BgUIManager bgUIManager;
     private AttackAnimManager attackAnimManager;
+    private BattleFrameManager battleFrameManager;
 
-    public enum MenuState { 
-        MAIN, 
-        FIGHT_SELECT_ENEMY,
-        FIGHT,
-        ACT_SELECT_ENEMY,
-        ACT_SELECT_ACT,
-        ACT,
-        ITEM_SELECT_ITEM, 
-        ITEM,
-        MERCY_SELECT_ENEMY, 
-        MERCY_SELECT_SPARE,
-        MERCY
-    }
+
     public MenuState menuState = MenuState.MAIN;
 
     public int selectedEnemy = 0;
@@ -67,15 +56,9 @@ public class UIManager extends UIBase {
         menuTypeWriter = new MenuTypeWriter(configManager, fontManager);
         bgUIManager = new BgUIManager(configManager, fontManager, player);
         attackAnimManager = new AttackAnimManager(configManager, fontManager, player);
+        battleFrameManager = new BattleFrameManager(configManager, player);
         enemyManager = EnemyManager.getInstance();
-
-        battle_frame_width = configManager.MENU_FRAME_WIDTH;
-        battle_frame_height = configManager.MENU_FRAME_HEIGHT;
-        battle_frame_left = configManager.MENU_FRAME_LEFT;
-        battle_frame_bottom = configManager.MENU_FRAME_BOTTOM;
     }
-
-
 
     public static UIManager getInstance() {
         return instance;
@@ -107,7 +90,7 @@ public class UIManager extends UIBase {
         // 渲染按钮, 玩家信息, 战斗框架
         bgUIManager.renderButtons(selectedAction);
         bgUIManager.renderPlayerInfo();
-        renderBattleFrame();
+        battleFrameManager.renderBattleFrame();
     }
 
     public void renderFrameContents(String roundText) {
@@ -226,151 +209,6 @@ public class UIManager extends UIBase {
         fontManager.drawText("spare", MENU_FRAME_LEFT + 100, MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 50, 1.0f, 1.0f, 1.0f, 1.0f);
     }
 
-    // private void renderFightPanel() {
-    //     if (!showMiss){
-    //         Texture.drawTexture(attack_panel.getId(),
-    //                             MENU_FRAME_LEFT + BATTLE_FRAME_LINE_WIDTH, 
-    //                             MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + BATTLE_FRAME_LINE_WIDTH,
-    //                             MENU_FRAME_WIDTH, MENU_FRAME_HEIGHT);
-    //         renderAttackBar();
-    //         if(attackBarStopped) {
-    //             renderSlice();
-    //         }
-    //     }
-    //     else {
-    //         renderMiss();
-    //     }
-    // }
-
-    // private void renderAttackBar() {
-    //     float scaler = 1.7f;
-    //     float bar_x = MENU_FRAME_LEFT + BATTLE_FRAME_LINE_WIDTH + attack_bar_offset;
-    //     float bar_y = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT / 2 - scaler * attack_bar[attack_bar_index].getHeight() / 2 + BATTLE_FRAME_LINE_WIDTH;
-    //     Texture.drawTexture(attack_bar[attack_bar_index].getId(), bar_x, bar_y, scaler * attack_bar[attack_bar_index].getWidth(), scaler * attack_bar[attack_bar_index].getHeight());
-    // }
-
-    // private void renderSlice() {
-    //     // 在选中的敌人上绘制slice动画
-    //     Enemy enemy = EnemyManager.getInstance().getEnemy(selectedEnemy);
-    //     if (enemy == null) return;
-    //     float scaler = 2.0f;
-    //     float x = enemy.getEntryLeft("body") + enemy.getWidth("body") / 2 - scaler * attack_animation.getFrameWidth() / 2 - 50;
-    //     float y = enemy.getEntryBottom("body") - enemy.getHeight("body") / 2 - scaler * attack_animation.getFrameHeight() / 2;
-
-    //     attack_animation.renderCurrentFrame(x, y, scaler, scaler, 0, 1, 1, 1, 1);
-    //     renderDamage(enemy, player.getAttackPower() * attackRate);
-    // }
-
-    // private void renderDamage(Enemy enemy, float damage) {
-    //     if (showDamage && enemy != null) {
-    //         // 伤害数字
-    //         String text = String.valueOf((int)damage);
-    //         float dmgTextScaler = 2.5f;
-    //         float textX = (RIGHT_MARGIN + LEFT_MARGIN) / 2 - fontManager.getTextWidth(text) / 2 * dmgTextScaler;
-    //         float textBaseY = enemy.getEntryBottom("body") - enemy.getHeight("body") / 2 + 40;
-    //         float moveTotalTime = damageDisplayDuration / 3; // 上升和下降共1/3时间
-    //         float theta = (float)(Math.min(Math.PI,(Math.PI * damageDisplayElapsed) / moveTotalTime));
-    //         float textY = textBaseY - 40 * (float)Math.sin(theta);
-    //         fontManager.drawText(text, textX, textY, dmgTextScaler, 1.0f, 0.0f, 0.0f, 1.0f);
-
-    //         // 血条
-    //         float maxHealthLength = 900.0f;
-    //         float healthHeight = 20.0f;
-    //         float currentHealthLength = displayedHealth / enemy.maxHealth * maxHealthLength;
-    //         float healthX = enemy.getEntryLeft("body") + enemy.getWidth("body") / 2 - maxHealthLength / 2 - 50;
-    //         float healthY = enemy.getEntryBottom("body") - enemy.getHeight("body") / 2 + 80;
-
-    //         Texture.drawRect(healthX, healthY, maxHealthLength, healthHeight, 1.0f, 0.0f, 0.0f, 1.0f);
-    //         Texture.drawRect(healthX, healthY, currentHealthLength, healthHeight, 0.0f, 1.0f, 0.0f, 1.0f);
-    //     }
-    // }
-
-    // private void renderMiss() {
-    //     Enemy enemy = EnemyManager.getInstance().getEnemy(selectedEnemy);
-    //     float missScaler = 0.6f;
-    //     if (enemy == null) return;
-    //     if (showMiss) {
-    //         float missX = (RIGHT_MARGIN + LEFT_MARGIN) / 2 - miss_text.getWidth() / 2 * missScaler;
-    //         float baseMissY = enemy.getEntryBottom("body") - enemy.getHeight("body") / 2 - miss_text.getHeight() / 2 * missScaler + 50;
-    //         // sin从0到pi变化，振幅50
-    //         float moveTotalTime = MISS_DISPLAY_DURATION / 2; // 上升和下降共1/2时间
-    //         float theta = (float)(Math.PI * missDisplayElapsed / moveTotalTime);
-    //         float missY = baseMissY - 50 * Math.max(0, (float)Math.sin(theta));
-    //         Texture.drawTexture(miss_text.getId(), missX, missY, miss_text.getWidth() * missScaler, miss_text.getHeight() * missScaler);
-
-    //         if (missDisplayElapsed >= MISS_DISPLAY_DURATION) {
-    //             showMiss = false;
-    //             missDisplayElapsed = 0f;
-    //             SceneManager.getInstance().shouldSwitch = true;
-    //         }
-    //     }
-    // }
-
-    private void renderBattleFrame() {
-        Texture.drawRect(battle_frame_left, battle_frame_bottom - battle_frame_height, battle_frame_width, battle_frame_height, 0.0f, 0.0f, 0.0f, 1.0f);
-        Texture.drawHollowRect(battle_frame_left, battle_frame_bottom - battle_frame_height, battle_frame_width, battle_frame_height, 1.0f, 1.0f, 1.0f, 1.0f, BATTLE_FRAME_LINE_WIDTH);
-    }
-
-    // private void updateSliceHpDisplay(float deltaTime) {
-    //     Enemy enemy = EnemyManager.getInstance().getEnemy(selectedEnemy);
-    //     if (attack_animation.isFinished() && !showDamage) {
-    //         int damage = (int)(player.getAttackPower() * attackRate);
-    //         showDamage = true;
-    //         displayedHealth = enemy.currentHealth;
-    //         damageDisplayElapsed = 0f;
-    //         enemy.takeDamage(damage);
-    //         damagePerMilliSecond = (float)damage / damageDisplayDuration * 8;
-    //     }
-    //     if(showDamage) {
-    //         displayedHealth -= damagePerMilliSecond * deltaTime * 1000;
-    //         if(displayedHealth < enemy.currentHealth) {
-    //             displayedHealth = enemy.currentHealth;
-    //         }
-            
-    //         damageDisplayElapsed += deltaTime * 1000;
-    //         if (damageDisplayElapsed >= damageDisplayDuration) {
-    //             showDamage = false;
-    //             damageDisplayElapsed = 0f;
-    //             // 切换场景
-    //             SceneManager.getInstance().shouldSwitch = true;
-    //         }
-    //     }
-    // }
-
-    // public void updateAttackBarPosition(float deltaTime) {
-    //     // 在attack_bar_duration内attack_bar_offset从0线性变到MENU_FRAME_WIDTH
-    //     // 需在FIGHT状态下每帧调用
-    //     if (attack_bar_duration <= 0) return;
-    //     attackBarElapsed += deltaTime * 1000f;
-    //     float t = Math.min(1.0f, (float)attackBarElapsed / attack_bar_duration);
-    //     attack_bar_offset = t * MENU_FRAME_WIDTH;
-    //     // 计算attackRate为开口向上的二次函数，最中间为1，两边为0
-    //     float norm = t; // 0~1
-    //     float center = 0.5f;
-    //     attackRate = 1.0f - 4.0f * (norm - center) * (norm - center); // 抛物线
-    //     if (attackRate < 0.0f) attackRate = 0.0f;
-    //     if (t >= 1.0f) {
-    //         attack_bar_offset = MENU_FRAME_WIDTH;
-    //     }
-
-    //     // 检查attackBar是否到最右且未按Z
-    //     if (attack_bar_offset >= MENU_FRAME_WIDTH && !attackBarStopped && !showMiss) {
-    //         showMiss = true;
-    //         missDisplayElapsed = 0f;
-    //         // attackBar和attackPanel消失
-    //         attackBarStopped = true;
-    //     }
-    // }
-
-    // public void updateAttackBarIndex(float deltaTime) {
-    //     // 攻击后,按下Z,Attack bar会停止, 并且在index = 0和1之间来回切换, 每次切换持续时间为300ms
-    //     if (!attackBarStopped) return;
-    //     attackBarBlinkElapsed += deltaTime * 1000f;
-    //     int period = 300; // ms
-    //     int phase = (int)((attackBarBlinkElapsed / period) % 2);
-    //     attack_bar_index = phase;
-    // }
-
     public void updatePlayerMenuPosition() {
         if(menuState == MenuState.FIGHT || menuState == MenuState.ACT || menuState == MenuState.ITEM || menuState == MenuState.MERCY) {
             return;
@@ -390,13 +228,6 @@ public class UIManager extends UIBase {
             // 渲染在list
             player.setPosition(MENU_FRAME_LEFT + 60 - player.getWidth() / 2, MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 40 + row * (fontManager.getFontHeight() + 20) - player.getHeight() / 2);
         }
-    }
-
-    public void updatePlayerInBound() {
-        player.handlePlayerOutBound(battle_frame_left + BATTLE_FRAME_LINE_WIDTH, 
-                                    battle_frame_left + battle_frame_width - BATTLE_FRAME_LINE_WIDTH, 
-                                    battle_frame_bottom - battle_frame_height + BATTLE_FRAME_LINE_WIDTH, 
-                                    battle_frame_bottom - BATTLE_FRAME_LINE_WIDTH);
     }
 
     // 菜单“确定”操作
@@ -500,42 +331,6 @@ public class UIManager extends UIBase {
         }
     }
 
-    public void moveBattleFrame(float deltaTime, float duration, float targetWidth, float targetHeight, float targetLeft, float targetBottom) {
-        if (duration <= 0) {
-            battle_frame_width = targetWidth;
-            battle_frame_height = targetHeight;
-            battle_frame_left = targetLeft;
-            battle_frame_bottom = targetBottom;
-            bfMoving = false;
-            return;
-        }
-
-        if (!bfMoving) {
-            bfMoving = true;
-            bfMoveElapsedMs = 0f;
-            bfMoveDurationMs = duration;
-            bfStartW = battle_frame_width;
-            bfStartH = battle_frame_height;
-            bfStartL = battle_frame_left;
-            bfStartB = battle_frame_bottom;
-            bfTargetW = targetWidth;
-            bfTargetH = targetHeight;
-            bfTargetL = targetLeft;
-            bfTargetB = targetBottom;
-        }
-
-        bfMoveElapsedMs += deltaTime * 1000.0f;
-        float t = Math.min(1.0f, bfMoveElapsedMs / bfMoveDurationMs);
-        float smoothT = (float)(0.5f - 0.5f * Math.cos(Math.PI * t));
-
-        battle_frame_width = bfStartW + (bfTargetW - bfStartW) * smoothT;
-        battle_frame_height = bfStartH + (bfTargetH - bfStartH) * smoothT;
-        battle_frame_left = bfStartL + (bfTargetL - bfStartL) * smoothT;
-        battle_frame_bottom = bfStartB + (bfTargetB - bfStartB) * smoothT;
-
-        if (t >= 1.0f) bfMoving = false;
-    }
-
     public void menuSelectUp() {
         // 向上选择, item支持分页滚动
         switch(menuState) {
@@ -567,12 +362,20 @@ public class UIManager extends UIBase {
         }
     }
 
+    public void makePlayerInFrame() {
+        battleFrameManager.makePlayerInFrame();
+    }
+
+    public void moveBattleFrame(float deltaTime, float duration, float targetWidth, float targetHeight, float targetLeft, float targetBottom) {
+        battleFrameManager.moveBattleFrame(deltaTime, duration, targetWidth, targetHeight, targetLeft, targetBottom);
+    }
+
     void update(float deltaTime) {
         if(menuState == MenuState.FIGHT) {
             attackAnimManager.updateAttackAnim(deltaTime, enemyManager.getEnemy(selectedEnemy));
         }
         attackAnimManager.updateMissTime(deltaTime);
-        if (bfMoving != false) {
+        if (battleFrameManager.isFrameMoving()) {
             menuTypeWriter.update(deltaTime);
         }
     }
@@ -604,5 +407,21 @@ public class UIManager extends UIBase {
             case ACT, FIGHT, ITEM, MERCY -> false;
             default -> true;
         };
+    }
+
+    public float getFrameLeft() {
+        return battleFrameManager.getFrameLeft();
+    }
+
+    public float getFrameBottom() {
+        return battleFrameManager.getFrameBottom();
+    }
+    
+    public float getFrameWidth() {
+        return battleFrameManager.getFrameWidth();
+    }
+
+    public float getFrameHeight() {
+        return battleFrameManager.getFrameHeight();
     }
 }
