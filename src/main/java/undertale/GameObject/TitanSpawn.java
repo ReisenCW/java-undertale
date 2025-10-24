@@ -5,7 +5,6 @@ import undertale.Utils.GameUtilities;
 import undertale.GameMain.Game;
 
 public class TitanSpawn extends Bullet{
-    private Animation animation;
     private float maxSpeed;
     private float currentAlpha;
 
@@ -14,10 +13,9 @@ public class TitanSpawn extends Bullet{
     private int aimTime = 2;
 
     public TitanSpawn(float x, float y, float maxSpeed, int damage, Animation animation) {
-        super(x, y, 0, 0, 0, damage, null);
+        super(x, y, 0, 0, 0, damage, animation);
         setNavi(false);
         this.destroyableOnHit = false;
-        this.animation = animation;
         this.maxSpeed = maxSpeed;
         this.currentAlpha = 0.0f;
     }

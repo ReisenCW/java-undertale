@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import undertale.Animation.Animation;
 import undertale.Enemy.EnemyManager;
 import undertale.GameMain.Game;
 import undertale.Texture.Texture;
@@ -14,8 +15,9 @@ public class ObjectManager {
     // 对象池复用子弹, 避免频繁创建和销毁子弹, 减少gc压力和内存分配开销
     private ArrayList<Bullet> bulletPool;
     // 声明为成员变量避免频繁创建临时列表
-    private ArrayList<Bullet> toRemove = new ArrayList<>();
+    private ArrayList<Bullet> toRemove;
     private EnemyManager enemyManager;
+    private BulletRenderer bulletRenderer;
 
     public ObjectManager(Player player){
         init(player);
@@ -25,11 +27,12 @@ public class ObjectManager {
         this.player = player;
         bullets = new ArrayList<>();
         bulletPool = new ArrayList<>();
+        toRemove = new ArrayList<>();
         enemyManager = EnemyManager.getInstance();
+        bulletRenderer = new BulletRenderer();
     }
 
-    public Bullet createBullet(float x, float y, float selfAngle, float speedAngle,
-                            float speed, int damage, Texture texture){
+    public Bullet createBullet(float x, float y, float selfAngle, float speedAngle, float speed, int damage, Texture texture){
         Bullet bullet = getBulletFromPool();
         if (bullet == null) {
             // 如果对象池中没有可用子弹，则创建新的子弹
@@ -37,6 +40,19 @@ public class ObjectManager {
         } else {
             // 重置子弹属性
             bullet.reset(x, y, selfAngle, speedAngle, speed, damage, texture);
+        }
+        bullets.add(bullet);
+        return bullet;
+    }
+
+    public Bullet createBullet(float x, float y, float selfAngle, float speedAngle, float speed, int damage, Animation animation){
+        Bullet bullet = getBulletFromPool();
+        if (bullet == null) {
+            // 如果对象池中没有可用子弹，则创建新的子弹
+            bullet = new Bullet(x, y, selfAngle, speedAngle, speed, damage, animation);
+        } else {
+            // 重置子弹属性
+            bullet.reset(x, y, selfAngle, speedAngle, speed, damage, animation);
         }
         bullets.add(bullet);
         return bullet;
@@ -142,9 +158,25 @@ public class ObjectManager {
     public void renderFightScene(boolean renderBullets, boolean renderPlayer){
         // bullets
         if(renderBullets) {
+            bulletRenderer.clearBulletRenderData();
             for (Bullet bullet : bullets) {
-                bullet.render();
+                Texture currentTexture = bullet.getCurrentTexture();
+                if (currentTexture != null) {
+                    BulletRenderer.BulletRenderData br = bulletRenderer.new BulletRenderData(
+                        currentTexture.getId(),
+                        bullet.getX(),
+                        bullet.getY(),
+                        bullet.getSelfAngle(),
+                        bullet.getHScale(),
+                        bullet.getVScale(),
+                        currentTexture.getWidth(),
+                        currentTexture.getHeight(),
+                        bullet.getRgba()
+                    );
+                    bulletRenderer.addBulletRenderData(br);
+                }
             }
+            bulletRenderer.renderBullets();
         }
 
         //player

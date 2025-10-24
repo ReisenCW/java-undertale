@@ -1,5 +1,6 @@
 package undertale.GameObject;
 
+import undertale.Animation.Animation;
 import undertale.Texture.Texture;
 
 public class Bullet extends GameObject{
@@ -9,7 +10,8 @@ public class Bullet extends GameObject{
     private float[] rgba;
     public boolean bound;
     public boolean destroyableOnHit;
-    private Texture texture;
+    protected Texture texture;
+    protected Animation animation;
 
 
     public Bullet(float x, float y, float selfAngle, float speedAngle, float speed, int damage, Texture texture) {
@@ -21,6 +23,23 @@ public class Bullet extends GameObject{
         this.speed = speed;
         this.damage = damage;
         this.texture = texture;
+        this.animation = null;
+        this.hScale = 1.0f;
+        this.vScale = 1.0f;
+        this.bound = true;
+        this.destroyableOnHit = true;
+    }
+
+    public Bullet(float x, float y, float selfAngle, float speedAngle, float speed, int damage, Animation animation) {
+        this.rgba = new float[]{1.0f, 1.0f, 1.0f, 1.0f}; // 默认白色不透明
+        this.x = x;
+        this.y = y;
+        setSelfAngle(selfAngle);
+        setSpeedAngle(speedAngle);
+        this.speed = speed;
+        this.damage = damage;
+        this.texture = null;
+        this.animation = animation;
         this.hScale = 1.0f;
         this.vScale = 1.0f;
         this.bound = true;
@@ -30,6 +49,9 @@ public class Bullet extends GameObject{
     @Override
     public void update(float deltaTime) {
         updatePosition(deltaTime);
+        if (animation != null) {
+            animation.updateAnimation(deltaTime);
+        }
     }
 
     public void setColor(float r, float g, float b, float a) {
@@ -39,11 +61,25 @@ public class Bullet extends GameObject{
         this.rgba[3] = a;
     }
 
+    public float[] getRgba() {
+        return rgba;
+    }
+
     public void render(){
-        Texture.drawTexture(texture.getId(),
-                            this.x, this.y,
-                            hScale * texture.getWidth(), vScale * texture.getHeight(), 
-                            getSelfAngle(), rgba[0], rgba[1], rgba[2], rgba[3]);
+        Texture currentTexture = getCurrentTexture();
+        if (currentTexture != null) {
+            Texture.drawTexture(currentTexture.getId(),
+                                this.x, this.y,
+                                hScale * currentTexture.getWidth(), vScale * currentTexture.getHeight(),
+                                getSelfAngle(), rgba[0], rgba[1], rgba[2], rgba[3]);
+        }
+    }
+
+    public Texture getCurrentTexture() {
+        if (animation != null) {
+            return animation.getCurrentFrame();
+        }
+        return texture;
     }
 
     public int getDamage() {
@@ -76,12 +112,14 @@ public class Bullet extends GameObject{
 
     @Override
     public float getWidth() {
-        return hScale * texture.getWidth();
+        Texture currentTexture = getCurrentTexture();
+        return currentTexture != null ? hScale * currentTexture.getWidth() : 0;
     }
 
     @Override
     public float getHeight() {
-        return vScale * texture.getHeight();
+        Texture currentTexture = getCurrentTexture();
+        return currentTexture != null ? vScale * currentTexture.getHeight() : 0;
     }
 
     public void reset(float x, float y, float selfAngle, float speedAngle, float speed, int damage, Texture texture) {
@@ -93,6 +131,23 @@ public class Bullet extends GameObject{
         this.speed = speed;
         this.damage = damage;
         this.texture = texture;
+        this.animation = null;
+        this.hScale = 1.0f;
+        this.vScale = 1.0f;
+        this.destroyableOnHit = true;
+        this.bound = true;
+    }
+
+    public void reset(float x, float y, float selfAngle, float speedAngle, float speed, int damage, Animation animation) {
+        this.rgba = new float[]{1.0f, 1.0f, 1.0f, 1.0f}; // 默认白色不透明
+        this.x = x;
+        this.y = y;
+        setSelfAngle(selfAngle);
+        setSpeedAngle(speedAngle);
+        this.speed = speed;
+        this.damage = damage;
+        this.texture = null;
+        this.animation = animation;
         this.hScale = 1.0f;
         this.vScale = 1.0f;
         this.destroyableOnHit = true;
