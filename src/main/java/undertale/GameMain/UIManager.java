@@ -14,19 +14,9 @@ import undertale.Utils.ConfigManager;
 public class UIManager {
 
     private static UIManager instance;
-    private Texture attack_normal;
-    private Texture attack_chosen;
-    private Texture act_normal;
-    private Texture act_chosen;
-    private Texture item_normal;
-    private Texture item_chosen;
-    private Texture mercy_normal;
-    private Texture mercy_chosen;
-    private Texture[] buttons;
 
     private Texture attack_panel;
     private Texture attack_bar[];
-    private Texture hp_text;
     private Texture miss_text;
     private Animation attack_animation;
 
@@ -89,6 +79,7 @@ public class UIManager {
     private FontManager fontManager;
     private AnimationManager uiAnimationManager;
     private MenuTypeWriter menuTypeWriter;
+    private BgUIManager bgUIManager;
 
     public enum MenuState { 
         MAIN, 
@@ -120,16 +111,18 @@ public class UIManager {
         uiAnimationManager = AnimationManager.getInstance();
         ConfigManager configManager = Game.getConfigManager();
         player = Game.getPlayer();
-        menuTypeWriter = new MenuTypeWriter(fontManager, configManager);
+        menuTypeWriter = new MenuTypeWriter(configManager, fontManager);
+        bgUIManager = new BgUIManager(configManager, fontManager, player);
         
         loadResources();
+
+        BATTLE_FRAME_LINE_WIDTH = configManager.BATTLE_FRAME_LINE_WIDTH;
 
         BOTTOM_OFFSET = configManager.BOTTOM_OFFSET;
         SCALER = configManager.BUTTON_SCALER;
         BTN_WIDTH = configManager.BUTTON_WIDTH;
         BTN_HEIGHT = configManager.BUTTON_HEIGHT;
         BTN_MARGIN = configManager.BUTTON_MARGIN;
-        BATTLE_FRAME_LINE_WIDTH = configManager.BATTLE_FRAME_LINE_WIDTH;
 
         battle_frame_width = MENU_FRAME_WIDTH = configManager.MENU_FRAME_WIDTH;
         battle_frame_height = MENU_FRAME_HEIGHT = configManager.MENU_FRAME_HEIGHT;
@@ -147,19 +140,8 @@ public class UIManager {
         attack_bar[0] = Game.getTexture("attack_bar_white");
         attack_bar[1] = Game.getTexture("attack_bar_black");
 
-        hp_text = Game.getTexture("hp_text");
         miss_text = Game.getTexture("miss");
 
-        attack_normal = Game.getTexture("attack_normal");
-        attack_chosen = Game.getTexture("attack_chosen");
-        act_normal = Game.getTexture("act_normal");
-        act_chosen = Game.getTexture("act_chosen");
-        item_normal = Game.getTexture("item_normal");
-        item_chosen = Game.getTexture("item_chosen");
-        mercy_normal = Game.getTexture("mercy_normal");
-        mercy_chosen = Game.getTexture("mercy_chosen");
-        buttons = new Texture[]{attack_normal, act_normal, item_normal, mercy_normal,
-                                attack_chosen, act_chosen, item_chosen, mercy_chosen};
         attack_animation = uiAnimationManager.getAnimation("attack_animation");
         attack_animation.disappearAfterEnds = true;
     }
@@ -200,8 +182,8 @@ public class UIManager {
 
     public void renderBattleUI() {
         // 渲染按钮, 玩家信息, 战斗框架
-        renderButtons();
-        renderPlayerInfo();
+        bgUIManager.renderButtons(selectedAction);
+        bgUIManager.renderPlayerInfo();
         renderBattleFrame();
     }
 
@@ -319,43 +301,6 @@ public class UIManager {
     private void renderMercyList() {
         // spare单项
         fontManager.drawText("spare", MENU_FRAME_LEFT + 100, MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 50, 1.0f, 1.0f, 1.0f, 1.0f);
-    }
-
-    private void renderButtons(){
-
-        for (int i = 0; i < 4; i++) {
-            Texture.drawTexture(buttons[i + (i == selectedAction ? 4 : 0)].getId(),
-                LEFT_MARGIN + BTN_MARGIN + i * (BTN_WIDTH + BTN_MARGIN), BOTTOM_MARGIN - BTN_HEIGHT - BOTTOM_OFFSET,
-                BTN_WIDTH, BTN_HEIGHT);
-        }
-    }
-
-    private void renderPlayerInfo() {
-        // 绘制 name, LV, HP/MaxHP信息
-        float HEIGHT = BOTTOM_MARGIN - BOTTOM_OFFSET - BTN_HEIGHT - 20;
-        float OFFSET = LEFT_MARGIN + BTN_MARGIN;
-        // 绘制name
-        fontManager.drawText(player.getName(), OFFSET , HEIGHT, 1.0f, 1.0f, 1.0f, 1.0f);
-        // 绘制LV
-        fontManager.drawText("LV " + player.getLevel(), OFFSET + BTN_WIDTH / 4 * 3, HEIGHT, 1.0f, 1.0f, 1.0f, 1.0f);
-        // 绘制HP
-        float hpLeft = OFFSET + BTN_WIDTH * 3 / 2 + BTN_MARGIN - hp_text.getWidth();
-        float hpTop = HEIGHT - hp_text.getHeight() * 2;
-        Texture.drawTexture(hp_text.getId(), hpLeft, hpTop, hp_text.getWidth() * 2, hp_text.getHeight() * 2);
-        // 绘制HP条，用红色绘制maxHealth长度，再用黄色覆盖currentHealth长度
-        float HP_BAR_WIDTH = player.getMaxHealth() * 3;
-        float HP_BAR_CURRENT_WIDTH = player.getCurrentHealth() * 3;
-        float HP_BAR_HEIGHT = fontManager.getFontHeight();
-        float HP_BAR_X = OFFSET + BTN_WIDTH * 3 / 2 + BTN_MARGIN + fontManager.getTextWidth("HP ") + 20;
-        float HP_BAR_Y = HEIGHT - HP_BAR_HEIGHT / 2 - 8;
-        // 绘制maxHealth
-        Texture.drawRect(HP_BAR_X, HP_BAR_Y, HP_BAR_WIDTH, HP_BAR_HEIGHT, 1.0f, 0.0f, 0.0f, 1.0f);
-        // 绘制currentHealth
-        Texture.drawRect(HP_BAR_X, HP_BAR_Y, HP_BAR_CURRENT_WIDTH, HP_BAR_HEIGHT, 1.0f, 1.0f, 0.0f, 1.0f);
-
-        // 绘制currentHealth/maxHealth
-        String hpText = player.getCurrentHealth() + "  /  " + player.getMaxHealth();
-        fontManager.drawText(hpText, HP_BAR_X + HP_BAR_WIDTH + 20, HEIGHT, 1.0f, 1.0f, 1.0f, 1.0f);
     }
 
     private void renderFightPanel() {

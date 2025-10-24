@@ -24,7 +24,7 @@ public class MenuTypeWriter {
     private boolean typewriterAllShown;
     private final int TYPEWRITER_SPEED = 30; // 每秒显示字符数
 
-    public MenuTypeWriter(FontManager fontManager, ConfigManager configManager) {
+    public MenuTypeWriter(ConfigManager configManager, FontManager fontManager) {
         this.fontManager = fontManager;
         this.configManager = configManager;
         displayLines = new ArrayList<>();
