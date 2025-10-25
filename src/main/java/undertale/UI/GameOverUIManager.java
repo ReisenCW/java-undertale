@@ -8,7 +8,6 @@ import undertale.Utils.ConfigManager;
 
 public class GameOverUIManager extends UIBase{
     private TypeWriter typeWriter;
-    private Player player;
     private Texture gameOverBgTexture;
     private float gameOverBgAlpha;
     private float gameOverTimeElapsed;
@@ -27,10 +26,9 @@ public class GameOverUIManager extends UIBase{
     GameOverUIManager(ConfigManager configManager, TypeWriter typeWriter, Player player) {
         super(configManager);
         this.typeWriter = typeWriter;
-        this.player = player;
         gameOverMessages = new String[]{
-            player.getName().toUpperCase() + ", stay determined...",
-            player.getName().toUpperCase() + " don't give up...",
+            player.getName() + ", stay determined...",
+            player.getName() + " don't give up...",
             "Interesting...\nShall we hasten?",
             "The fate of the world lies in your hands...",
         };
