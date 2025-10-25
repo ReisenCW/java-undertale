@@ -36,7 +36,7 @@ public class UIManager extends UIBase {
     private AttackAnimManager attackAnimManager;
     private BattleFrameManager battleFrameManager;
     private GameOverUIManager gameOverUIManager;
-
+    private BeginMenuManager beginMenuManager;
 
     public MenuState menuState = MenuState.MAIN;
 
@@ -60,6 +60,7 @@ public class UIManager extends UIBase {
         attackAnimManager = new AttackAnimManager(configManager, fontManager, player);
         battleFrameManager = new BattleFrameManager(configManager, player);
         gameOverUIManager = new GameOverUIManager(configManager, menuTypeWriter, player);
+        beginMenuManager = new BeginMenuManager(configManager, fontManager);
         enemyManager = EnemyManager.getInstance();
     }
 
@@ -427,6 +428,32 @@ public class UIManager extends UIBase {
 
     public void resetGameOver() {
         gameOverUIManager.reset();
+    }
+
+    public void renderBeginMenu() {
+        beginMenuManager.render();
+    }
+
+    public void beginMenuSelectUp() {
+        beginMenuManager.selectUp();
+    }
+
+    public void beginMenuSelectDown() {
+        beginMenuManager.selectDown();
+    }
+
+    public void handleBeginMenuSelect() {
+        beginMenuManager.confirmSelection();
+    }
+
+    public void handleGameOverConfirm() {
+        if(gameOverUIManager.isMessageAllPrinted()) {
+            SceneManager.getInstance().shouldSwitch = true;
+        }
+    }
+
+    public void resetBeginMenu() {
+        beginMenuManager.reset();
     }
 
     public float getFrameLeft() {

@@ -402,4 +402,14 @@ public class Player extends GameObject {
                 break;
         }
     }
+
+    public void reset() {
+        this.currentHealth = this.maxHealth;
+        this.isHurt = false;
+        this.isMovable = true;
+        this.x = Game.getWindowWidth() / 2 - heartTexture.getWidth() / 2;
+        this.y = Game.getWindowHeight() / 2 - heartTexture.getHeight() / 2;
+        this.setCurrentLightRadius(LightLevel.NORMAL);
+        this.setTargetLightRadius(LightLevel.NORMAL);
+    }
 }

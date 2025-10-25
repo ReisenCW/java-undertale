@@ -10,6 +10,7 @@ public abstract class Scene {
         BATTLE_MENU,
         BATTLE_FIGHT,
         GAME_OVER,
+        START_MENU
     }
     protected SceneManager sceneManager;
     protected ObjectManager objectManager;

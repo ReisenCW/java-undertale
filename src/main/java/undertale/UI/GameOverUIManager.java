@@ -87,4 +87,11 @@ public class GameOverUIManager extends UIBase{
         int index = (int)(Math.random() * gameOverMessages.length);
         gameOverText = gameOverMessages[index];
     }
+
+    public boolean isMessageAllPrinted() {
+        if (printMessage) {
+            return typeWriter.isTypewriterAllShown();
+        }
+        return false;
+    }
 }

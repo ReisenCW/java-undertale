@@ -6,6 +6,7 @@ import undertale.GameObject.ObjectManager;
 import undertale.GameObject.Player;
 import undertale.Scene.BattleFightScene;
 import undertale.Scene.BattleMenuScene;
+import undertale.Scene.BeginMenuScene;
 import undertale.Scene.GameOverScene;
 import undertale.Scene.Scene;
 import undertale.Scene.SceneManager;
@@ -54,7 +55,9 @@ public class Game {
         fontManager = FontManager.getInstance();
 
         // 初始化场景管理器并注册场景
-        sceneManager.registerScene(Scene.SceneEnum.BATTLE_MENU, 
+        sceneManager.registerScene(Scene.SceneEnum.START_MENU,
+        new BeginMenuScene(objectManager, inputManager));
+        sceneManager.registerScene(Scene.SceneEnum.BATTLE_MENU,
         new BattleMenuScene(objectManager, inputManager));
         sceneManager.registerScene(Scene.SceneEnum.BATTLE_FIGHT,
         new BattleFightScene(objectManager, inputManager));
@@ -62,8 +65,7 @@ public class Game {
         new GameOverScene(objectManager, inputManager));
         
         // 初始场景
-        // sceneManager.switchScene(Scene.SceneEnum.BATTLE_FIGHT, true);
-        sceneManager.switchScene(Scene.SceneEnum.BATTLE_MENU, true);
+        sceneManager.switchScene(Scene.SceneEnum.START_MENU, true);
         
         // 初始化UI管理器
         uiManager = UIManager.getInstance();
@@ -92,9 +94,6 @@ public class Game {
 		inputManager.processInput();
         // ui更新
         uiManager.update(deltaTime);
-        if(!player.isAlive() && sceneManager.getCurrentScene().getCurrentScene() != Scene.SceneEnum.GAME_OVER) {
-            sceneManager.switchScene(Scene.SceneEnum.GAME_OVER, true);
-        }
     }
 
     private static void render() {
@@ -159,5 +158,9 @@ public class Game {
 
     public static float getFrameBottom() {
         return uiManager.getFrameBottom();
+    }
+
+    public static void resetGame() {
+        objectManager.resetGame();
     }
 }

@@ -235,4 +235,17 @@ public class ObjectManager {
     public void resetPlayerLight() {
         player.setTargetLightRadius(LightLevel.NORMAL);
     }
+
+    public boolean isPlayerAlive() {
+        return player.isAlive();
+    }
+
+    public void resetGame() {
+        // 重置玩家
+        player.reset();
+        // 重置敌人
+        enemyManager.clearEnemies();
+        // 清空子弹
+        clearBullets();
+    }
 }

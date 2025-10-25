@@ -116,6 +116,25 @@ public class InputManager {
         }
     }
 
+    private void processGameOverInput() {
+        // 当文字输出完毕后按下Z键确认
+        if(isKeyTriggered(GLFW_KEY_Z)) {
+            uiManager.handleGameOverConfirm();
+        }
+    }
+
+    private void processBeginMenuInput() {
+        if(isKeyTriggered(GLFW_KEY_UP)) {
+            uiManager.beginMenuSelectUp();
+        }
+        if(isKeyTriggered(GLFW_KEY_DOWN)) {
+            uiManager.beginMenuSelectDown();
+        }
+        if(isKeyTriggered(GLFW_KEY_Z)) {
+            uiManager.handleBeginMenuSelect();
+        }
+    }
+
     public void processInput() {
         updateKeyState();
         handleEscaping();
@@ -123,6 +142,8 @@ public class InputManager {
         switch(sceneManager.getCurrentScene().getCurrentScene()) {
             case BATTLE_FIGHT -> handlePlayerMovement();
             case BATTLE_MENU -> handleMenuChoose();
+            case GAME_OVER -> processGameOverInput();
+            case START_MENU -> processBeginMenuInput();
             default -> {
             }
         }

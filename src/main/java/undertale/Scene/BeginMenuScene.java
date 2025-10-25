@@ -1,42 +1,38 @@
 package undertale.Scene;
 
-import undertale.GameMain.Game;
 import undertale.GameMain.InputManager;
 import undertale.GameObject.ObjectManager;
 
-public class GameOverScene extends Scene {
-    public GameOverScene(ObjectManager objectManager, InputManager inputManager) {
+public class BeginMenuScene extends Scene {
+    public BeginMenuScene(ObjectManager objectManager, InputManager inputManager) {
         super(objectManager, inputManager);
-        init();
     }
 
     @Override
     public void init() {
+        uiManager.resetBeginMenu();
     }
 
     @Override
     public void onEnter() {
-        uiManager.resetGameOver();
+        uiManager.resetBeginMenu();
     }
 
     @Override
-    public void onExit() {
-    }
+    public void onExit() {}
 
     @Override
     public void update(float deltaTime) {
-        uiManager.updateGameOver(deltaTime);
-        Game.resetGame();
         sceneManager.switchScene(SceneEnum.BATTLE_MENU);
     }
 
     @Override
     public void render() {
-        uiManager.renderGameOver();
+        uiManager.renderBeginMenu();
     }
 
     @Override
     public SceneEnum getCurrentScene() {
-        return SceneEnum.GAME_OVER;
+        return SceneEnum.START_MENU;
     }
 }

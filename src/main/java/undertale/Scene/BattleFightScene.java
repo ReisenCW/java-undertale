@@ -46,6 +46,10 @@ public class BattleFightScene extends Scene {
 
     @Override
     public void update(float deltaTime) {
+        if(!objectManager.isPlayerAlive()) {
+            SceneManager.getInstance().switchScene(SceneEnum.GAME_OVER, true);
+            return;
+        }
         roundTime += deltaTime * 1000;
         Round currentRound = rounds.get(round - 1);
         if(roundTime < currentRound.getFrameMoveTime()) {

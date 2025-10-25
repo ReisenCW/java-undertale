@@ -16,6 +16,7 @@
     {"key": "mercy_normal", "path": "img_mercy_normal.png"},
     {"key": "mercy_chosen", "path": "img_mercy_chosen.png"},
     {"key": "game_over_bg", "path": "img_gameover_bg.png"},
+    {"key": "main_menu_bg", "path": "img_main_menu_bg.png"},
     {"key": "titan_body", "path": "enemy_titan/img_titan_body.png"},
     {"key": "titan_star", "path": "enemy_titan/img_titan_star.png"},
     {"key": "titan_backwing_0_0", "path": "enemy_titan/img_titan_backwing_0/spr_titan_backwing_0.png"},

@@ -45,6 +45,10 @@ public class BattleMenuScene extends Scene {
 
     @Override
     public void update(float deltaTime) {
+        if(!objectManager.isPlayerAlive()) {
+            SceneManager.getInstance().switchScene(SceneEnum.GAME_OVER, true);
+            return;
+        }
         // 开始1s, BattleFrame恢复到原来位置
         roundTime += deltaTime * 1000;
         if (roundTime < 1000) {
