@@ -6,10 +6,8 @@ import undertale.Enemy.EnemyManager;
 import undertale.GameMain.InputManager;
 import undertale.GameObject.ObjectManager;
 import undertale.Scene.Rounds.*;
-import undertale.UI.UIManager;
 
 public class BattleFightScene extends Scene {
-    private UIManager uiManager = UIManager.getInstance();
     private EnemyManager enemyManager = EnemyManager.getInstance();
     private int round;
     private ArrayList<Round> rounds;

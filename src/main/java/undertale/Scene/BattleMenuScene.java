@@ -6,7 +6,6 @@ import undertale.GameObject.ObjectManager;
 import undertale.UI.UIManager;
 
 public class BattleMenuScene extends Scene {
-    private UIManager uiManager = UIManager.getInstance();
     private EnemyManager enemyManager = EnemyManager.getInstance();
     private int round;
     private long roundTime;

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import undertale.Texture.FontManager;
 import undertale.Utils.ConfigManager;
 
-public class MenuTypeWriter extends UIBase {
+public class TypeWriter extends UIBase {
     private FontManager fontManager;
 
     private float typewriterElapsed;
@@ -18,7 +18,7 @@ public class MenuTypeWriter extends UIBase {
     private boolean typewriterAllShown;
     private final int TYPEWRITER_SPEED = 30; // 每秒显示字符数
 
-    public MenuTypeWriter(ConfigManager configManager, FontManager fontManager) {
+    public TypeWriter(ConfigManager configManager, FontManager fontManager) {
         super(configManager);
         this.fontManager = fontManager;
         displayLines = new ArrayList<>();
@@ -41,11 +41,8 @@ public class MenuTypeWriter extends UIBase {
         }
     }
 
-    public void renderTextsInMenu(String text) {
+    public void renderTexts(String text, float left, float top, float maxWidth) {
         // 打字机效果，X跳过全部显示，全部显示后Z才可继续
-        float left = MENU_FRAME_LEFT + 50;
-        float top = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 50;
-        float maxWidth = MENU_FRAME_WIDTH - 40;
         float fontHeight = fontManager.getFontHeight() + 5;
 
         // 若文本变化，重置打字机状态
@@ -119,6 +116,13 @@ public class MenuTypeWriter extends UIBase {
             shown += toShow;
             rowIdx++;
         }
+    }
+
+    public void renderTextsInMenu(String text) {
+        float left = MENU_FRAME_LEFT + 50;
+        float top = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 50;
+        float maxWidth = MENU_FRAME_WIDTH - 40;
+        renderTexts(text, left, top, maxWidth);
     }
 
     public boolean isTypewriterAllShown() {

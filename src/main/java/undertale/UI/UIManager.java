@@ -31,10 +31,11 @@ public class UIManager extends UIBase {
 
     private EnemyManager enemyManager;
     private FontManager fontManager;
-    private MenuTypeWriter menuTypeWriter;
+    private TypeWriter menuTypeWriter;
     private BgUIManager bgUIManager;
     private AttackAnimManager attackAnimManager;
     private BattleFrameManager battleFrameManager;
+    private GameOverUIManager gameOverUIManager;
 
 
     public MenuState menuState = MenuState.MAIN;
@@ -54,10 +55,11 @@ public class UIManager extends UIBase {
         ConfigManager configManager = Game.getConfigManager();
         fontManager = FontManager.getInstance();
         player = Game.getPlayer();
-        menuTypeWriter = new MenuTypeWriter(configManager, fontManager);
+        menuTypeWriter = new TypeWriter(configManager, fontManager);
         bgUIManager = new BgUIManager(configManager, fontManager, player);
         attackAnimManager = new AttackAnimManager(configManager, fontManager, player);
         battleFrameManager = new BattleFrameManager(configManager, player);
+        gameOverUIManager = new GameOverUIManager(configManager, menuTypeWriter, player);
         enemyManager = EnemyManager.getInstance();
     }
 
@@ -413,6 +415,18 @@ public class UIManager extends UIBase {
             case ACT, FIGHT, ITEM, MERCY -> false;
             default -> true;
         };
+    }
+
+    public void updateGameOver(float deltaTime) {
+        gameOverUIManager.update(deltaTime);
+    }
+
+    public void renderGameOver() {
+        gameOverUIManager.render();
+    }
+
+    public void resetGameOver() {
+        gameOverUIManager.reset();
     }
 
     public float getFrameLeft() {

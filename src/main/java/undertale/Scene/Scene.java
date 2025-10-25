@@ -9,6 +9,7 @@ public abstract class Scene {
     public enum SceneEnum {
         BATTLE_MENU,
         BATTLE_FIGHT,
+        GAME_OVER,
     }
     protected SceneManager sceneManager;
     protected ObjectManager objectManager;
