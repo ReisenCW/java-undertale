@@ -244,7 +244,7 @@ public class ObjectManager {
         // 重置玩家
         player.reset();
         // 重置敌人
-        enemyManager.clearEnemies();
+        enemyManager.resetEnemies();
         // 清空子弹
         clearBullets();
     }

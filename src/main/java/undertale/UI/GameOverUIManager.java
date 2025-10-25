@@ -94,4 +94,8 @@ public class GameOverUIManager extends UIBase{
         }
         return false;
     }
+
+    public void showAllMessages() {
+        typeWriter.showAll();
+    }
 }

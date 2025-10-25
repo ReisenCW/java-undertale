@@ -207,4 +207,8 @@ public class Enemy {
         }
         return 0;
     }
+
+    public void reset() {
+        this.currentHealth = this.maxHealth;
+    }
 }

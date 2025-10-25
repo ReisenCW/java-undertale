@@ -142,4 +142,10 @@ public class EnemyManager {
             enemy.render();
         }
 	}
+
+    public void resetEnemies() {
+        for (Enemy enemy : enemies) {
+            enemy.reset();
+        }
+    }
 }

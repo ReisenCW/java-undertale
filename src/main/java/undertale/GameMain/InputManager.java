@@ -121,6 +121,10 @@ public class InputManager {
         if(isKeyTriggered(GLFW_KEY_Z)) {
             uiManager.handleGameOverConfirm();
         }
+        // 按下X键全部显示
+        if(isKeyTriggered(GLFW_KEY_X)) {
+            uiManager.handleGameOverSkip();
+        }
     }
 
     private void processBeginMenuInput() {

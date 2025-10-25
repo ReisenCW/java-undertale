@@ -21,12 +21,18 @@ public class GameOverScene extends Scene {
 
     @Override
     public void onExit() {
+        // 重置全局游戏对象（玩家、敌人、子弹）
+        Game.resetGame();
+        // 重新初始化战斗场景（回到第一轮等初始状态）
+        Scene battleFight = SceneManager.getInstance().getScene(SceneEnum.BATTLE_FIGHT);
+        if (battleFight != null) {
+            battleFight.init();
+        }
     }
 
     @Override
     public void update(float deltaTime) {
         uiManager.updateGameOver(deltaTime);
-        Game.resetGame();
         sceneManager.switchScene(SceneEnum.BATTLE_MENU);
     }
 

@@ -452,6 +452,12 @@ public class UIManager extends UIBase {
         }
     }
 
+    public void handleGameOverSkip() {
+        if(!gameOverUIManager.isMessageAllPrinted()) {
+            gameOverUIManager.showAllMessages();
+        }
+    }
+
     public void resetBeginMenu() {
         beginMenuManager.reset();
     }

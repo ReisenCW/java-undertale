@@ -162,5 +162,7 @@ public class Game {
 
     public static void resetGame() {
         objectManager.resetGame();
+        uiManager.resetVars();
+        sceneManager.reset();
     }
 }

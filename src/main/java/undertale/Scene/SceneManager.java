@@ -44,4 +44,15 @@ public class SceneManager {
     public Scene getCurrentScene() {
         return currentScene;
     }
+
+    // 返回指定类型的场景实例（可能为null）
+    public Scene getScene(SceneEnum type) {
+        return scenes.get(type);
+    }
+
+    public void reset() {
+        for (Scene scene : scenes.values()) {
+            scene.init();
+        }
+    }
 }
