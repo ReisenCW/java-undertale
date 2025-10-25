@@ -162,15 +162,34 @@ public class Player extends GameObject {
     }
 
     public void render() {
+        // 多偏移绘制黑色轮廓（outline），再绘制主纹理
+        float w = hScale * heartTexture.getWidth();
+        float h = vScale * heartTexture.getHeight();
+        // outline 偏移量（以屏幕像素为单位），可调整为 1 或 2
+        float thickness = 1.0f;
+        float outlineAlpha = 1.0f * rgba[3];
+
+        // 扩大到 5x5 偏移（排除中心点）以得到更粗的轮廓
+        for (int ox = -2; ox <= 2; ox++) {
+            for (int oy = -2; oy <= 2; oy++) {
+                if (ox == 0 && oy == 0) continue;
+                Texture.drawTexture(heartTexture.getId(),
+                    this.x + ox * thickness, this.y + oy * thickness,
+                    w, h,
+                    0, 0f, 0f, 0f, outlineAlpha);
+            }
+        }
+
+        // 主贴图（保留受伤闪烁色调）
         if(isHurt && ((System.currentTimeMillis() - hurtStartTime) / flashTime) % 2 == 0) {
             Texture.drawTexture(heartTexture.getId(),
                     this.x, this.y,
-                    hScale * heartTexture.getWidth(), vScale * heartTexture.getHeight(),
+                    w, h,
                     0, rgba[0]/3, rgba[1]/3, rgba[2]/3, rgba[3]);
         } else{
             Texture.drawTexture(heartTexture.getId(),
                     this.x, this.y,
-                    hScale * heartTexture.getWidth(), vScale * heartTexture.getHeight(),
+                    w, h,
                     0, rgba[0], rgba[1], rgba[2], rgba[3]);
         }
     }
@@ -261,6 +280,8 @@ public class Player extends GameObject {
     }
 
     public void setVScale(float vScale) {
+        // 调整y以保持中心位置不变
+        this.y -= (vScale - this.vScale) * getHeight() / 2.0f;
         this.vScale = vScale;
     }
 
@@ -269,6 +290,8 @@ public class Player extends GameObject {
     }
 
     public void setHScale(float hScale) {
+        // 调整x以保持中心位置不变
+        this.x -= (hScale - this.hScale) * getWidth() / 2.0f;
         this.hScale = hScale;
     }
 
@@ -346,6 +369,10 @@ public class Player extends GameObject {
 
     public float getCurrentLightRadius() {
         return currentLightRadius;
+    }
+
+    public float getLightOscAmplitude() {
+        return lightOscAmplitude;
     }
 
     public void setCurrentLightRadius(LightLevel level) {

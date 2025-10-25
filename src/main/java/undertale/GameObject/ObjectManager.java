@@ -97,6 +97,15 @@ public class ObjectManager {
             if(!player.isAlive())
                 continue;
 
+            // 如果是TitanSpawn并且已标记为删除，加入移除列表
+            if (bullet instanceof TitanSpawn) {
+                TitanSpawn ts = (TitanSpawn) bullet;
+                if (ts.isMarkedForRemoval()) {
+                    toRemove.add(bullet);
+                    continue;
+                }
+            }
+
             // 先检查子弹是否超出屏幕边界
             float margin = Math.max(bullet.getWidth(), bullet.getHeight()) / 2.0f;
             if (bullet.bound && isBulletOutOfBounds(bullet, margin)) {

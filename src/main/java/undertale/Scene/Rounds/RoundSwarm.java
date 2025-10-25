@@ -14,8 +14,8 @@ public class RoundSwarm extends Round{
 
     private float spawnTimer = 0f;
     private static final float SPAWN_INTERVAL = 0.5f; // 0.5秒生成一次
-    private static final float MIN_RADIUS = 120f;
-    private static final float MAX_RADIUS = 200f;
+    private static final float MIN_RADIUS = 180f;
+    private static final float MAX_RADIUS = 240f;
     private Animation titanSpawnAnimation;
 
     public RoundSwarm(long duration, long frameMoveTime) {
@@ -50,7 +50,7 @@ public class RoundSwarm extends Round{
         float spawnY = player.getY() + (float)(Math.sin(angle) * radius);
 
         // 创建TitanSpawn
-        TitanSpawn spawn = new TitanSpawn(spawnX, spawnY, 200f, 5, titanSpawnAnimation);
+        TitanSpawn spawn = new TitanSpawn(spawnX, spawnY, 120f, 5, titanSpawnAnimation);
         
         // 将spawn添加到objectManager的bullets列表中
         objectManager.addBullet(spawn);
@@ -58,7 +58,7 @@ public class RoundSwarm extends Round{
 
     @Override
     public void moveBattleFrame(float deltaTime) {
-        float edge = 300.0f;
+        float edge = 400.0f;
         float centerX = Game.getWindowWidth() / 2.0f;
         float centerY = Game.getWindowHeight() / 2.0f;
         uiManager.moveBattleFrame(deltaTime, frameMoveTime, edge, edge, centerX - edge / 2, centerY + edge / 2);

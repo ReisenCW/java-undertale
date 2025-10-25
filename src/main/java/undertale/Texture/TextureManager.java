@@ -30,6 +30,11 @@ public class TextureManager {
         return instance;
     }
 
+    public void loadTexture(String name, String filePath, int filterType) {
+        Texture texture = new Texture(filePath, filterType);
+        textures.put(name, texture);
+    }
+
     public void loadTexture(String name, String filePath) {
         Texture texture = new Texture(filePath);
         textures.put(name, texture);

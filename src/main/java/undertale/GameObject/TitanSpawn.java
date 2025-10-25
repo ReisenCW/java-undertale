@@ -9,7 +9,16 @@ public class TitanSpawn extends Bullet{
 
     private float cycleTimerSec = 0f;
     private boolean aimedThisCycle = false;
-    private int aimTime = 2;
+    private int aimTime = 3;
+    // 接触光圈缩小相关变量
+    private float contactTimer = 0f; // seconds
+    private float contactDisapperTime = 1.6f; // seconds, 接触光圈1.6s后消失
+    private boolean contacting = false;
+    private boolean markedForRemoval = false;
+    private float initialHScale;
+    private float initialVScale;
+    
+    private final float MIN_VISIBLE_SCALE = 0.35f;
 
     public TitanSpawn(float x, float y, float maxSpeed, int damage, Animation animation) {
         super(x, y, 0, 0, 0, damage, animation);
@@ -21,6 +30,8 @@ public class TitanSpawn extends Bullet{
 
         this.rgba[3] = 0.0f; // 初始透明
         this.isColli = false; // 初始无判定
+        this.initialHScale = getHScale();
+        this.initialVScale = getVScale();
     }
 
     private void updateCurrentSpeed(float deltaTime) {
@@ -79,6 +90,52 @@ public class TitanSpawn extends Bullet{
         }
         super.update(deltaTime);
         animation.updateAnimation(deltaTime);
+
+        // 如果已经标记为删除则直接返回
+        if (markedForRemoval) return;
+
+        // 检测是否与player任意光圈环接触（renderLight绘制了多圈）
+        Player player = Game.getPlayer();
+        if (player != null && player.isAlive()) {
+            float px = player.getX() + player.getWidth() / 2.0f;
+            float py = player.getY() + player.getHeight() / 2.0f;
+            float dx = px - (this.x + this.getWidth() / 2.0f);
+            float dy = py - (this.y + this.getHeight() / 2.0f);
+            float dist = (float)Math.sqrt(dx * dx + dy * dy);
+
+            float outer = player.getCurrentLightRadius();
+            float amp = player.getLightOscAmplitude();
+
+            boolean touch = false;
+            float halfSize = Math.max(this.getHeight(), this.getWidth()) / 2.0f;
+
+            // player与titan_spawn的中心距离 <= 外光圈半径 + 震动幅度 + titan_spawn半径
+            if (dist <= outer + amp + halfSize) {
+                touch = true;
+            }
+
+            if (touch) {
+                contactTimer += deltaTime;
+                contacting = true;
+            } else {
+                contacting = false;
+            }
+
+            // 接触光圈时缩小
+            if (contacting) {
+                float t = Math.min(1.0f, contactTimer / contactDisapperTime);
+                // 不将scale降为0, 保留最小可见比例以保持良好体验
+                float scale = Math.max(MIN_VISIBLE_SCALE, 1.0f - t);
+                setHScale(initialHScale * scale);
+                setVScale(initialVScale * scale);
+                // 接触超过contactDisapperTime后消失
+                if (Math.abs(scale - MIN_VISIBLE_SCALE) < 0.01f) {
+                    this.rgba[3] = 0.0f;
+                    this.isColli = false;
+                    markedForRemoval = true;
+                }
+            }
+        }
     }
     
     @Override
@@ -93,5 +150,9 @@ public class TitanSpawn extends Bullet{
 
     public float getHeight() {
         return animation.getFrameHeight() * getVScale();
+    }
+
+    public boolean isMarkedForRemoval() {
+        return markedForRemoval;
     }
 }

@@ -99,8 +99,8 @@
     "highSpeed": 280.0,
     "lowSpeed": 150.0,
     "invisibleTime": 1500,
-    "enhancedLightRadius": 80.0,
-    "normalLightRadius": 50.0
+    "enhancedLightRadius": 85.0,
+    "normalLightRadius": 65.0
   },
   "debug": true
 }

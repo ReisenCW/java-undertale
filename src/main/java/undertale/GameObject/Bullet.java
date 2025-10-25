@@ -109,6 +109,8 @@ public class Bullet extends GameObject{
     }
 
     public void setHScale(float hScale) {
+        // 调整x以保持中心位置不变
+        this.x -= (hScale - this.hScale) * getWidth() / 2.0f;
         this.hScale = hScale;
     }
 
@@ -117,6 +119,8 @@ public class Bullet extends GameObject{
     }
 
     public void setVScale(float vScale) {
+        // 调整y以保持中心位置不变
+        this.y -= (vScale - this.vScale) * getHeight() / 2.0f;
         this.vScale = vScale;
     }
 

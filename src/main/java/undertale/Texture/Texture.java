@@ -16,7 +16,7 @@ public class Texture {
     private int width;
     private int height;
 
-    public Texture(String resourcePath) {
+    public Texture(String resourcePath, int filterType) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer w = stack.mallocInt(1);
             IntBuffer h = stack.mallocInt(1);
@@ -45,13 +45,17 @@ public class Texture {
             glBindTexture(GL_TEXTURE_2D, id);
 
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterType);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterType);
 
             STBImage.stbi_image_free(image);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Texture(String resourcePath) {
+        this(resourcePath, GL_NEAREST);
     }
 
     /**
