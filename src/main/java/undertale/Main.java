@@ -1,5 +1,4 @@
 package undertale;
-
 import undertale.GameMain.Game;
 
 public class Main {

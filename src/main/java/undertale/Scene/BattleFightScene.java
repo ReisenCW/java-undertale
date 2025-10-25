@@ -34,11 +34,13 @@ public class BattleFightScene extends Scene {
         round = Math.min(round + 1, rounds.size());
         uiManager.setSelected(-1);
         objectManager.initPlayerPosition();
+        objectManager.startPlayerLightExpansion();
         objectManager.allowPlayerMovement(true);
     }
 
     @Override
     public void onExit() {
+        objectManager.resetPlayerLight();
         objectManager.allowPlayerMovement(false);
         uiManager.setSelected(0);
         objectManager.clearBullets();

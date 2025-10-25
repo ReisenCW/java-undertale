@@ -138,6 +138,44 @@ public class Texture {
         glLineWidth(1);
     }
 
+    // 绘制实心圆
+    public static void drawCircle(float x, float y, float radius, float r, float g, float b, float a, int segment) {
+        glColor4f(r, g, b, a);
+        glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(x, y); // 中心点
+        for (int i = 0; i <= segment; i++) {
+            double angle = 2.0 * Math.PI * i / segment;
+            float dx = (float)(radius * Math.cos(angle));
+            float dy = (float)(radius * Math.sin(angle));
+            glVertex2f(x + dx, y + dy);
+        }
+
+        glEnd();
+    }
+
+    public static void drawCircle(float x, float y, float radius, float r, float g, float b, float a) {
+        drawCircle(x, y, radius, r, g, b, a, 36);
+    }
+
+    // 绘制空心圆（线圈）
+    public static void drawHollowCircle(float x, float y, float radius, float r, float g, float b, float a, int segment, float lineWidth) {
+        glLineWidth(lineWidth);
+        glColor4f(r, g, b, a);
+        glBegin(GL_LINE_LOOP);
+        for (int i = 0; i < segment; i++) {
+            double angle = 2.0 * Math.PI * i / segment;
+            float dx = (float)(radius * Math.cos(angle));
+            float dy = (float)(radius * Math.sin(angle));
+            glVertex2f(x + dx, y + dy);
+        }
+        glEnd();
+        glLineWidth(1);
+    }
+
+    public static void drawHollowCircle(float x, float y, float radius, float r, float g, float b, float a) {
+        drawHollowCircle(x, y, radius, r, g, b, a, 36, 1.0f);
+    }
+
     public static void drawRect(float x, float y, float width, float height) {
         drawRect(x, y, width, height, 1.0f, 1.0f, 1.0f, 1.0f);
     }

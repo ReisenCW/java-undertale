@@ -32,7 +32,7 @@ public class ConfigManager {
         int widthVal = 1280;
         int heightVal = 720;
         float button_scaler = 1.6f;
-        float bottom_offset = 20.0f; 
+        float bottom_offset = 20.0f;
         float button_frame_line_width = 3.0f;
         float button_width = 110.0f;
         float button_height = 42.0f;

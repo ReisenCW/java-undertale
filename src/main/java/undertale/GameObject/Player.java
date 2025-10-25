@@ -22,6 +22,24 @@ public class Player extends GameObject {
     private float highSpeed;
     private float lowSpeed;
 
+    public enum LightLevel {
+        NORMAL,
+        ENHANCED
+    }
+    //光圈半径
+    private float currentLightRadius;
+    private float enhancedLightRadius;
+    private float normalLightRadius;
+    // 光圈动画相关
+    private float startLightRadius = 0f;
+    private float targetLightRadius = 0f;
+    private boolean lightExpanding = false;
+    private float lightExpandingDuration = 1.0f; // seconds
+    private float lightElapsed = 0f; // seconds
+    private float lightOscTime = 0f; // seconds
+    private float lightOscSpeed = 6.0f; // 震动速度
+    private float lightOscAmplitude = 1.2f; // 震动幅度
+
     private boolean isHighSpeed = true;
     private boolean isHurt = false;
     public boolean isMovable = true;
@@ -31,7 +49,6 @@ public class Player extends GameObject {
     private Texture heartTexture;
 
     private float[] rgba;
-
     private Item[] items;
     
     public Player(String name) {
@@ -50,6 +67,11 @@ public class Player extends GameObject {
         this.highSpeed = Float.parseFloat(playerMap.getOrDefault("highSpeed", "180.0"));
         this.lowSpeed = Float.parseFloat(playerMap.getOrDefault("lowSpeed", "80.0"));
         this.speed = highSpeed;
+
+        this.enhancedLightRadius = Float.parseFloat(playerMap.getOrDefault("enhancedLightRadius", "150.0"));
+        this.normalLightRadius = Float.parseFloat(playerMap.getOrDefault("normalLightRadius", "100.0"));
+        this.currentLightRadius = normalLightRadius;
+        this.targetLightRadius = currentLightRadius;
         
         this.invisibleTime = Integer.parseInt(playerMap.getOrDefault("invisibleTime", "1500")); // ms
         this.flashTime = 100; // ms 闪烁周期
@@ -74,7 +96,33 @@ public class Player extends GameObject {
     public void update(float deltaTime) {
         handleSpeedMode();
         updatePosition(deltaTime); // 按键处理在inputManager中
+        updateLight(deltaTime);
         handlePlayerOutBound(0, Game.getWindowWidth(), 0, Game.getWindowHeight());
+    }
+
+    // 回合开始时调用, 开始光圈扩展动画
+    public void startLightExpansion() {
+        this.lightElapsed = 0f;
+        this.startLightRadius = 0.0f;
+        this.currentLightRadius = this.startLightRadius;
+        this.lightExpanding = true;
+        this.lightOscTime = 0f;
+    }
+
+    private void updateLight(float deltaTime) {
+        if (lightExpanding) {
+            // 光圈扩展动画
+            lightElapsed += deltaTime;
+            float t = Math.min(1.0f, lightElapsed / lightExpandingDuration);
+            // sin,越来越慢
+            float ease = (float)Math.sin(t * Math.PI / 2.0);
+            currentLightRadius = startLightRadius + (targetLightRadius - startLightRadius) * ease;
+            if (t >= 1.0f) {
+                lightExpanding = false;
+            }
+        }
+        // 光圈震动
+        lightOscTime += deltaTime;
     }
 
     private void handleSpeedMode() {
@@ -119,12 +167,36 @@ public class Player extends GameObject {
                     this.x, this.y,
                     hScale * heartTexture.getWidth(), vScale * heartTexture.getHeight(),
                     0, rgba[0]/3, rgba[1]/3, rgba[2]/3, rgba[3]);
-        }
-        else{
+        } else{
             Texture.drawTexture(heartTexture.getId(),
                     this.x, this.y,
                     hScale * heartTexture.getWidth(), vScale * heartTexture.getHeight(),
                     0, rgba[0], rgba[1], rgba[2], rgba[3]);
+        }
+    }
+
+    public void renderLight() {
+        float cx = this.x + this.getWidth() / 2.0f;
+        float cy = this.y + this.getHeight() / 2.0f;
+
+        int rings = 6;
+
+        float maxAlpha = 0.5f;
+        // 每个圈的基础alpha, 内圈由所有圈的alpha叠加而成
+        float baseAlpha = maxAlpha / rings;
+
+        for (int i = 0; i < rings; i++) {
+            float frac = (i + 1) / (float) rings; // 0..1
+            // 利用sqrt使小i(内圈)变化快, 大i(外圈)变化慢, 即内圈稀疏, 外圈密集
+            float radius = currentLightRadius * (float)Math.sqrt(frac);
+
+            // 光圈振荡偏移 (所有环振幅相同, 但相位不同)
+            float phase = i * 0.35f;
+            float osc = (float)Math.sin(lightOscTime * lightOscSpeed + phase) * lightOscAmplitude;
+
+            float drawRadius = radius + osc;
+
+            Texture.drawCircle(cx, cy, drawRadius, 1.0f, 1.0f, 1.0f, baseAlpha);
         }
     }
 
@@ -270,5 +342,37 @@ public class Player extends GameObject {
             throw new IndexOutOfBoundsException("Invalid item index: " + index);
         }
         return items[index];
+    }
+
+    public float getCurrentLightRadius() {
+        return currentLightRadius;
+    }
+
+    public void setCurrentLightRadius(LightLevel level) {
+        switch (level) {
+            case NORMAL:
+                this.currentLightRadius = normalLightRadius;
+                break;
+            case ENHANCED:
+                this.currentLightRadius = enhancedLightRadius;
+                break;
+            default:
+                this.currentLightRadius = normalLightRadius;
+                break;
+        }
+    }
+
+    public void setTargetLightRadius(LightLevel level) {
+        switch (level) {
+            case NORMAL:
+                this.targetLightRadius = normalLightRadius;
+                break;
+            case ENHANCED:
+                this.targetLightRadius = enhancedLightRadius;
+                break;
+            default:
+                this.targetLightRadius = normalLightRadius;
+                break;
+        }
     }
 }

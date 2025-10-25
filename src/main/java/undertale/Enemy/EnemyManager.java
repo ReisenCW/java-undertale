@@ -41,7 +41,11 @@ public class EnemyManager {
         );
         titan.addAct(
             "light",
-            "* Your soul emits a gentle light."
+            "* Your soul emits a greater light.",
+            () -> {
+                Player player = Game.getPlayer();
+                player.setTargetLightRadius(Player.LightLevel.ENHANCED);
+            }
         );
         titan.addAct(
             "unleash",

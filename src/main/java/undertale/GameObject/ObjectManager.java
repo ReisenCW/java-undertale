@@ -7,6 +7,7 @@ import java.util.TimerTask;
 import undertale.Animation.Animation;
 import undertale.Enemy.EnemyManager;
 import undertale.GameMain.Game;
+import undertale.GameObject.Player.LightLevel;
 import undertale.Texture.Texture;
 
 public class ObjectManager {
@@ -185,13 +186,23 @@ public class ObjectManager {
 
         //player
         if(renderPlayer) {
+            player.renderLight();
             player.render();
         }
     }
 
-    public void renderMenuScene(){
+    // Start player's light expansion effect (call at round start)
+    public void startPlayerLightExpansion() {
+        if (player != null) {
+            player.startLightExpansion();
+        }
+    }
+
+    public void renderBattleMenuScene(boolean renderPlayer){
         // player
-        player.render();
+        if(renderPlayer) {
+            player.render();
+        }
     }
 
     public void clearBullets() {
@@ -210,5 +221,9 @@ public class ObjectManager {
         float startX = Game.getFrameLeft() + (Game.getFrameWidth() - player.getWidth()) / 2.0f;
         float startY = Game.getFrameBottom() - (Game.getFrameHeight() + player.getHeight()) / 2.0f;
         player.setPosition(startX, startY);
+    }
+
+    public void resetPlayerLight() {
+        player.setTargetLightRadius(LightLevel.NORMAL);
     }
 }

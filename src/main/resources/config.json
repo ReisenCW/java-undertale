@@ -98,7 +98,9 @@
     "hScale": 3.0,
     "highSpeed": 280.0,
     "lowSpeed": 150.0,
-    "invisibleTime": 1500
+    "invisibleTime": 1500,
+    "enhancedLightRadius": 80.0,
+    "normalLightRadius": 50.0
   },
   "debug": true
 }

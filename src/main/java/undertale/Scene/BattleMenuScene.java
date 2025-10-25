@@ -61,7 +61,7 @@ public class BattleMenuScene extends Scene {
         enemyManager.render();
         uiManager.renderBattleUI();
         uiManager.renderFrameContents(roundMessages[round - 1]);
-        objectManager.renderFightScene(false, uiManager.isRenderPlayer());
+        objectManager.renderBattleMenuScene(uiManager.isRenderPlayer());
     }
 
     @Override
