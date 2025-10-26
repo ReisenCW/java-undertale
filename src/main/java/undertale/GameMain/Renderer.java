@@ -11,6 +11,7 @@ public class Renderer {
     private InputManager inputManager;
     private SceneManager sceneManager;
     private FontManager fontManager;
+    private ScreenFadeManager screenFadeManager;
 
     private final int ESCAPING_X = 50;
     private final int ESCAPING_Y = 50;
@@ -19,6 +20,7 @@ public class Renderer {
         this.inputManager = inputManager;
         this.sceneManager = SceneManager.getInstance();
         this.fontManager = FontManager.getInstance();
+        this.screenFadeManager = ScreenFadeManager.getInstance();
         init();
     }
 
@@ -45,7 +47,7 @@ public class Renderer {
         // enemyManager.render();
         sceneManager.getCurrentScene().render();
         // 屏幕淡入淡出覆盖层（在场景渲染后绘制）
-        ScreenFadeManager.getInstance().render();
+        screenFadeManager.render();
         // render ends
         glfwSwapBuffers(Game.getWindow().getWindow()); // swap the color buffers
     }

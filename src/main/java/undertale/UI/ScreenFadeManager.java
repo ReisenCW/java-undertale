@@ -4,30 +4,48 @@ import undertale.GameMain.Game;
 import undertale.Texture.Texture;
 
 /**
- * Singleton manager for screen fade effects.
- * Supports fade-out -> callback -> fade-in (useful for scene switches)
- * and fade-to-black with final callback (useful for quitting).
+ * 屏幕淡入淡出管理器
+ * 提供 淡出-淡入 效果 和 纯淡出 效果
  */
-public class ScreenFadeManager {
-    public enum State { INACTIVE, FADING_OUT, FADING_IN, FADING_OUT_FINAL }
+public class ScreenFadeManager{
+    public enum State {
+        INACTIVE,
+        FADING_OUT,
+        FADING_IN,
+        FADING_OUT_FINAL
+    }
 
-    private static ScreenFadeManager instance = new ScreenFadeManager();
+    private static ScreenFadeManager instance;
 
-    private State state = State.INACTIVE;
-    private float timer = 0.0f;
-    private float fadeDuration = 1.0f; // seconds for one phase (out or in)
-    private Runnable onMidpoint; // called when fully black (for out->in)
-    private Runnable onComplete; // called when fully finished (after in or after final out)
+    private State state;
+    private float timer;
+    private float fadeDuration; // 淡化时间(单段)
+    private Runnable onMidpoint; // 在淡出完全变黑时调用
+    private Runnable onComplete; // 在淡入完全变亮时调用
+    private float WINDOW_WIDTH;
+    private float WINDOW_HEIGHT;
 
-    private ScreenFadeManager() {}
+    static {
+        instance = new ScreenFadeManager();
+    }
+
+    private ScreenFadeManager() {
+        state = State.INACTIVE;
+        timer = 0.0f;
+        fadeDuration = 1.0f;
+        WINDOW_WIDTH = Game.getWindowWidth();
+        WINDOW_HEIGHT = Game.getWindowHeight();
+    }
 
     public static ScreenFadeManager getInstance() {
         return instance;
     }
 
     /**
-     * Start a fade-out then call onMidpoint when fully black, then fade-in and call onComplete when finished.
-     * totalDuration is the whole roundtrip time (out + in).
+     * 开始 淡出 再淡入 效果
+     * @param totalDurationSeconds 总持续时间(淡出+淡入)
+     * @param onMidpoint 在完全变黑时调用
+     * @param onComplete 在淡入完成时调用
      */
     public void startFadeOutIn(float totalDurationSeconds, Runnable onMidpoint, Runnable onComplete) {
         if (totalDurationSeconds <= 0) totalDurationSeconds = 1.0f;
@@ -39,7 +57,9 @@ public class ScreenFadeManager {
     }
 
     /**
-     * Start a fade-to-black (no fade-in). onComplete called when fully black.
+     * 开始 淡出 效果
+     * @param durationSeconds 持续时间
+     * @param onComplete 在完全变黑时调用
      */
     public void startFadeToBlack(float durationSeconds, Runnable onComplete) {
         if (durationSeconds <= 0) durationSeconds = 1.0f;
@@ -59,19 +79,29 @@ public class ScreenFadeManager {
         timer += deltaTime;
         if (state == State.FADING_OUT) {
             if (timer >= fadeDuration) {
-                // reached full black
+                // 已全黑
                 timer = 0.0f;
                 if (onMidpoint != null) {
-                    try { onMidpoint.run(); } catch (Exception e) { e.printStackTrace(); }
+                    try {
+                        onMidpoint.run();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
+                // 开始淡入
                 state = State.FADING_IN;
             }
         } else if (state == State.FADING_IN) {
             if (timer >= fadeDuration) {
+                // 已全亮
                 timer = 0.0f;
                 state = State.INACTIVE;
                 if (onComplete != null) {
-                    try { onComplete.run(); } catch (Exception e) { e.printStackTrace(); }
+                    try {
+                        onComplete.run();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         } else if (state == State.FADING_OUT_FINAL) {
@@ -79,7 +109,11 @@ public class ScreenFadeManager {
                 timer = 0.0f;
                 state = State.INACTIVE;
                 if (onComplete != null) {
-                    try { onComplete.run(); } catch (Exception e) { e.printStackTrace(); }
+                    try {
+                        onComplete.run();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -94,7 +128,7 @@ public class ScreenFadeManager {
             case FADING_OUT_FINAL -> alpha = Math.min(1.0f, timer / fadeDuration);
         }
         if (alpha > 0.0f) {
-            Texture.drawRect(0, 0, Game.getWindowWidth(), Game.getWindowHeight(), 0.0f, 0.0f, 0.0f, alpha);
+            Texture.drawRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0.0f, 0.0f, 0.0f, alpha);
         }
     }
 }

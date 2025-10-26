@@ -32,6 +32,7 @@ public class Game {
     private static UIManager uiManager;
     private static TextureManager textureManager;
     private static FontManager fontManager;
+    private static ScreenFadeManager screenFadeManager;
 
     public static void run() {
 		init();
@@ -54,6 +55,7 @@ public class Game {
         objectManager = new ObjectManager(player);
         inputManager = new InputManager(gameWindow, player);
         fontManager = FontManager.getInstance();
+        screenFadeManager = ScreenFadeManager.getInstance();
 
         // 初始化场景管理器并注册场景
         sceneManager.registerScene(Scene.SceneEnum.START_MENU,
@@ -96,7 +98,7 @@ public class Game {
         // ui更新
         uiManager.update(deltaTime);
         // 屏幕淡入淡出更新
-        ScreenFadeManager.getInstance().update(deltaTime);
+        screenFadeManager.update(deltaTime);
     }
 
     private static void render() {
