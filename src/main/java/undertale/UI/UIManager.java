@@ -448,7 +448,11 @@ public class UIManager extends UIBase {
 
     public void handleGameOverConfirm() {
         if(gameOverUIManager.isMessageAllPrinted()) {
-            SceneManager.getInstance().shouldSwitch = true;
+            // 使用渐暗再变亮的特效切回战斗菜单
+            ScreenFadeManager.getInstance().startFadeOutIn(1.5f,
+                () -> SceneManager.getInstance().shouldSwitch = true,
+                null
+            );
         }
     }
 

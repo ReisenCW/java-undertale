@@ -16,6 +16,7 @@ import undertale.Texture.TextureManager;
 import undertale.UI.UIManager;
 import undertale.Utils.ConfigManager;
 import undertale.Utils.Timer;
+import undertale.UI.ScreenFadeManager;
 
 public class Game {
     public static boolean DEBUG = true;
@@ -94,6 +95,8 @@ public class Game {
 		inputManager.processInput();
         // ui更新
         uiManager.update(deltaTime);
+        // 屏幕淡入淡出更新
+        ScreenFadeManager.getInstance().update(deltaTime);
     }
 
     private static void render() {

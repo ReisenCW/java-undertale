@@ -89,13 +89,18 @@ public class BeginMenuManager extends UIBase {
     public void confirmSelection() {
         switch (choiceIndex) {
             case 0: // Start
-                SceneManager.getInstance().shouldSwitch = true;
+                // 使用渐暗再变亮的特效切换场景
+                ScreenFadeManager.getInstance().startFadeOutIn(1.2f,
+                    () -> SceneManager.getInstance().shouldSwitch = true,
+                    null
+                );
                 break;
             case 1: // Reset
                 // TODO: 删除游戏存档
                 break;
             case 2: // Exit
-                System.exit(0);
+                // 渐暗后退出
+                ScreenFadeManager.getInstance().startFadeToBlack(1.0f, () -> System.exit(0));
                 break;
             default:
                 break;

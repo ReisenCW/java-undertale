@@ -5,6 +5,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 import undertale.Scene.SceneManager;
 import undertale.Texture.FontManager;
+import undertale.UI.ScreenFadeManager;
 
 public class Renderer {
     private InputManager inputManager;
@@ -43,6 +44,8 @@ public class Renderer {
         renderEscaping();
         // enemyManager.render();
         sceneManager.getCurrentScene().render();
+        // 屏幕淡入淡出覆盖层（在场景渲染后绘制）
+        ScreenFadeManager.getInstance().render();
         // render ends
         glfwSwapBuffers(Game.getWindow().getWindow()); // swap the color buffers
     }
