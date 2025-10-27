@@ -167,4 +167,11 @@ public class Bullet extends GameObject{
         this.destroyableOnHit = true;
         this.bound = true;
     }
+
+    public boolean checkCollisionWithPlayer(Player player) {
+        if (!player.isAlive() || !this.isColli) {
+            return false;
+        }
+        return CollisionDetector.checkRectCircleCollision(this, player);
+    }
 }

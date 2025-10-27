@@ -141,7 +141,7 @@ public class ObjectManager {
         if(!bullet.isColli)
             return false;
 
-        if (CollisionDetector.checkRectCircleCollision(bullet, player)) {
+        if (bullet.checkCollisionWithPlayer(player)) {
             // 碰撞
             if (!player.isHurt()) {
                 // 播放受伤音效
