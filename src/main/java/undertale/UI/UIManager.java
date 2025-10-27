@@ -105,6 +105,7 @@ public class UIManager extends UIBase {
     public void renderFrameContents(String roundText) {
         if(roundText == null) return;
         switch(menuState) {
+            case BEGIN -> {}
             case FIGHT_SELECT_ENEMY, ACT_SELECT_ENEMY, MERCY_SELECT_ENEMY -> 
                 renderEnemyList();
             case ACT_SELECT_ACT -> 
@@ -351,7 +352,7 @@ public class UIManager extends UIBase {
         soundManager.playSE("menu_move");
         // 向下选择，item支持分页滚动
         switch(menuState) {
-            case MAIN -> {}
+            case BEGIN, MAIN -> {}
             case FIGHT_SELECT_ENEMY, MERCY_SELECT_ENEMY, ACT_SELECT_ENEMY -> {
                 if (selectedEnemy < enemyManager.getEnemyCount() - 1) {
                     selectedEnemy++;
@@ -386,7 +387,7 @@ public class UIManager extends UIBase {
         soundManager.playSE("menu_move");
         // 向上选择, item支持分页滚动
         switch(menuState) {
-            case MAIN -> {}
+            case BEGIN, MAIN -> {}
             case FIGHT_SELECT_ENEMY, MERCY_SELECT_ENEMY, ACT_SELECT_ENEMY -> {
                 if (selectedEnemy > 0) {
                     selectedEnemy--;
