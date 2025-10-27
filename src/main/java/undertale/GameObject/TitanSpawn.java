@@ -9,14 +9,17 @@ public class TitanSpawn extends Bullet{
 
     private float cycleTimerSec = 0f;
     private boolean aimedThisCycle = false;
-    private int aimTime = 3;
+    private int aimTime = 4;
     // 接触光圈缩小相关变量
     private float contactTimer = 0f; // seconds
-    private float contactDisapperTime = 1.6f; // seconds, 接触光圈1.6s后消失
+    private float contactDisapperTime = 1.2f; // seconds, 接触光圈1.2s后消失
     private boolean contacting = false;
     private boolean markedForRemoval = false;
     private float initialHScale;
     private float initialVScale;
+
+    private float cycleDuration = 2.0f; // 每个周期持续时间
+    private float speedDuration = 2.5f; // 速度变化持续时间
     
     private final float MIN_VISIBLE_SCALE = 0.35f;
 
@@ -35,10 +38,11 @@ public class TitanSpawn extends Bullet{
     }
 
     private void updateCurrentSpeed(float deltaTime) {
-        // 每3秒: 周期开始瞄准玩家；前2.5秒速度按 sin 包络上升再下降；第3秒静止
+        // 每cycleDuration秒: 周期开始瞄准玩家
+        // 前speedDuration秒速度按 sin 包络上升再下降, 之后速度为0
         cycleTimerSec += deltaTime;
-        if (cycleTimerSec >= 3.0f && aimTime > 0) {
-            cycleTimerSec -= 3.0f;
+        if (cycleTimerSec >= cycleDuration && aimTime > 0) {
+            cycleTimerSec -= cycleDuration;
             aimedThisCycle = false; // 新周期开始
         }
 
@@ -54,11 +58,11 @@ public class TitanSpawn extends Bullet{
             aimTime--;
             aimedThisCycle = true;
         }
-        // 速度包络：0~2.5秒为 maxSpeed * sin(pi * t / 2.5)，2.5~3秒为0
+        // 速度包络:0~speedDuration秒为 maxSpeed * sin(pi * t / speedDuration), speedDuration~cycleDuration秒为0
         float t = cycleTimerSec;
         float speed;
-        if (t < 2.5f) {
-            speed = (float)(maxSpeed * Math.sin(Math.PI * (t / 2.5f)));
+        if (t < speedDuration) {
+            speed = (float)(maxSpeed * Math.sin(Math.PI * (t / speedDuration)));
         } else {
             if(aimTime > 0) {
                 speed = 0.0f;
@@ -70,7 +74,6 @@ public class TitanSpawn extends Bullet{
         if (speed < 0.0f) speed = 0.0f;
         if (speed > maxSpeed) speed = maxSpeed;
         this.setSpeed(speed);
-
     }
 
     @Override

@@ -26,8 +26,10 @@ public class SoundManager {
 
     // 音乐缓存
     private final Map<String, Clip> musicCache = new ConcurrentHashMap<>();
+
     // 当前正在播放的音乐路径（用于判断是否为缓存的 clip）
     private String currentMusicPath = null;
+    
     // 是否已预加载过
     private boolean preloaded = false;
 

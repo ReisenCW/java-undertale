@@ -13,9 +13,9 @@ public class RoundSwarm extends Round{
     private UIManager uiManager;
 
     private float spawnTimer = 0f;
-    private static final float SPAWN_INTERVAL = 0.5f; // 0.5秒生成一次
-    private static final float MIN_RADIUS = 180f;
-    private static final float MAX_RADIUS = 240f;
+    private static final float SPAWN_INTERVAL = 0.3f; // 0.3秒生成一次
+    private static final float MIN_RADIUS = 210f;
+    private static final float MAX_RADIUS = 260f;
     private Animation titanSpawnAnimation;
 
     public RoundSwarm(long duration, long frameMoveTime) {
@@ -28,7 +28,7 @@ public class RoundSwarm extends Round{
 
     @Override
     public void updateRound(float deltaTime) {
-        // 每0.5s生成一个titan spawn, 位置为以player为中心, 半径为120-200的随机位置
+        // 每 SPAWN_INTERVAL 生成一个titan spawn, 位置为以player为中心, 半径为 MIN_RADIUS - MAX_RADIUS 的随机位置
         spawnTimer += deltaTime;
         
         if (spawnTimer >= SPAWN_INTERVAL) {
@@ -50,7 +50,7 @@ public class RoundSwarm extends Round{
         float spawnY = player.getY() + (float)(Math.sin(angle) * radius);
 
         // 创建TitanSpawn
-        TitanSpawn spawn = new TitanSpawn(spawnX, spawnY, 120f, 5, titanSpawnAnimation);
+        TitanSpawn spawn = new TitanSpawn(spawnX, spawnY, 100f, 5, titanSpawnAnimation);
         
         // 将spawn添加到objectManager的bullets列表中
         objectManager.addBullet(spawn);
