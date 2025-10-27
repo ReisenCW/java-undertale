@@ -50,7 +50,7 @@ public class RoundSwarm extends Round{
         float spawnY = player.getY() + (float)(Math.sin(angle) * radius);
 
         // 创建TitanSpawn
-        TitanSpawn spawn = new TitanSpawn(spawnX, spawnY, 100f, 5, titanSpawnAnimation);
+        TitanSpawn spawn = new TitanSpawn(spawnX, spawnY, 110f, 5, titanSpawnAnimation);
         
         // 将spawn添加到objectManager的bullets列表中
         objectManager.addBullet(spawn);

@@ -172,6 +172,6 @@ public class Bullet extends GameObject{
         if (!player.isAlive() || !this.isColli) {
             return false;
         }
-        return CollisionDetector.checkRectCircleCollision(this, player);
+        return CollisionDetector.checkRectCircleCollision(this, player, 5.0f);
     }
 }

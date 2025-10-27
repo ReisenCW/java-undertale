@@ -30,6 +30,9 @@ public class BattleMenuScene extends Scene {
 
     @Override
     public void onEnter() {
+        if(!soundManager.isMusicPlaying("titan_battle")) {
+            soundManager.playMusic("titan_battle");
+        }
         objectManager.allowPlayerMovement(false);
         objectManager.clearBullets();
         uiManager.resetVars();

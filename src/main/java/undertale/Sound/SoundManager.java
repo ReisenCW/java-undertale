@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+// 声音管理器，负责加载和播放音效与音乐
+// 支持格式: WAV, AIFF, AU (JDK 内置支持)
 public class SoundManager {
     private static final SoundManager instance;
     private HashMap<String, String> soundEffects;
@@ -237,5 +239,11 @@ public class SoundManager {
             } catch (Exception ignored) {}
         }
         musicCache.clear();
+    }
+
+    public boolean isMusicPlaying(String musicName) {
+        if(currentMusicPath == null || musicTracks == null) return false;
+        String path = musicTracks.get(musicName);
+        return currentMusicPath.equals(path);
     }
 }

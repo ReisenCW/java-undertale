@@ -2,6 +2,7 @@ package undertale.Scene;
 
 import undertale.GameMain.InputManager;
 import undertale.GameObject.ObjectManager;
+import undertale.Sound.SoundManager;
 import undertale.Texture.TextureManager;
 import undertale.UI.UIManager;
 
@@ -17,6 +18,7 @@ public abstract class Scene {
     protected InputManager inputManager;
     protected UIManager uiManager;
     protected TextureManager textureManager;
+    protected SoundManager soundManager;
 
     // 构造函数注入依赖
     public Scene(ObjectManager objectManager, InputManager inputManager) {
@@ -25,6 +27,7 @@ public abstract class Scene {
         this.textureManager = TextureManager.getInstance();
         this.objectManager = objectManager;
         this.inputManager = inputManager;
+        this.soundManager = SoundManager.getInstance();
     }
 
     // 场景进入时调用

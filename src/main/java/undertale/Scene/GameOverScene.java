@@ -16,6 +16,7 @@ public class GameOverScene extends Scene {
 
     @Override
     public void onEnter() {
+        soundManager.playMusic("gameover");
         uiManager.resetGameOver();
     }
 

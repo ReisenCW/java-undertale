@@ -89,10 +89,13 @@
     {"key": "confirm", "path": "se/se_confirm.wav"},
     {"key": "slice", "path": "se/se_slice.wav"},
     {"key": "heal", "path": "se/se_heal.wav"},
-    {"key": "heart_break", "path": "se/se_heart_break.wav"}
+    {"key": "heart_break", "path": "se/se_heart_break.wav"},
+    {"key": "text_print", "path": "se/se_text_print.wav"}
   ],
   "music": [
-
+    {"key": "gameover", "path": "music/mus_gameover.wav"},
+    {"key": "titan_battle", "path": "music/mus_titan_battle.wav"},
+    {"key": "main_menu", "path": "music/mus_main_menu.wav"}
   ],
   "fonts": [
     {"key": "determination", "path": "determinationmonoweb-webfont.ttf"},

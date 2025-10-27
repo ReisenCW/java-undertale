@@ -18,8 +18,8 @@ public class TitanSpawn extends Bullet{
     private float initialHScale;
     private float initialVScale;
 
-    private float cycleDuration = 2.0f; // 每个周期持续时间
-    private float speedDuration = 2.5f; // 速度变化持续时间
+    private float cycleDuration = 2.5f; // 每个周期持续时间
+    private float speedDuration = 2.0f; // 速度变化持续时间
     
     private final float MIN_VISIBLE_SCALE = 0.35f;
 

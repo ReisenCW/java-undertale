@@ -2,11 +2,13 @@ package undertale.UI;
 
 import java.util.ArrayList;
 
+import undertale.Sound.SoundManager;
 import undertale.Texture.FontManager;
 import undertale.Utils.ConfigManager;
 
 public class TypeWriter extends UIBase {
     private FontManager fontManager;
+    private SoundManager soundManager;
 
     private float typewriterElapsed;
 
@@ -16,11 +18,13 @@ public class TypeWriter extends UIBase {
     private ArrayList<Boolean> isRawNewline;
     private int totalCharsToShow;
     private boolean typewriterAllShown;
-    private final int TYPEWRITER_SPEED = 30; // 每秒显示字符数
+    private final int TYPEWRITER_SPEED = 20; // 每秒显示字符数
+
 
     public TypeWriter(ConfigManager configManager, FontManager fontManager) {
         super(configManager);
         this.fontManager = fontManager;
+        this.soundManager = SoundManager.getInstance();
         displayLines = new ArrayList<>();
         isRawNewline = new ArrayList<>();
         reset();
@@ -37,6 +41,7 @@ public class TypeWriter extends UIBase {
 
     public void update(float deltaTime) {
         if (!typewriterAllShown) {
+            soundManager.playSE("text_print");
             typewriterElapsed += deltaTime;
         }
     }

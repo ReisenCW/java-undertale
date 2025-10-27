@@ -15,6 +15,9 @@ public class BeginMenuScene extends Scene {
 
     @Override
     public void onEnter() {
+        if(!soundManager.isMusicPlaying("main_menu")) {
+            soundManager.playMusic("main_menu");
+        }
         uiManager.resetBeginMenu();
     }
 
