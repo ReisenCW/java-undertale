@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 import undertale.GameMain.Game;
 import undertale.Item.Item;
+import undertale.Sound.SoundManager;
 import undertale.Texture.Texture;
 import undertale.Utils.ConfigManager;
 
@@ -50,6 +51,8 @@ public class Player extends GameObject {
 
     private float[] rgba;
     private Item[] items;
+
+    private SoundManager soundManager;
     
     public Player(String name) {
         ConfigManager configManager = Game.getConfigManager();
@@ -90,6 +93,8 @@ public class Player extends GameObject {
         items[5] = new Item("Snowman Piece", "* A piece of a snowman.", 30);
         items[6] = new Item("Dog Salad", "* Wolf.", 12);
         items[7] = new Item("Legendary Hero", "* Your ATK increased by 4.", 45);
+
+        soundManager = SoundManager.getInstance();
     }
 
     @Override
@@ -244,6 +249,7 @@ public class Player extends GameObject {
     }
 
     public void heal(int healAmount) {
+        soundManager.playSE("heal");
         currentHealth += healAmount;
         if (currentHealth > maxHealth) {
             currentHealth = maxHealth;

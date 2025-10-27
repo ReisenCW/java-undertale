@@ -24,6 +24,8 @@ public class ConfigManager {
     public final HashMap<String, String> textures;
     public final HashMap<String, String> playerMap;
     public final HashMap<String, String> fonts;
+    public final HashMap<String, String> se;
+    public final HashMap<String, String> music;
 
     private final String CONFIG_PATH = "config.json";
 
@@ -39,6 +41,8 @@ public class ConfigManager {
         HashMap<String, String> texMap = new HashMap<>();
         HashMap<String, String> playerMapTmp = new HashMap<>();
         HashMap<String, String> fontsMap = new HashMap<>();
+        HashMap<String, String> seMap = new HashMap<>();
+        HashMap<String, String> musicMap = new HashMap<>();
         try {
             // 使用类加载器读取 resources 下的 config.json
             java.io.InputStream in = getClass().getClassLoader().getResourceAsStream(CONFIG_PATH);
@@ -81,6 +85,24 @@ public class ConfigManager {
                             }
                         }
                     }
+                    // se
+                    if (obj.has("se")) {
+                        for (JsonElement el : obj.getAsJsonArray("se")) {
+                            JsonObject se = el.getAsJsonObject();
+                            if (se.has("key") && se.has("path")) {
+                                seMap.put(se.get("key").getAsString(), se.get("path").getAsString());
+                            }
+                        }
+                    }
+                    // music
+                    if (obj.has("music")) {
+                        for (JsonElement el : obj.getAsJsonArray("music")) {
+                            JsonObject music = el.getAsJsonObject();
+                            if (music.has("key") && music.has("path")) {
+                                musicMap.put(music.get("key").getAsString(), music.get("path").getAsString());
+                            }
+                        }
+                    }
                     // fonts
                     if (obj.has("fonts")) {
                         for (JsonElement el : obj.getAsJsonArray("fonts")) {
@@ -101,6 +123,8 @@ public class ConfigManager {
         this.textures = texMap;
         this.playerMap = playerMapTmp;
         this.fonts = fontsMap;
+        this.se = seMap;
+        this.music = musicMap;
         this.BOTTOM_OFFSET = bottom_offset;
         this.BUTTON_SCALER = button_scaler;
         this.BATTLE_FRAME_LINE_WIDTH = button_frame_line_width;

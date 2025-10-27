@@ -77,6 +77,18 @@
     {"key": "spawn_6", "path": "titan_spawn/spr_titan_spawn_idle_6.png"},
     {"key": "spawn_7", "path": "titan_spawn/spr_titan_spawn_idle_7.png"}
   ],
+  "se": [
+    {"key": "enemy_hurt", "path": "se/se_enemy_hurt.wav"},
+    {"key": "player_hurt", "path": "se/se_player_hurt.wav"},
+    {"key": "menu_move", "path": "se/se_menu_move.wav"},
+    {"key": "confirm", "path": "se/se_confirm.wav"},
+    {"key": "slice", "path": "se/se_slice.wav"},
+    {"key": "heal", "path": "se/se_heal.wav"},
+    {"key": "heart_break", "path": "se/se_heart_break.wav"}
+  ],
+  "music": [
+
+  ],
   "fonts": [
     {"key": "determination", "path": "determinationmonoweb-webfont.ttf"},
     {"key": "pixel", "path": "PixelOperator-Bold.ttf"}

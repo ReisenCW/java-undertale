@@ -6,6 +6,7 @@ import undertale.Enemy.Enemy;
 import undertale.GameMain.Game;
 import undertale.GameObject.Player;
 import undertale.Scene.SceneManager;
+import undertale.Sound.SoundManager;
 import undertale.Texture.FontManager;
 import undertale.Texture.Texture;
 import undertale.Utils.ConfigManager;
@@ -13,6 +14,7 @@ import undertale.Utils.ConfigManager;
 public class AttackAnimManager extends UIBase {
     private AnimationManager animationManager;
     private FontManager fontManager;
+    private SoundManager soundManager;
     private Player player;
 
     private Texture attack_panel;
@@ -48,6 +50,7 @@ public class AttackAnimManager extends UIBase {
     public AttackAnimManager(ConfigManager configManager, FontManager fontManager, Player player) {
         super(configManager);
         this.fontManager = fontManager;
+        this.soundManager = SoundManager.getInstance();
         this.player = player;
         animationManager = AnimationManager.getInstance();
         attack_bar_offset = 0.0f;
@@ -167,6 +170,7 @@ public class AttackAnimManager extends UIBase {
 
     private void updateSliceHpDisplay(float deltaTime, Enemy enemy) {
         if (attack_animation.isFinished() && !showDamage) {
+            soundManager.playSE("enemy_hurt");
             int damage = (int)(player.getAttackPower() * attackRate);
             showDamage = true;
             displayedHealth = enemy.currentHealth;

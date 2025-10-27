@@ -8,6 +8,7 @@ import undertale.Animation.Animation;
 import undertale.Enemy.EnemyManager;
 import undertale.GameMain.Game;
 import undertale.GameObject.Player.LightLevel;
+import undertale.Sound.SoundManager;
 import undertale.Texture.Texture;
 
 public class ObjectManager {
@@ -19,6 +20,7 @@ public class ObjectManager {
     private ArrayList<Bullet> toRemove;
     private EnemyManager enemyManager;
     private BulletRenderer bulletRenderer;
+    private SoundManager soundManager;
 
     public ObjectManager(Player player){
         init(player);
@@ -31,6 +33,7 @@ public class ObjectManager {
         toRemove = new ArrayList<>();
         enemyManager = EnemyManager.getInstance();
         bulletRenderer = new BulletRenderer();
+        soundManager = SoundManager.getInstance();
     }
 
     public Bullet createBullet(float x, float y, float selfAngle, float speedAngle, float speed, int damage, Texture texture){
@@ -141,6 +144,9 @@ public class ObjectManager {
         if (CollisionDetector.checkRectCircleCollision(bullet, player)) {
             // 碰撞
             if (!player.isHurt()) {
+                // 播放受伤音效
+                soundManager.playSE("player_hurt");
+                // 玩家受伤
                 player.takeDamage(bullet.getDamage());
                 player.setHurt(true);
                 // 使用定时器恢复

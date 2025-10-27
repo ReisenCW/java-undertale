@@ -6,12 +6,14 @@ import undertale.GameMain.Game;
 import undertale.GameObject.Player;
 import undertale.Item.Item;
 import undertale.Scene.SceneManager;
+import undertale.Sound.SoundManager;
 import undertale.Texture.FontManager;
 import undertale.Texture.Texture;
 import undertale.Utils.ConfigManager;
 
 public class UIManager extends UIBase {
-    public enum MenuState { 
+    public enum MenuState {
+        BEGIN,
         MAIN,
         FIGHT_SELECT_ENEMY,
         FIGHT,
@@ -37,8 +39,9 @@ public class UIManager extends UIBase {
     private BattleFrameManager battleFrameManager;
     private GameOverUIManager gameOverUIManager;
     private BeginMenuManager beginMenuManager;
+    private SoundManager soundManager;
 
-    public MenuState menuState = MenuState.MAIN;
+    public MenuState menuState = MenuState.BEGIN;
 
     public int selectedEnemy = 0;
     public int selectedAct = 0;
@@ -62,6 +65,7 @@ public class UIManager extends UIBase {
         gameOverUIManager = new GameOverUIManager(configManager, menuTypeWriter, player);
         beginMenuManager = new BeginMenuManager(configManager, fontManager);
         enemyManager = EnemyManager.getInstance();
+        soundManager = SoundManager.getInstance();
     }
 
     public static UIManager getInstance() {
@@ -237,22 +241,27 @@ public class UIManager extends UIBase {
     // 菜单“确定”操作
     public void handleMenuSelect() {
         if (menuState == MenuState.MAIN) {
+            soundManager.playSE("confirm");
             menuState = switch(selectedAction) {
-                case 0 -> MenuState.FIGHT_SELECT_ENEMY;
+                case 0 -> {
+                    yield MenuState.FIGHT_SELECT_ENEMY;
+                }
                 case 1 -> {
                     // 若没有act，则不进入act菜单
                     if(enemyManager.getEnemy(selectedEnemy).getActs().isEmpty()){
                         yield MenuState.MAIN;
                     }
-                    else
+                    else{
                         yield MenuState.ACT_SELECT_ENEMY;
+                    }
                 }
                 case 2 -> {
                     if(player.getItemNumber() == 0){
                         yield MenuState.MAIN;
                     }
-                    else
+                    else{
                         yield MenuState.ITEM_SELECT_ITEM;
+                    }
                 }
                     case 3 -> MenuState.MERCY_SELECT_ENEMY;
                 default -> MenuState.MAIN;
@@ -260,17 +269,33 @@ public class UIManager extends UIBase {
         }
         else {
             menuState = switch(menuState) {
-                case FIGHT_SELECT_ENEMY -> MenuState.FIGHT;
-                case ACT_SELECT_ENEMY -> MenuState.ACT_SELECT_ACT;
+                case FIGHT_SELECT_ENEMY -> {
+                    soundManager.playSE("confirm");
+                    yield MenuState.FIGHT;
+                }
+                case ACT_SELECT_ENEMY -> {
+                    soundManager.playSE("confirm");
+                    yield MenuState.ACT_SELECT_ACT;
+                }
                 case ACT_SELECT_ACT -> {
                     // 执行act对应函数
+                    soundManager.playSE("confirm");
                     Enemy enemy = enemyManager.getEnemy(selectedEnemy);
                     enemy.getActFunctions().get(selectedAct).run();
                     yield MenuState.ACT;
                 }
-                case ITEM_SELECT_ITEM -> MenuState.ITEM;
-                case MERCY_SELECT_ENEMY -> MenuState.MERCY_SELECT_SPARE;
-                case MERCY_SELECT_SPARE -> MenuState.MERCY;
+                case ITEM_SELECT_ITEM -> {
+                    soundManager.playSE("confirm");
+                    yield MenuState.ITEM;
+                }
+                case MERCY_SELECT_ENEMY -> {
+                    soundManager.playSE("confirm");
+                    yield MenuState.MERCY_SELECT_SPARE;
+                }
+                case MERCY_SELECT_SPARE -> {
+                    soundManager.playSE("confirm");
+                    yield MenuState.MERCY;
+                }
                 case ACT, ITEM, MERCY -> {
                     // 若文本已经全部显示切换到FightScene
                     if (menuTypeWriter.isTypewriterAllShown()) {
@@ -280,6 +305,7 @@ public class UIManager extends UIBase {
                 }
                 case FIGHT -> {
                     // Attack bar停止 — 开始攻击时重置相关动画以保证slice动画每次都能播放
+                    soundManager.playSE("slice");
                     attackAnimManager.resetSliceAnimation();
                     yield menuState;
                 }
@@ -307,6 +333,7 @@ public class UIManager extends UIBase {
     }
 
     public void menuSelectDown() {
+        soundManager.playSE("menu_move");
         // 向下选择，item支持分页滚动
         switch(menuState) {
             case MAIN -> {}
@@ -341,6 +368,7 @@ public class UIManager extends UIBase {
     }
 
     public void menuSelectUp() {
+        soundManager.playSE("menu_move");
         // 向上选择, item支持分页滚动
         switch(menuState) {
             case MAIN -> {}
@@ -391,11 +419,13 @@ public class UIManager extends UIBase {
     
     public void selectMoveRight() {
         if(menuState != MenuState.MAIN) return;
+        soundManager.playSE("menu_move");
         selectedAction = (selectedAction + 1) % 4;
     }
 
     public void selectMoveLeft() {
         if(menuState != MenuState.MAIN) return;
+        soundManager.playSE("menu_move");
         selectedAction = (selectedAction + 3) % 4;
     }
 
@@ -435,14 +465,18 @@ public class UIManager extends UIBase {
     }
 
     public void beginMenuSelectUp() {
+        soundManager.playSE("menu_move");
         beginMenuManager.selectUp();
     }
 
     public void beginMenuSelectDown() {
+        soundManager.playSE("menu_move");
         beginMenuManager.selectDown();
     }
 
     public void handleBeginMenuSelect() {
+        soundManager.playSE("confirm");
+        menuState = MenuState.MAIN;
         beginMenuManager.confirmSelection();
     }
 

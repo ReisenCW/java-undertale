@@ -4,6 +4,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 import undertale.GameObject.Player;
 import undertale.Scene.SceneManager;
+import undertale.Sound.SoundManager;
 import undertale.UI.UIManager;
 import undertale.Utils.Timer;
 
@@ -26,11 +27,15 @@ public class InputManager {
     // UI
     private UIManager uiManager;
 
+    // Sound
+    private SoundManager soundManager;
+
     InputManager(Window window, Player player) {
         this.window = window;
         this.player = player;
         this.sceneManager = SceneManager.getInstance();
         this.uiManager = UIManager.getInstance();
+        this.soundManager = SoundManager.getInstance();
     }
 
     private void updateKeyState() {
@@ -128,6 +133,7 @@ public class InputManager {
     }
 
     private void processBeginMenuInput() {
+        if(uiManager.menuState != UIManager.MenuState.BEGIN) return;
         if(isKeyTriggered(GLFW_KEY_UP)) {
             uiManager.beginMenuSelectUp();
         }
