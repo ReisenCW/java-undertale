@@ -40,6 +40,7 @@ public class UIManager extends UIBase {
     private GameOverUIManager gameOverUIManager;
     private BeginMenuManager beginMenuManager;
     private SoundManager soundManager;
+    private String pendingItemDescription = null;
 
     public MenuState menuState = MenuState.BEGIN;
 
@@ -117,11 +118,12 @@ public class UIManager extends UIBase {
                 menuTypeWriter.renderTextsInMenu(enemy.getDescriptionByIndex(selectedAct));
             }
             case ITEM -> {
-                Item item = player.getItemByIndex(selectedItem);
-                int healAmount = item.getHealingAmount();
-                player.heal(healAmount);
-                String description = "* You ate the " + item.getName() + ", healed " + healAmount + " HP.\n" + item.getAdditionalDescription();
-                menuTypeWriter.renderTextsInMenu(description);
+                // 当进入 ITEM 状态时，消费物品的逻辑已在选择确认时执行一次，并把要显示的文本存入 pendingItemDescription
+                if (pendingItemDescription != null) {
+                    menuTypeWriter.renderTextsInMenu(pendingItemDescription);
+                } else {
+                    menuTypeWriter.renderTextsInMenu("");
+                }
             }
             case FIGHT -> {
                 attackAnimManager.renderFightPanel(enemyManager.getEnemy(selectedEnemy));
@@ -286,6 +288,13 @@ public class UIManager extends UIBase {
                 }
                 case ITEM_SELECT_ITEM -> {
                     soundManager.playSE("confirm");
+                    // 在确认选择物品时，执行一次性消费逻辑（回血、播放音效、准备要显示的文本）
+                    Item item = player.getItemByIndex(selectedItem);
+                    int healAmount = item.getHealingAmount();
+                    player.heal(healAmount);
+                    pendingItemDescription = "* You ate the " + item.getName() + ", healed " + healAmount + " HP.\n" + item.getAdditionalDescription();
+                    // 重置打字机以便从头开始显示文字
+                    menuTypeWriter.reset();
                     yield MenuState.ITEM;
                 }
                 case MERCY_SELECT_ENEMY -> {
@@ -318,13 +327,19 @@ public class UIManager extends UIBase {
     public void handleMenuCancel() {
         // X返回上一级
         switch(menuState) {
-            case MAIN -> {}
-            case FIGHT_SELECT_ENEMY,  ACT_SELECT_ENEMY, MERCY_SELECT_ENEMY, ITEM_SELECT_ITEM ->
+            case BEGIN, MAIN -> {}
+            case FIGHT_SELECT_ENEMY,  ACT_SELECT_ENEMY, MERCY_SELECT_ENEMY, ITEM_SELECT_ITEM -> {
+                soundManager.playSE("menu_move");
                 menuState = MenuState.MAIN;
-            case ACT_SELECT_ACT ->
+            }
+            case ACT_SELECT_ACT -> {
+                soundManager.playSE("menu_move");
                 menuState = MenuState.ACT_SELECT_ENEMY;
-            case MERCY_SELECT_SPARE ->
+            }
+            case MERCY_SELECT_SPARE -> {
+                soundManager.playSE("menu_move");
                 menuState = MenuState.MERCY_SELECT_ENEMY;
+            }
             case FIGHT, ACT, ITEM, MERCY -> {
                 // 打字机全部显示
                 menuTypeWriter.showAll();
@@ -439,6 +454,10 @@ public class UIManager extends UIBase {
 
     public void setMenuState(MenuState state) {
         this.menuState = state;
+        // 离开 ITEM 状态时清除一次性物品显示文本，避免残留
+        if (state != MenuState.ITEM) {
+            pendingItemDescription = null;
+        }
     }
 
     public MenuState getMenuState() {

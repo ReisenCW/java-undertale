@@ -4,7 +4,6 @@ import static org.lwjgl.glfw.GLFW.*;
 
 import undertale.GameObject.Player;
 import undertale.Scene.SceneManager;
-import undertale.Sound.SoundManager;
 import undertale.UI.UIManager;
 import undertale.Utils.Timer;
 
