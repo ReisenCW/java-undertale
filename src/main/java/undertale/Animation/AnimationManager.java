@@ -83,6 +83,14 @@ public class AnimationManager {
             }
             animations.put("titan_spawn_animation", titan_spawn_animation);
         }
+        {
+            // main menu
+            Animation main_menu_animation = new Animation(0.4f, true); 
+            for (int i = 0; i <= 4; i++) {
+                main_menu_animation.addFrame(textureManager.getTexture("main_menu_bg_" + i));
+            }
+            animations.put("main_menu_animation", main_menu_animation);
+        }
     }
 
     public static AnimationManager getInstance() {

@@ -1,5 +1,7 @@
 package undertale.UI;
 
+import undertale.Animation.Animation;
+import undertale.Animation.AnimationManager;
 import undertale.GameMain.Game;
 import undertale.Scene.SceneManager;
 import undertale.Texture.FontManager;
@@ -23,6 +25,7 @@ public class BeginMenuManager extends UIBase {
     private Texture heartTexture;
     private float heartScaler = 3.0f;
     private Texture menuBackgroundTexture;
+    private Animation mainMenuAnimation; // 只包含底部的动画部分
     private int choiceIndex = 0;
     private float optionPositionX = RIGHT_MARGIN / 2 - 50;
 
@@ -39,8 +42,14 @@ public class BeginMenuManager extends UIBase {
     }
 
     private void loadResources() {
+        AnimationManager animationManager = AnimationManager.getInstance();
         heartTexture = Game.getTexture("heart");
         menuBackgroundTexture = Game.getTexture("main_menu_bg");
+        mainMenuAnimation = animationManager.getAnimation("main_menu_animation");
+    }
+
+    public void update(float deltaTime) {
+        mainMenuAnimation.updateAnimation(deltaTime);
     }
 
     public void render() {
@@ -59,6 +68,10 @@ public class BeginMenuManager extends UIBase {
         float BG_LEFT = (RIGHT_MARGIN - BG_WIDTH) / 2;
         Texture.drawTexture(menuBackgroundTexture.getId(),
             BG_LEFT, 0, BG_WIDTH, BOTTOM_MARGIN);
+        // 绘制底部动画部分
+        mainMenuAnimation.renderCurrentFrame(
+            BG_LEFT, BOTTOM_MARGIN - mainMenuAnimation.getCurrentFrame().getHeight() * bgScaler, bgScaler, bgScaler,
+            0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
     }
 
     private void renderOptions() {

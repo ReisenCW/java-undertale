@@ -408,6 +408,10 @@ public class UIManager extends UIBase {
     }
 
     public void update(float deltaTime) {
+        if(menuState == MenuState.BEGIN) {
+            beginMenuManager.update(deltaTime);
+            return;
+        }
         if(menuState == MenuState.FIGHT) {
             attackAnimManager.updateAttackAnim(deltaTime, enemyManager.getEnemy(selectedEnemy));
         }

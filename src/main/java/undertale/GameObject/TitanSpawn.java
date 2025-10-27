@@ -12,7 +12,7 @@ public class TitanSpawn extends Bullet{
     private int aimTime = 4;
     // 接触光圈缩小相关变量
     private float contactTimer = 0f; // seconds
-    private float contactDisapperTime = 1.2f; // seconds, 接触光圈1.2s后消失
+    private float contactDisapperTime = 1.5f; // seconds, 接触光圈1.5s后消失
     private boolean contacting = false;
     private boolean markedForRemoval = false;
     private float initialHScale;
