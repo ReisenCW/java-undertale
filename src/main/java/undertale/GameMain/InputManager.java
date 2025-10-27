@@ -27,15 +27,11 @@ public class InputManager {
     // UI
     private UIManager uiManager;
 
-    // Sound
-    private SoundManager soundManager;
-
     InputManager(Window window, Player player) {
         this.window = window;
         this.player = player;
         this.sceneManager = SceneManager.getInstance();
         this.uiManager = UIManager.getInstance();
-        this.soundManager = SoundManager.getInstance();
     }
 
     private void updateKeyState() {
