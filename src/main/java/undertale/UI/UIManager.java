@@ -108,11 +108,11 @@ public class UIManager extends UIBase {
             case BEGIN -> {}
             case FIGHT_SELECT_ENEMY, ACT_SELECT_ENEMY, MERCY_SELECT_ENEMY -> 
                 renderEnemyList();
-            case ACT_SELECT_ACT -> 
+            case ACT_SELECT_ACT ->
                 renderActList(enemyManager.getEnemy(selectedEnemy));
-            case ITEM_SELECT_ITEM -> 
+            case ITEM_SELECT_ITEM ->
                 renderItemList();
-            case MERCY_SELECT_SPARE -> 
+            case MERCY_SELECT_SPARE ->
                 renderMercyList();
             case ACT -> {
                 Enemy enemy = enemyManager.getEnemy(selectedEnemy);

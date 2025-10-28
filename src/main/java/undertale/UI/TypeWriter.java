@@ -18,7 +18,7 @@ public class TypeWriter extends UIBase {
     private ArrayList<Boolean> isRawNewline;
     private int totalCharsToShow;
     private boolean typewriterAllShown;
-    private final int TYPEWRITER_SPEED = 20; // 每秒显示字符数
+    private final int TYPEWRITER_SPEED = 24; // 每秒显示字符数
 
 
     public TypeWriter(ConfigManager configManager, FontManager fontManager) {
