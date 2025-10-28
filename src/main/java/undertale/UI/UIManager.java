@@ -432,7 +432,7 @@ public class UIManager extends UIBase {
             attackAnimManager.updateAttackAnim(deltaTime, enemyManager.getEnemy(selectedEnemy));
         }
         attackAnimManager.updateMissTime(deltaTime);
-        if (battleFrameManager.isFrameMoving()) {
+        if (!battleFrameManager.isFrameMoving()) {
             menuTypeWriter.update(deltaTime);
         }
     }

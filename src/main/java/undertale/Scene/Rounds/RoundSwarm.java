@@ -18,12 +18,20 @@ public class RoundSwarm extends Round{
     private static final float MAX_RADIUS = 260f;
     private Animation titanSpawnAnimation;
 
+    private final float edge;
+    private final float centerX;
+    private final float centerY;
+
     public RoundSwarm(long duration, long frameMoveTime) {
         super(duration, frameMoveTime);
         objectManager = Game.getObjectManager();
         uiManager = UIManager.getInstance();
         AnimationManager animationManager = AnimationManager.getInstance();
         titanSpawnAnimation = animationManager.getAnimation("titan_spawn_animation");
+
+        edge = 400.0f;
+        centerX = Game.getWindowWidth() / 2.0f;
+        centerY = Game.getWindowHeight() / 2.0f;
     }
 
     @Override
@@ -58,9 +66,6 @@ public class RoundSwarm extends Round{
 
     @Override
     public void moveBattleFrame(float deltaTime) {
-        float edge = 400.0f;
-        float centerX = Game.getWindowWidth() / 2.0f;
-        float centerY = Game.getWindowHeight() / 2.0f;
         uiManager.moveBattleFrame(deltaTime, frameMoveTime, edge, edge, centerX - edge / 2, centerY + edge / 2);
     }
 }

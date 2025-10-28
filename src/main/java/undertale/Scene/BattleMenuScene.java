@@ -53,10 +53,7 @@ public class BattleMenuScene extends Scene {
             return;
         }
         // 开始1s, BattleFrame恢复到原来位置
-        roundTime += deltaTime * 1000;
-        if (roundTime < 1000) {
-            resetBattleFrame(deltaTime);
-        }
+        resetBattleFrame(deltaTime);
         uiManager.updatePlayerMenuPosition();
         objectManager.updateMenuScene(deltaTime);
         SceneManager.getInstance().switchScene(SceneEnum.BATTLE_FIGHT);

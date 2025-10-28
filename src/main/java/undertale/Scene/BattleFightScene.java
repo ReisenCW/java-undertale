@@ -52,9 +52,10 @@ public class BattleFightScene extends Scene {
         }
         roundTime += deltaTime * 1000;
         Round currentRound = rounds.get(round - 1);
-        if(roundTime < currentRound.getFrameMoveTime()) {
-            currentRound.moveBattleFrame(deltaTime);
-        } else {
+
+        currentRound.moveBattleFrame(deltaTime);
+        
+        if(roundTime > currentRound.getFrameMoveTime()) {
             currentRound.updateRound(deltaTime);
         }
         if(roundTime >= currentRound.getRoundDuration()) {

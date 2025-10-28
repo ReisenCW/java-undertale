@@ -19,6 +19,9 @@ public class BattleFrameManager extends UIBase{
     private float bfStartW, bfStartH, bfStartL, bfStartB;
     private float bfTargetW, bfTargetH, bfTargetL, bfTargetB;
 
+    private final float EPS = 0.1f;
+
+
     public BattleFrameManager(ConfigManager configManager, Player player) {
         super(configManager);
         this.player = player;
@@ -42,6 +45,19 @@ public class BattleFrameManager extends UIBase{
 
     public void moveBattleFrame(float deltaTime, float duration, float targetWidth, float targetHeight, float targetLeft, float targetBottom) {
         if (duration <= 0) {
+            battle_frame_width = targetWidth;
+            battle_frame_height = targetHeight;
+            battle_frame_left = targetLeft;
+            battle_frame_bottom = targetBottom;
+            bfMoving = false;
+            return;
+        }
+
+        // 如果已经在目标位置，直接设置结束
+        if (Math.abs(battle_frame_width - targetWidth) < EPS
+                && Math.abs(battle_frame_height - targetHeight) < EPS
+                && Math.abs(battle_frame_left - targetLeft) < EPS
+                && Math.abs(battle_frame_bottom - targetBottom) < EPS) {
             battle_frame_width = targetWidth;
             battle_frame_height = targetHeight;
             battle_frame_left = targetLeft;

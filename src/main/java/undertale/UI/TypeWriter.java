@@ -19,6 +19,7 @@ public class TypeWriter extends UIBase {
     private int totalCharsToShow;
     private boolean typewriterAllShown;
     private final int TYPEWRITER_SPEED = 24; // 每秒显示字符数
+    private final float LINE_PAUSE_DURATION = 0.25f; // 每行换行停顿时间（秒） 
 
 
     public TypeWriter(ConfigManager configManager, FontManager fontManager) {
@@ -89,7 +90,7 @@ public class TypeWriter extends UIBase {
             for (int i = 0; i < displayLines.size(); i++) {
                 String line = displayLines.get(i);
                 boolean pause = isRawNewline != null && isRawNewline.size() > i && isRawNewline.get(i);
-                float lineStart = (float)total / TYPEWRITER_SPEED + (pause ? i * 0.25f : 0); // 0.25秒行间停顿
+                float lineStart = (float)total / TYPEWRITER_SPEED + (pause ? i * LINE_PAUSE_DURATION : 0);
                 float lineElapsed = typewriterElapsed - lineStart;
                 if (lineElapsed > 0) {
                     int lineChars = Math.min(line.length(), (int)(lineElapsed * TYPEWRITER_SPEED));
