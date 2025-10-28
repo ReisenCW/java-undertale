@@ -247,6 +247,7 @@ public class UIManager extends UIBase {
             soundManager.playSE("confirm");
             menuState = switch(selectedAction) {
                 case 0 -> {
+                    menuTypeWriter.showAll();
                     yield MenuState.FIGHT_SELECT_ENEMY;
                 }
                 case 1 -> {
@@ -255,6 +256,7 @@ public class UIManager extends UIBase {
                         yield MenuState.MAIN;
                     }
                     else{
+                        menuTypeWriter.showAll();
                         yield MenuState.ACT_SELECT_ENEMY;
                     }
                 }
@@ -263,10 +265,14 @@ public class UIManager extends UIBase {
                         yield MenuState.MAIN;
                     }
                     else{
+                        menuTypeWriter.showAll();
                         yield MenuState.ITEM_SELECT_ITEM;
                     }
                 }
-                    case 3 -> MenuState.MERCY_SELECT_ENEMY;
+                    case 3 -> {
+                        menuTypeWriter.showAll();
+                        yield MenuState.MERCY_SELECT_ENEMY;
+                    }
                 default -> MenuState.MAIN;
             };
         }
@@ -349,18 +355,19 @@ public class UIManager extends UIBase {
     }
 
     public void menuSelectDown() {
-        soundManager.playSE("menu_move");
         // 向下选择，item支持分页滚动
         switch(menuState) {
             case BEGIN, MAIN -> {}
             case FIGHT_SELECT_ENEMY, MERCY_SELECT_ENEMY, ACT_SELECT_ENEMY -> {
                 if (selectedEnemy < enemyManager.getEnemyCount() - 1) {
+                    soundManager.playSE("menu_move");
                     selectedEnemy++;
                 }
             }
             case ACT_SELECT_ACT -> {
                 Enemy enemy = enemyManager.getEnemy(selectedEnemy);
                 if (selectedAct < enemy.getActs().size() - 1) {
+                    soundManager.playSE("menu_move");
                     selectedAct++;
                 }
             }
@@ -368,6 +375,7 @@ public class UIManager extends UIBase {
                 int itemCnt = player.getItemNumber();
                 int itemsPerPage = 4;
                 if (selectedItem < itemCnt - 1) {
+                    soundManager.playSE("menu_move");
                     selectedItem++;
                     if (selectedItem >= itemListFirstIndex + itemsPerPage) {
                         itemListFirstIndex++;
@@ -376,6 +384,7 @@ public class UIManager extends UIBase {
             }
             case MERCY_SELECT_SPARE -> {
                 if (selectedEnemy < enemyManager.getEnemyCount() - 1) {
+                    soundManager.playSE("menu_move");
                     selectedEnemy++;
                 }
             }
@@ -384,22 +393,24 @@ public class UIManager extends UIBase {
     }
 
     public void menuSelectUp() {
-        soundManager.playSE("menu_move");
         // 向上选择, item支持分页滚动
         switch(menuState) {
             case BEGIN, MAIN -> {}
             case FIGHT_SELECT_ENEMY, MERCY_SELECT_ENEMY, ACT_SELECT_ENEMY -> {
                 if (selectedEnemy > 0) {
+                    soundManager.playSE("menu_move");
                     selectedEnemy--;
                 }
             }
             case ACT_SELECT_ACT -> {
                 if (selectedAct > 0) {
+                    soundManager.playSE("menu_move");
                     selectedAct--;
                 }
             }
             case ITEM_SELECT_ITEM -> {
                 if (selectedItem > 0) {
+                    soundManager.playSE("menu_move");
                     selectedItem--;
                     if (selectedItem < itemListFirstIndex) {
                         itemListFirstIndex--;
@@ -408,6 +419,7 @@ public class UIManager extends UIBase {
             }
             case MERCY_SELECT_SPARE -> {
                 if (selectedEnemy > 0) {
+                    soundManager.playSE("menu_move");
                     selectedEnemy--;
                 }
             }
@@ -474,6 +486,10 @@ public class UIManager extends UIBase {
 
     public void updateGameOver(float deltaTime) {
         gameOverUIManager.update(deltaTime);
+    }
+
+    public boolean isGameOverHeartAnimFinished() {
+        return gameOverUIManager.isHeartAnimFinished();
     }
 
     public void renderGameOver() {

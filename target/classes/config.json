@@ -1,6 +1,11 @@
 {
   "textures": [
-    {"key": "heart", "path": "img_heart.png"},
+    {"key": "heart", "path": "heart/img_heart.png"},
+    {"key": "broken_heart", "path": "heart/img_heart_broken.png"},
+    {"key": "heart_shard_0", "path": "heart/img_heartshard_0.png"},
+    {"key": "heart_shard_1", "path": "heart/img_heartshard_1.png"},
+    {"key": "heart_shard_2", "path": "heart/img_heartshard_2.png"},
+    {"key": "heart_shard_3", "path": "heart/img_heartshard_3.png"},
     {"key": "hp_text", "path": "img_hp.png"},
     {"key": "miss", "path": "img_miss.png"},
     {"key": "attack_panel", "path": "img_attack_panel.png"},
@@ -90,6 +95,7 @@
     {"key": "slice", "path": "se/se_slice.wav"},
     {"key": "heal", "path": "se/se_heal.wav"},
     {"key": "heart_break", "path": "se/se_heart_break.wav"},
+    {"key": "heart_explode", "path": "se/se_heart_explode.wav"},
     {"key": "text_print", "path": "se/se_text_print.wav"}
   ],
   "music": [

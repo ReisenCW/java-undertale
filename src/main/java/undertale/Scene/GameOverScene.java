@@ -5,6 +5,7 @@ import undertale.GameMain.InputManager;
 import undertale.GameObject.ObjectManager;
 
 public class GameOverScene extends Scene {
+    private boolean bgmStarted = false;
     public GameOverScene(ObjectManager objectManager, InputManager inputManager) {
         super(objectManager, inputManager);
         init();
@@ -16,7 +17,9 @@ public class GameOverScene extends Scene {
 
     @Override
     public void onEnter() {
-        soundManager.playMusic("gameover");
+        // 延后播放 BGM: 在心碎动画结束后播放 BGM
+        bgmStarted = false;
+        soundManager.stopMusic();
         uiManager.resetGameOver();
     }
 
@@ -34,6 +37,11 @@ public class GameOverScene extends Scene {
     @Override
     public void update(float deltaTime) {
         uiManager.updateGameOver(deltaTime);
+        // 在心碎动画结束时启动 BGM（只启动一次）
+        if (!bgmStarted && uiManager.isGameOverHeartAnimFinished()) {
+            soundManager.playMusic("gameover");
+            bgmStarted = true;
+        }
         sceneManager.switchScene(SceneEnum.BATTLE_MENU);
     }
 

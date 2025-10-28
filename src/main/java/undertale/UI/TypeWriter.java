@@ -18,7 +18,7 @@ public class TypeWriter extends UIBase {
     private ArrayList<Boolean> isRawNewline;
     private int totalCharsToShow;
     private boolean typewriterAllShown;
-    private final int TYPEWRITER_SPEED = 24; // 每秒显示字符数
+    private final int TYPEWRITER_SPEED = 28; // 每秒显示字符数
     private final float LINE_PAUSE_DURATION = 0.25f; // 每行换行停顿时间（秒） 
 
 
@@ -42,9 +42,46 @@ public class TypeWriter extends UIBase {
 
     public void update(float deltaTime) {
         if (!typewriterAllShown) {
-            soundManager.playSE("text_print");
             typewriterElapsed += deltaTime;
+            if (displayLines != null && !displayLines.isEmpty()) {
+                int newChars = computeCharsToShowFromElapsed();
+                if (newChars > totalCharsToShow) {
+                    soundManager.playSE("text_print");
+                }
+                totalCharsToShow = newChars;
+                // 计算是否全部显示完毕
+                int allChars = 0;
+                for (String l : displayLines) allChars += l.length();
+                if (totalCharsToShow >= allChars) {
+                    typewriterAllShown = true;
+                }
+            }
         }
+    }
+
+    // 根据当前 typewriterElapsed 和 displayLines/isRawNewline 计算应显示的字符数
+    private int computeCharsToShowFromElapsed() {
+        int total = 0;
+        int charsToShow = 0;
+        for (int i = 0; i < displayLines.size(); i++) {
+            String line = displayLines.get(i);
+            boolean pause = isRawNewline != null && isRawNewline.size() > i && isRawNewline.get(i);
+            float lineStart = (float)total / TYPEWRITER_SPEED + (pause ? i * LINE_PAUSE_DURATION : 0);
+            float lineElapsed = typewriterElapsed - lineStart;
+            if (lineElapsed > 0) {
+                int lineChars = Math.min(line.length(), (int)(lineElapsed * TYPEWRITER_SPEED));
+                charsToShow += lineChars;
+            }
+            // 若本行未全部显示，后续行不显示
+            if (lineElapsed < ((float)line.length() / TYPEWRITER_SPEED)) {
+                break;
+            }
+            total += line.length();
+        }
+        // 限制最大
+        int allChars = 0;
+        for (String l : displayLines) allChars += l.length();
+        return Math.min(charsToShow, allChars);
     }
 
     public void renderTexts(String text, float left, float top, float maxWidth) {
@@ -83,33 +120,6 @@ public class TypeWriter extends UIBase {
             typewriterAllShown = false;
         }
 
-        // 计算当前应显示的字符数（仅原始\n换行才停顿）
-        if (!typewriterAllShown) {
-            int total = 0;
-            int charsToShow = 0;
-            for (int i = 0; i < displayLines.size(); i++) {
-                String line = displayLines.get(i);
-                boolean pause = isRawNewline != null && isRawNewline.size() > i && isRawNewline.get(i);
-                float lineStart = (float)total / TYPEWRITER_SPEED + (pause ? i * LINE_PAUSE_DURATION : 0);
-                float lineElapsed = typewriterElapsed - lineStart;
-                if (lineElapsed > 0) {
-                    int lineChars = Math.min(line.length(), (int)(lineElapsed * TYPEWRITER_SPEED));
-                    charsToShow += lineChars;
-                }
-                // 若本行未全部显示，后续行不显示
-                if (lineElapsed < ((float)line.length() / TYPEWRITER_SPEED)) {
-                    break;
-                }
-                total += line.length();
-            }
-            // 限制最大
-            int allChars = 0;
-            for (String l : displayLines) allChars += l.length();
-            totalCharsToShow = Math.min(charsToShow, allChars);
-            if (totalCharsToShow >= allChars) {
-                typewriterAllShown = true;
-            }
-        }
 
         // 绘制文本
         int shown = 0;
