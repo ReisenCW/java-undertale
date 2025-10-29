@@ -36,6 +36,13 @@ public class BattleFightScene extends Scene {
         objectManager.allowPlayerMovement(true);
     }
 
+    /**
+     * 返回当前回合编号（1-based）。如果尚未进入回合则返回 0。
+     */
+    public int getRoundNumber() {
+        return round;
+    }
+
     @Override
     public void onExit() {
         objectManager.resetPlayerLight();

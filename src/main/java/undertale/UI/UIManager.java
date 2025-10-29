@@ -50,6 +50,8 @@ public class UIManager extends UIBase {
     public int itemListFirstIndex = 0;
     public int selectedAction = -1;
 
+    public boolean sliceSEPlayed = false;
+
     static {
         instance = new UIManager();
     }
@@ -85,6 +87,7 @@ public class UIManager extends UIBase {
         selectedItem = 0;
         selectedAction = 0;
         itemListFirstIndex = 0;
+        sliceSEPlayed = false;
         setSelected(0);
 
         attackAnimManager.resetStates();
@@ -321,7 +324,10 @@ public class UIManager extends UIBase {
                 }
                 case FIGHT -> {
                     // Attack bar停止 — 开始攻击时重置相关动画以保证slice动画每次都能播放
-                    soundManager.playSE("slice");
+                    if(!sliceSEPlayed){
+                        soundManager.playSE("slice");
+                        sliceSEPlayed = true;
+                    }
                     attackAnimManager.resetSliceAnimation();
                     yield menuState;
                 }
