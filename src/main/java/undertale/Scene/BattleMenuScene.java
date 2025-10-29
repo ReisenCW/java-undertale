@@ -8,7 +8,6 @@ import undertale.UI.UIManager;
 public class BattleMenuScene extends Scene {
     private EnemyManager enemyManager = EnemyManager.getInstance();
     private int round;
-    private long roundTime;
     private long battleFrameResetTime = 1000; // 1000ms
 
     private String[] roundMessages = {
@@ -25,7 +24,6 @@ public class BattleMenuScene extends Scene {
     @Override
     public void init() {
         round = 0;
-        roundTime = 0;
     }
 
     @Override
@@ -37,7 +35,6 @@ public class BattleMenuScene extends Scene {
         objectManager.clearBullets();
         uiManager.resetVars();
         round = Math.min(++round, roundMessages.length);
-        roundTime = 0;
     }
 
     @Override

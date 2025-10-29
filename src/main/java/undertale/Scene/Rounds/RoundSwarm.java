@@ -53,9 +53,9 @@ public class RoundSwarm extends Round{
         float angle = (float)(Math.random() * 2 * Math.PI);
         float radius = MIN_RADIUS + (float)(Math.random() * (MAX_RADIUS - MIN_RADIUS));
 
-        // 计算生成位置（以玩家为中心）
-        float spawnX = player.getX() + (float)(Math.cos(angle) * radius);
-        float spawnY = player.getY() + (float)(Math.sin(angle) * radius);
+        // 计算生成位置（以玩家中心为圆心）
+        float spawnX = player.getX() + player.getWidth() / 2.0f + (float)(Math.cos(angle) * radius);
+        float spawnY = player.getY() + player.getHeight() / 2.0f + (float)(Math.sin(angle) * radius);
 
         // 创建TitanSpawn
         TitanSpawn spawn = new TitanSpawn(spawnX, spawnY, 110f, 5, titanSpawnAnimation);

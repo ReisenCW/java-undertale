@@ -5,6 +5,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 import undertale.Scene.SceneManager;
 import undertale.Texture.FontManager;
+import undertale.Texture.Texture;
 import undertale.UI.ScreenFadeManager;
 
 public class Renderer {
@@ -25,18 +26,15 @@ public class Renderer {
     }
 
     private void init() {
-        // 启用纹理映射
-        glEnable(GL_TEXTURE_2D);
-        // 启用混合（处理透明）
+        // Core-profile: enable blending, set viewport and inform Texture system of screen size.
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glMatrixMode(GL_PROJECTION);
-        glPushMatrix();
-        glLoadIdentity();
-        glOrtho(0, Game.getWindowWidth(), Game.getWindowHeight(), 0, -1, 1);
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-        glLoadIdentity();
+
+        // Ensure the OpenGL viewport matches our window size
+        glViewport(0, 0, Game.getWindowWidth(), Game.getWindowHeight());
+
+        // Let Texture (and its quad renderer) convert pixel coords -> NDC using screen size
+        Texture.setScreenSize(Game.getWindowWidth(), Game.getWindowHeight());
     }
 
     public void render() {

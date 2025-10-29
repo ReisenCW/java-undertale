@@ -11,6 +11,7 @@ import org.lwjgl.stb.STBTTAlignedQuad;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.stb.STBTruetype.*;
@@ -72,9 +73,20 @@ public class FontManager {
                 charWidths[i] = charData.get(i).xadvance();
             }
 
+            // Convert single-channel bitmap (alpha only) into RGBA so our shader (which samples RGBA) works
+            java.nio.ByteBuffer rgba = org.lwjgl.BufferUtils.createByteBuffer(BITMAP_W * BITMAP_H * 4);
+            for (int i = 0; i < BITMAP_W * BITMAP_H; i++) {
+                byte a = bitmap.get(i);
+                rgba.put((byte)255);
+                rgba.put((byte)255);
+                rgba.put((byte)255);
+                rgba.put(a);
+            }
+            rgba.flip();
+
             int textureId = glGenTextures();
             glBindTexture(GL_TEXTURE_2D, textureId);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, BITMAP_W, BITMAP_H, 0, GL_ALPHA, GL_UNSIGNED_BYTE, bitmap);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, BITMAP_W, BITMAP_H, 0, GL_RGBA, GL_UNSIGNED_BYTE, rgba);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -98,37 +110,52 @@ public class FontManager {
 
     public void drawText(String text, float x, float y, float scale, float r, float g, float b, float a, String fontKey) {
         FontData fd = fontCache.getOrDefault(fontKey, fontCache.get(currentFontKey));
-        glBindTexture(GL_TEXTURE_2D, fd.textureId);
-        glColor4f(r, g, b, a);
+        // Build a batched buffer of quads and render via Texture.drawQuads
+        int validChars = 0;
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c < FIRST_CHAR || c >= FIRST_CHAR + CHAR_COUNT) continue;
+            validChars++;
+        }
+        if (validChars == 0) return;
+
+        FloatBuffer buf = BufferUtils.createFloatBuffer(validChars * 6 * 4);
         float xpos = x;
-        glBegin(GL_QUADS);
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
             if (c < FIRST_CHAR || c >= FIRST_CHAR + CHAR_COUNT) continue;
             STBTTAlignedQuad quad = STBTTAlignedQuad.malloc();
-            stbtt_GetBakedQuad(getCharData(fd), BITMAP_W, BITMAP_H, c - FIRST_CHAR, new float[]{xpos}, new float[]{y}, quad, true);
+            float[] xp = new float[] { xpos };
+            float[] yp = new float[] { y };
+            stbtt_GetBakedQuad(getCharData(fd), BITMAP_W, BITMAP_H, c - FIRST_CHAR, xp, yp, quad, true);
             float x0 = quad.x0();
             float y0 = quad.y0();
             float x1 = quad.x1();
             float y1 = quad.y1();
+            float s0 = quad.s0();
+            float t0 = quad.t0();
+            float s1 = quad.s1();
+            float t1 = quad.t1();
+
             float width = (x1 - x0) * scale;
             float height = (y1 - y0) * scale;
             x1 = x0 + width;
             y1 = y0 + height;
-            glTexCoord2f(quad.s0(), quad.t0());
-            glVertex2f(x0, y0);
-            glTexCoord2f(quad.s1(), quad.t0());
-            glVertex2f(x1, y0);
-            glTexCoord2f(quad.s1(), quad.t1());
-            glVertex2f(x1, y1);
-            glTexCoord2f(quad.s0(), quad.t1());
-            glVertex2f(x0, y1);
+
+            // tri1
+            buf.put(x0); buf.put(y0); buf.put(s0); buf.put(t0);
+            buf.put(x1); buf.put(y0); buf.put(s1); buf.put(t0);
+            buf.put(x1); buf.put(y1); buf.put(s1); buf.put(t1);
+            // tri2
+            buf.put(x0); buf.put(y0); buf.put(s0); buf.put(t0);
+            buf.put(x1); buf.put(y1); buf.put(s1); buf.put(t1);
+            buf.put(x0); buf.put(y1); buf.put(s0); buf.put(t1);
+
             xpos += fd.charWidths[c - FIRST_CHAR] * scale;
             quad.free();
         }
-        glEnd();
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glColor4f(1, 1, 1, 1);
+        buf.flip();
+        Texture.drawQuads(buf, validChars, fd.textureId, r, g, b, a);
     }
 
     // 兼容原接口，使用当前字体
