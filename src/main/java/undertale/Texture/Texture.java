@@ -4,6 +4,9 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 
+import undertale.GameMain.Game;
+import undertale.Shaders.ShaderManager;
+
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL15.*;
@@ -30,8 +33,9 @@ public class Texture {
     private static int locTexture = -1;
     private static int whiteTextureId = 0; // 1x1 white texture for color-only draws
     private static boolean glInitialized = false;
-    private static int screenWidth = 800;
-    private static int screenHeight = 600;
+    private static int screenWidth = Game.getWindowWidth();
+    private static int screenHeight = Game.getWindowHeight();
+    private static ShaderManager shaderManager = ShaderManager.getInstance();
 
     public Texture(String resourcePath, int filterType) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -82,43 +86,52 @@ public class Texture {
     public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation, float r, float g, float b, float a, boolean horizontalReverse, boolean verticalReverse) {
         ensureGLInitialized();
 
-        // build quad (two triangles) into a small buffer
+        // 中心点坐标
         float cx = x + width / 2.0f;
         float cy = y + height / 2.0f;
+        // 旋转角对应sin和cos值
         double rad = Math.toRadians(rotation);
         float cos = (float)Math.cos(rad);
         float sin = (float)Math.sin(rad);
 
-        // local corners relative to center
+        // 四角相对于中心点的相对坐标
         float lx0 = -width/2f; float ly0 = -height/2f; // top-left
         float lx1 =  width/2f; float ly1 = -height/2f; // top-right
         float lx2 =  width/2f; float ly2 =  height/2f; // bottom-right
         float lx3 = -width/2f; float ly3 =  height/2f; // bottom-left
 
+        // 旋转后的相对坐标
         float rx0 = lx0 * cos - ly0 * sin; float ry0 = lx0 * sin + ly0 * cos;
         float rx1 = lx1 * cos - ly1 * sin; float ry1 = lx1 * sin + ly1 * cos;
         float rx2 = lx2 * cos - ly2 * sin; float ry2 = lx2 * sin + ly2 * cos;
         float rx3 = lx3 * cos - ly3 * sin; float ry3 = lx3 * sin + ly3 * cos;
 
+        // 最终顶点坐标
         float px0 = cx + rx0; float py0 = cy + ry0;
         float px1 = cx + rx1; float py1 = cy + ry1;
         float px2 = cx + rx2; float py2 = cy + ry2;
         float px3 = cx + rx3; float py3 = cy + ry3;
 
+        // 水平方向起点
         float u0 = horizontalReverse ? 1.0f : 0.0f;
+        // 水平方向终点
         float u1 = horizontalReverse ? 0.0f : 1.0f;
+        // 垂直方向起点
         float v0 = verticalReverse ? 0.0f : 1.0f;
+        // 垂直方向终点
         float v1 = verticalReverse ? 1.0f : 0.0f;
 
-        FloatBuffer buf = org.lwjgl.BufferUtils.createFloatBuffer(6 * 4);
-        // tri1
-        buf.put(px0); buf.put(py0); buf.put(u0); buf.put(v1);
-        buf.put(px1); buf.put(py1); buf.put(u1); buf.put(v1);
-        buf.put(px2); buf.put(py2); buf.put(u1); buf.put(v0);
-        // tri2
-        buf.put(px0); buf.put(py0); buf.put(u0); buf.put(v1);
-        buf.put(px2); buf.put(py2); buf.put(u1); buf.put(v0);
-        buf.put(px3); buf.put(py3); buf.put(u0); buf.put(v0);
+        // 存储6个顶点(2个三角形, 每个三角形3个顶点), 每个顶点4个数据(x,y,u,v)
+        FloatBuffer buf = BufferUtils.createFloatBuffer(6 * 4);
+        // triangle1
+        buf.put(px0); buf.put(py0); buf.put(u0); buf.put(v1); // 左上
+        buf.put(px1); buf.put(py1); buf.put(u1); buf.put(v1); // 右上
+        buf.put(px2); buf.put(py2); buf.put(u1); buf.put(v0); // 右下
+        // triangle2
+        buf.put(px0); buf.put(py0); buf.put(u0); buf.put(v1); // 左上
+        buf.put(px2); buf.put(py2); buf.put(u1); buf.put(v0); // 右下
+        buf.put(px3); buf.put(py3); buf.put(u0); buf.put(v0); // 左下
+        // 切换缓冲区为读模式
         buf.flip();
 
         renderBuffer(buf, 1, textureId, r, g, b, a);
@@ -141,7 +154,7 @@ public class Texture {
     }
 
     public static void drawHollowRect(float x, float y, float width, float height, float r, float g, float b, float a, float lineWidth) {
-        // Draw hollow rect using 4 thin quads (core-profile friendly)
+        // 用白色1x1纹理绘制四条边
         ensureGLInitialized();
         // top
         drawTexture(whiteTextureId, x, y, width, lineWidth, 0, r, g, b, a);
@@ -154,7 +167,6 @@ public class Texture {
     }
 
     public static void drawRect(float x, float y, float width, float height, float r, float g, float b, float a) {
-        // Draw filled rect using the white 1x1 texture and quad renderer
         ensureGLInitialized();
         drawTexture(whiteTextureId, x, y, width, height, 0.0f, r, g, b, a);
     }
@@ -225,6 +237,52 @@ public class Texture {
         drawRect(x, y, width, height, 1.0f, 1.0f, 1.0f, 1.0f);
     }
 
+    /**
+     * 追加一个旋转矩形的顶点数据到 buf 中
+     * @param buf 目标缓冲区
+     * @param x 矩形左上角X坐标
+     * @param y 矩形左上角Y坐标
+     * @param width 矩形宽度
+     * @param height 矩形高度
+     * @param rotation 矩形旋转角度（度）
+     * @param u0 纹理坐标左上角U(u = 0时为左边, u = 1时为右边)
+     * @param v0 纹理坐标左上角V(v = 0时为上边, v = 1时为下边)
+     * @param u1 纹理坐标右下角U
+     * @param v1 纹理坐标右下角V
+     */
+    public static void appendQuad(FloatBuffer buf, float x, float y, float width, float height, float rotation, float u0, float v0, float u1, float v1) {
+        // center
+        float cx = x + width / 2.0f;
+        float cy = y + height / 2.0f;
+        double rad = Math.toRadians(rotation);
+        float cos = (float)Math.cos(rad);
+        float sin = (float)Math.sin(rad);
+
+        float lx0 = -width/2f; float ly0 = -height/2f; // top-left
+        float lx1 =  width/2f; float ly1 = -height/2f; // top-right
+        float lx2 =  width/2f; float ly2 =  height/2f; // bottom-right
+        float lx3 = -width/2f; float ly3 =  height/2f; // bottom-left
+
+        float rx0 = lx0 * cos - ly0 * sin; float ry0 = lx0 * sin + ly0 * cos;
+        float rx1 = lx1 * cos - ly1 * sin; float ry1 = lx1 * sin + ly1 * cos;
+        float rx2 = lx2 * cos - ly2 * sin; float ry2 = lx2 * sin + ly2 * cos;
+        float rx3 = lx3 * cos - ly3 * sin; float ry3 = lx3 * sin + ly3 * cos;
+
+        float px0 = cx + rx0; float py0 = cy + ry0;
+        float px1 = cx + rx1; float py1 = cy + ry1;
+        float px2 = cx + rx2; float py2 = cy + ry2;
+        float px3 = cx + rx3; float py3 = cy + ry3;
+
+        // tri1: 0,1,2
+        buf.put(px0); buf.put(py0); buf.put(u0); buf.put(v0);
+        buf.put(px1); buf.put(py1); buf.put(u1); buf.put(v0);
+        buf.put(px2); buf.put(py2); buf.put(u1); buf.put(v1);
+        // tri2: 0,2,3
+        buf.put(px0); buf.put(py0); buf.put(u0); buf.put(v0);
+        buf.put(px2); buf.put(py2); buf.put(u1); buf.put(v1);
+        buf.put(px3); buf.put(py3); buf.put(u0); buf.put(v1);
+    }
+
     public int getWidth() {
         return width;
     }
@@ -239,11 +297,6 @@ public class Texture {
 
     public void destroy() {
         glDeleteTextures(id);
-    }
-
-    public static void setScreenSize(int w, int h) {
-        screenWidth = Math.max(1, w);
-        screenHeight = Math.max(1, h);
     }
 
     private static void ensureGLInitialized() {
@@ -264,77 +317,28 @@ public class Texture {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
 
-        quadShaderProgram = createShaderProgram();
+        quadShaderProgram = shaderManager.getProgram("texture_shader");
         locScreenSize = glGetUniformLocation(quadShaderProgram, "uScreenSize");
         locColor = glGetUniformLocation(quadShaderProgram, "uColor");
         locTexture = glGetUniformLocation(quadShaderProgram, "uTexture");
 
-    // create a 1x1 white texture for color-only drawing (used for shapes)
-    whiteTextureId = glGenTextures();
-    glBindTexture(GL_TEXTURE_2D, whiteTextureId);
-    java.nio.ByteBuffer whitePixel = org.lwjgl.BufferUtils.createByteBuffer(4);
-    whitePixel.put((byte)255).put((byte)255).put((byte)255).put((byte)255).flip();
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, whitePixel);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glBindTexture(GL_TEXTURE_2D, 0);
+        // create a 1x1 white texture for color-only drawing (used for shapes)
+        whiteTextureId = glGenTextures();
+        glBindTexture(GL_TEXTURE_2D, whiteTextureId);
+        ByteBuffer whitePixel = BufferUtils.createByteBuffer(4);
+        whitePixel.put((byte)255).put((byte)255).put((byte)255).put((byte)255).flip();
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, whitePixel);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glBindTexture(GL_TEXTURE_2D, 0);
 
         glInitialized = true;
     }
 
-    private static int createShaderProgram() {
-        String vertexSrc = "#version 330 core\n"
-                + "layout(location = 0) in vec2 aPos;\n"
-                + "layout(location = 1) in vec2 aTex;\n"
-                + "out vec2 vTex;\n"
-                + "uniform ivec2 uScreenSize;\n"
-                + "void main() {\n"
-                + "    float x = (aPos.x / float(uScreenSize.x)) * 2.0 - 1.0;\n"
-                + "    float y = 1.0 - (aPos.y / float(uScreenSize.y)) * 2.0;\n"
-                + "    gl_Position = vec4(x, y, 0.0, 1.0);\n"
-                + "    vTex = aTex;\n"
-                + "}\n";
-
-        String fragmentSrc = "#version 330 core\n"
-                + "in vec2 vTex;\n"
-                + "out vec4 fragColor;\n"
-                + "uniform sampler2D uTexture;\n"
-                + "uniform vec4 uColor;\n"
-                + "void main() {\n"
-                + "    vec4 tex = texture(uTexture, vTex);\n"
-                + "    fragColor = tex * uColor;\n"
-                + "}\n";
-
-        int vShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vShader, vertexSrc);
-        glCompileShader(vShader);
-        if (glGetShaderi(vShader, GL_COMPILE_STATUS) == GL_FALSE) {
-            System.err.println("Vertex shader compile error: " + glGetShaderInfoLog(vShader));
-        }
-
-        int fShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fShader, fragmentSrc);
-        glCompileShader(fShader);
-        if (glGetShaderi(fShader, GL_COMPILE_STATUS) == GL_FALSE) {
-            System.err.println("Fragment shader compile error: " + glGetShaderInfoLog(fShader));
-        }
-
-        int prog = glCreateProgram();
-        glAttachShader(prog, vShader);
-        glAttachShader(prog, fShader);
-        glLinkProgram(prog);
-        if (glGetProgrami(prog, GL_LINK_STATUS) == GL_FALSE) {
-            System.err.println("Shader program link error: " + glGetProgramInfoLog(prog));
-        }
-
-        glDeleteShader(vShader);
-        glDeleteShader(fShader);
-
-        return prog;
-    }
-
     /**
-     * Render generic triangle list where each vertex is (x,y,u,v) floats.
+     * 绘制三角形列表
+     * @param buf 包含三角形顶点数据的缓冲区
+     * @param vertexCount 顶点数量
      */
     private static void renderTriangles(FloatBuffer buf, int vertexCount, int textureId, float r, float g, float b, float a) {
         ensureGLInitialized();
@@ -359,6 +363,11 @@ public class Texture {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
+    /**
+     * 渲染多个四边形
+     * @param buf 包含多个四边形顶点数据的缓冲区
+     * @param quadCount 四边形数量
+     */
     private static void renderBuffer(FloatBuffer buf, int quadCount, int textureId, float r, float g, float b, float a) {
         ensureGLInitialized();
 
@@ -383,7 +392,9 @@ public class Texture {
     }
 
     /**
-     * Public wrapper so other systems (eg FontManager) can render batched quads.
+     * 绘制多个四边形, 等同于私有方法 renderBuffer
+     * @param buf 包含多个四边形顶点数据的缓冲区
+     * @param quadCount 四边形数量
      */
     public static void drawQuads(FloatBuffer buf, int quadCount, int textureId, float r, float g, float b, float a) {
         renderBuffer(buf, quadCount, textureId, r, g, b, a);

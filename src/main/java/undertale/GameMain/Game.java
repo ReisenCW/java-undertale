@@ -10,6 +10,7 @@ import undertale.Scene.BeginMenuScene;
 import undertale.Scene.GameOverScene;
 import undertale.Scene.Scene;
 import undertale.Scene.SceneManager;
+import undertale.Shaders.ShaderManager;
 import undertale.Texture.FontManager;
 import undertale.Texture.Texture;
 import undertale.Texture.TextureManager;
@@ -33,6 +34,7 @@ public class Game {
     private static TextureManager textureManager;
     private static FontManager fontManager;
     private static ScreenFadeManager screenFadeManager;
+    private static ShaderManager shaderManager;
 
     public static void run() {
 		init();
@@ -43,12 +45,15 @@ public class Game {
     private static void destroy() {
         textureManager.destroyAll();
         fontManager.destroy();
+        objectManager.destroy();
+        shaderManager.dispose();
 		gameWindow.destroyWindow();
     }
 
 	private static void init() {
         configManager = new ConfigManager();
         gameWindow = new Window(configManager.WINDOW_WIDTH, configManager.WINDOW_HEIGHT, "Undertale");
+        shaderManager = ShaderManager.getInstance();
         textureManager = TextureManager.getInstance();
         sceneManager = SceneManager.getInstance();
 		player = new Player("Frisk");

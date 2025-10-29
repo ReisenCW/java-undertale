@@ -5,7 +5,6 @@ import static org.lwjgl.opengl.GL11.*;
 
 import undertale.Scene.SceneManager;
 import undertale.Texture.FontManager;
-import undertale.Texture.Texture;
 import undertale.UI.ScreenFadeManager;
 
 public class Renderer {
@@ -13,6 +12,7 @@ public class Renderer {
     private SceneManager sceneManager;
     private FontManager fontManager;
     private ScreenFadeManager screenFadeManager;
+    private Window window;
 
     private final int ESCAPING_X = 50;
     private final int ESCAPING_Y = 50;
@@ -22,32 +22,28 @@ public class Renderer {
         this.sceneManager = SceneManager.getInstance();
         this.fontManager = FontManager.getInstance();
         this.screenFadeManager = ScreenFadeManager.getInstance();
+        this.window = Game.getWindow();
         init();
     }
 
     private void init() {
-        // Core-profile: enable blending, set viewport and inform Texture system of screen size.
+        // 开启混合(透明度)
         glEnable(GL_BLEND);
+        // 计算方式: 源颜色的alpha值决定源颜色的贡献度, (1 - 源颜色的alpha)决定目标颜色的贡献度
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        // Ensure the OpenGL viewport matches our window size
+        // 设置视口为窗口大小, 左下角为(0,0)
         glViewport(0, 0, Game.getWindowWidth(), Game.getWindowHeight());
-
-        // Let Texture (and its quad renderer) convert pixel coords -> NDC using screen size
-        Texture.setScreenSize(Game.getWindowWidth(), Game.getWindowHeight());
     }
 
     public void render() {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
         // render
         renderEscaping();
-        // enemyManager.render();
         sceneManager.getCurrentScene().render();
-        // 屏幕淡入淡出覆盖层（在场景渲染后绘制）
-        screenFadeManager.render();
+        screenFadeManager.render(); // 屏幕淡入淡出覆盖层
         // render ends
-        glfwSwapBuffers(Game.getWindow().getWindow()); // swap the color buffers
+        glfwSwapBuffers(window.getWindow());
     }
 
     private void renderEscaping() {

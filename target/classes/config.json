@@ -107,6 +107,9 @@
     {"key": "determination", "path": "determinationmonoweb-webfont.ttf"},
     {"key": "pixel", "path": "PixelOperator-Bold.ttf"}
   ],
+  "shaders": [
+    {"key": "texture_shader", "path": "shaders/texture_shader.glsl"}
+  ],
   "window" : {
     "width": 1280,
     "height": 720

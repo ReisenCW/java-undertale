@@ -254,4 +254,9 @@ public class ObjectManager {
         // 清空子弹
         clearBullets();
     }
+
+    public void destroy() {
+        bullets.clear();
+        bulletPool.clear();
+    }
 }

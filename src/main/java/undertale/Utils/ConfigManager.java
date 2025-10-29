@@ -26,6 +26,7 @@ public class ConfigManager {
     public final HashMap<String, String> fonts;
     public final HashMap<String, String> se;
     public final HashMap<String, String> music;
+    public final HashMap<String, String> shaders;
 
     private final String CONFIG_PATH = "config.json";
 
@@ -43,6 +44,7 @@ public class ConfigManager {
         HashMap<String, String> fontsMap = new HashMap<>();
         HashMap<String, String> seMap = new HashMap<>();
         HashMap<String, String> musicMap = new HashMap<>();
+        HashMap<String, String> shadersMap = new HashMap<>();
         try {
             // 使用类加载器读取 resources 下的 config.json
             java.io.InputStream in = getClass().getClassLoader().getResourceAsStream(CONFIG_PATH);
@@ -103,6 +105,14 @@ public class ConfigManager {
                             }
                         }
                     }
+                    if(obj.has("shaders")) {
+                        for (JsonElement el : obj.getAsJsonArray("shaders")) {
+                            JsonObject shader = el.getAsJsonObject();
+                            if (shader.has("key") && shader.has("path")) {
+                                shadersMap.put(shader.get("key").getAsString(), shader.get("path").getAsString());
+                            }
+                        }
+                    }
                     // fonts
                     if (obj.has("fonts")) {
                         for (JsonElement el : obj.getAsJsonArray("fonts")) {
@@ -125,6 +135,7 @@ public class ConfigManager {
         this.fonts = fontsMap;
         this.se = seMap;
         this.music = musicMap;
+        this.shaders = shadersMap;
         this.BOTTOM_OFFSET = bottom_offset;
         this.BUTTON_SCALER = button_scaler;
         this.BATTLE_FRAME_LINE_WIDTH = button_frame_line_width;
