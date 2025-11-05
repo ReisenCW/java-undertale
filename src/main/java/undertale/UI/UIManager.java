@@ -24,7 +24,8 @@ public class UIManager extends UIBase {
         ITEM,
         MERCY_SELECT_ENEMY,
         MERCY_SELECT_SPARE,
-        MERCY
+        MERCY,
+        SUCCESS
     }
 
     private static UIManager instance;
@@ -75,13 +76,13 @@ public class UIManager extends UIBase {
         return instance;
     }
 
-    public void resetVars() {
-        resetStates();
+    public void resetVars(MenuState state) {
+        resetStates(state);
         resetTimeVars();
     }
 
-    private void resetStates() {
-        menuState = MenuState.MAIN;
+    private void resetStates(MenuState state) {
+        menuState = state;
         selectedEnemy = 0;
         selectedAct = 0;
         selectedItem = 0;
@@ -100,7 +101,8 @@ public class UIManager extends UIBase {
 
     public void renderBattleUI() {
         // 渲染按钮, 玩家信息, 战斗框架
-        bgUIManager.renderButtons(selectedAction);
+        boolean allowFocus = menuState != MenuState.SUCCESS;
+        bgUIManager.renderButtons(selectedAction, allowFocus);
         bgUIManager.renderPlayerInfo();
         battleFrameManager.renderBattleFrame();
     }
@@ -112,13 +114,13 @@ public class UIManager extends UIBase {
             case FIGHT_SELECT_ENEMY, ACT_SELECT_ENEMY, MERCY_SELECT_ENEMY -> 
                 renderEnemyList();
             case ACT_SELECT_ACT ->
-                renderActList(enemyManager.getEnemy(selectedEnemy));
+                renderActList(enemyManager.getCurrentEnemy());
             case ITEM_SELECT_ITEM ->
                 renderItemList();
             case MERCY_SELECT_SPARE ->
                 renderMercyList();
             case ACT -> {
-                Enemy enemy = enemyManager.getEnemy(selectedEnemy);
+                Enemy enemy = enemyManager.getCurrentEnemy();
                 menuTypeWriter.renderTextsInMenu(enemy.getDescriptionByIndex(selectedAct));
             }
             case ITEM -> {
@@ -130,22 +132,26 @@ public class UIManager extends UIBase {
                 }
             }
             case FIGHT -> {
-                attackAnimManager.renderFightPanel(enemyManager.getEnemy(selectedEnemy));
+                attackAnimManager.renderFightPanel(enemyManager.getCurrentEnemy());
             }
             case MAIN ->
                 menuTypeWriter.renderTextsInMenu(roundText);
             case MERCY -> {
                 String text = "* You spared the enemy.";
-                Enemy enemy = enemyManager.getEnemy(selectedEnemy);
+                Enemy enemy = enemyManager.getCurrentEnemy();
                 if(enemy != null){
                     if(!enemy.isYellow) {
                         text += "\n* But the enemy's name isn't yellow.";
                     }
                     else{
-                        text += "\n* You won!\n* You earned " + enemy.getDropExp() + " EXP and " + enemy.getDropGold() + " gold.";
+                        text += "\n* You won!\n* You earned 0 " + " EXP and " + enemyManager.getTotalGold(true) + " gold.";
                     }
                 }
                 menuTypeWriter.renderTextsInMenu(text);
+            }
+            case SUCCESS -> {
+                String msg = "* You won!\n* You earned " + enemyManager.getTotalExp() + " EXP and " + enemyManager.getTotalGold(true) + " gold.";
+                menuTypeWriter.renderTextsInMenu(msg);
             }
         }
     }
@@ -246,7 +252,19 @@ public class UIManager extends UIBase {
 
     // 菜单“确定”操作
     public void handleMenuSelect() {
-        if (menuState == MenuState.MAIN) {
+        if(menuState == MenuState.SUCCESS){
+            // 使用渐暗再变亮的特效切回战斗菜单
+            ScreenFadeManager.getInstance().startFadeOutIn(
+                1.5f,
+                () -> {
+                    SceneManager.getInstance().shouldSwitch = true;
+                },
+                () -> {
+                    resetVars(MenuState.BEGIN);
+                }
+            );
+        }
+        else if (menuState == MenuState.MAIN) {
             soundManager.playSE("confirm");
             menuState = switch(selectedAction) {
                 case 0 -> {
@@ -255,7 +273,7 @@ public class UIManager extends UIBase {
                 }
                 case 1 -> {
                     // 若没有act，则不进入act菜单
-                    if(enemyManager.getEnemy(selectedEnemy).getActs().isEmpty()){
+                    if(enemyManager.getCurrentEnemy().getActs().isEmpty()){
                         yield MenuState.MAIN;
                     }
                     else{
@@ -292,7 +310,7 @@ public class UIManager extends UIBase {
                 case ACT_SELECT_ACT -> {
                     // 执行act对应函数
                     soundManager.playSE("confirm");
-                    Enemy enemy = enemyManager.getEnemy(selectedEnemy);
+                    Enemy enemy = enemyManager.getCurrentEnemy();
                     enemy.getActFunctions().get(selectedAct).run();
                     yield MenuState.ACT;
                 }
@@ -353,7 +371,7 @@ public class UIManager extends UIBase {
                 soundManager.playSE("menu_move");
                 menuState = MenuState.MERCY_SELECT_ENEMY;
             }
-            case FIGHT, ACT, ITEM, MERCY -> {
+            case FIGHT, ACT, ITEM, MERCY, SUCCESS -> {
                 // 打字机全部显示
                 menuTypeWriter.showAll();
             }
@@ -363,15 +381,16 @@ public class UIManager extends UIBase {
     public void menuSelectDown() {
         // 向下选择，item支持分页滚动
         switch(menuState) {
-            case BEGIN, MAIN -> {}
+            case BEGIN, MAIN, SUCCESS -> {}
             case FIGHT_SELECT_ENEMY, MERCY_SELECT_ENEMY, ACT_SELECT_ENEMY -> {
                 if (selectedEnemy < enemyManager.getEnemyCount() - 1) {
                     soundManager.playSE("menu_move");
                     selectedEnemy++;
+                    enemyManager.setCurrentEnemy(selectedEnemy);
                 }
             }
             case ACT_SELECT_ACT -> {
-                Enemy enemy = enemyManager.getEnemy(selectedEnemy);
+                Enemy enemy = enemyManager.getCurrentEnemy();
                 if (selectedAct < enemy.getActs().size() - 1) {
                     soundManager.playSE("menu_move");
                     selectedAct++;
@@ -392,6 +411,7 @@ public class UIManager extends UIBase {
                 if (selectedEnemy < enemyManager.getEnemyCount() - 1) {
                     soundManager.playSE("menu_move");
                     selectedEnemy++;
+                    enemyManager.setCurrentEnemy(selectedEnemy);
                 }
             }
             case FIGHT, ACT, ITEM, MERCY -> {}
@@ -401,17 +421,19 @@ public class UIManager extends UIBase {
     public void menuSelectUp() {
         // 向上选择, item支持分页滚动
         switch(menuState) {
-            case BEGIN, MAIN -> {}
+            case BEGIN, MAIN, SUCCESS -> {}
             case FIGHT_SELECT_ENEMY, MERCY_SELECT_ENEMY, ACT_SELECT_ENEMY -> {
                 if (selectedEnemy > 0) {
                     soundManager.playSE("menu_move");
                     selectedEnemy--;
+                    enemyManager.setCurrentEnemy(selectedEnemy);
                 }
             }
             case ACT_SELECT_ACT -> {
                 if (selectedAct > 0) {
                     soundManager.playSE("menu_move");
                     selectedAct--;
+                    enemyManager.setCurrentEnemy(selectedEnemy);
                 }
             }
             case ITEM_SELECT_ITEM -> {
@@ -427,6 +449,7 @@ public class UIManager extends UIBase {
                 if (selectedEnemy > 0) {
                     soundManager.playSE("menu_move");
                     selectedEnemy--;
+                    enemyManager.setCurrentEnemy(selectedEnemy);
                 }
             }
             case FIGHT, ACT, ITEM, MERCY -> {}
@@ -447,11 +470,16 @@ public class UIManager extends UIBase {
             return;
         }
         if(menuState == MenuState.FIGHT) {
-            attackAnimManager.updateAttackAnim(deltaTime, enemyManager.getEnemy(selectedEnemy));
+            attackAnimManager.updateAttackAnim(deltaTime, enemyManager.getCurrentEnemy());
         }
         attackAnimManager.updateMissTime(deltaTime);
         if (!battleFrameManager.isFrameMoving()) {
             menuTypeWriter.update(deltaTime);
+        }
+        if(attackAnimManager.isAttackAnimFinished()) {
+            if(attackAnimManager.isDamageDisplayFinished()) {
+                menuState = MenuState.SUCCESS;
+            }
         }
     }
     
@@ -485,7 +513,7 @@ public class UIManager extends UIBase {
 
     public boolean isRenderPlayer() {
         return switch (menuState) {
-            case ACT, FIGHT, ITEM, MERCY -> false;
+            case ACT, FIGHT, ITEM, MERCY, SUCCESS -> false;
             default -> true;
         };
     }

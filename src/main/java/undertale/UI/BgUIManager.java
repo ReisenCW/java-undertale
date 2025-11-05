@@ -47,7 +47,7 @@ public class BgUIManager extends UIBase {
         };
     }
 
-    public void renderButtons(int selectedAction){
+    public void renderButtons(int selectedAction, boolean allowFocus){
         for (int i = 0; i < 4; i++) {
             Texture.drawTexture(buttons[i + (i == selectedAction ? 4 : 0)].getId(),
                 LEFT_MARGIN + BTN_MARGIN + i * (BTN_WIDTH + BTN_MARGIN), BOTTOM_MARGIN - BTN_HEIGHT - BOTTOM_OFFSET,

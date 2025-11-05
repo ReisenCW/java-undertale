@@ -16,6 +16,8 @@ public class EnemyManager {
     private float windowWidth = Game.getWindowWidth();
     private float windowCenterX = windowWidth / 2;
 
+    private Enemy currentEnemy = null;
+
     static {
         enemyManager = new EnemyManager();
     }
@@ -34,7 +36,7 @@ public class EnemyManager {
         ConfigManager configManager = Game.getConfigManager();
         AnimationManager animationManager = AnimationManager.getInstance();
 
-        Enemy titan = new Enemy("Titan", 5000, 5000, 50, 20);
+        Enemy titan = new Enemy("Titan", 500, 500, 50, 20);
         titan.addAct(
             "check",
             "* Dark element boss.\n* Emit light, gather courage and use unleash to weaken it."
@@ -97,6 +99,36 @@ public class EnemyManager {
             );
         }
         addEnemy(titan);
+        setCurrentEnemy(0);
+    }
+
+    public boolean isAllEnemiesDefeated() {
+        for (Enemy enemy : enemies) {
+            if (enemy.isAlive()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public int getTotalExp() {
+        int totalExp = 0;
+        for (Enemy enemy : enemies) {
+            if (enemy.isAlive()) {
+                totalExp += enemy.getDropExp();
+            }
+        }
+        return totalExp;
+    }
+
+    public int getTotalGold(boolean includeAlive) {
+        int totalGold = 0;
+        for (Enemy enemy : enemies) {
+            if (enemy.isAlive() || includeAlive) {
+                totalGold += enemy.getDropGold();
+            }
+        }
+        return totalGold;
     }
 
 	public void addEnemy(Enemy enemy) {
@@ -116,14 +148,22 @@ public class EnemyManager {
 	}
 
 	public Enemy getEnemy(int index) {
-		if (index >= 0 && index < enemies.size()) {
-			return enemies.get(index);
-		}
-		return null;
+        if (index < 0) return null;
+        int aliveIdx = 0;
+        for (Enemy e : enemies) {
+            if (e.isAlive()) {
+                if (aliveIdx == index) return e;
+                aliveIdx++;
+            }
+        }
+        return null;
 	}
 
+    // 返回hp>0的enemy数量
 	public int getEnemyCount() {
-		return enemies.size();
+        int cnt = 0;
+        for (Enemy e : enemies) if (e.isAlive()) cnt++;
+        return cnt;
 	}
 
 	public void update(float deltaTime) {
@@ -131,9 +171,6 @@ public class EnemyManager {
 		while (it.hasNext()) {
 			Enemy enemy = it.next();
 			enemy.update(deltaTime);
-			if (!enemy.isAlive()) {
-				it.remove();
-			}
 		}
 	}
 
@@ -143,9 +180,24 @@ public class EnemyManager {
         }
 	}
 
+    public void allowRenderEnemy(Enemy enemy, boolean allow) {
+        if (enemy != null) {
+            enemy.setAllowRender(allow);
+        }
+    }
+
     public void resetEnemies() {
         for (Enemy enemy : enemies) {
             enemy.reset();
         }
+        setCurrentEnemy(0);
+    }
+
+    public Enemy getCurrentEnemy() {
+        return currentEnemy;
+    }
+
+    public void setCurrentEnemy(int index) {
+        this.currentEnemy = getEnemy(index);
     }
 }

@@ -12,6 +12,7 @@ public class Enemy {
     public int currentHealth;
     private int dropGold;
     private int dropExp;
+    private boolean allowRender;
 
     public boolean isYellow;
 
@@ -46,6 +47,7 @@ public class Enemy {
         this.currentHealth = currentHealth;
         this.dropGold = dropGold;
         this.dropExp = dropExp;
+        this.allowRender = true;
         this.isYellow = false;
         if (acts != null && !acts.isEmpty() && descriptions != null && !descriptions.isEmpty() && acts.size() == descriptions.size()) {
             this.acts = acts;
@@ -71,6 +73,8 @@ public class Enemy {
     }
 
     public void render() {
+        // Do not render dead enemies
+        if (!isAllowRender()) return;
         // 按priority升序排序，priority高的后渲染
         Collections.sort(animationEntries, Comparator.comparingInt(e -> e.priority));
         for (AnimationEntry entry : animationEntries) {
@@ -210,5 +214,15 @@ public class Enemy {
 
     public void reset() {
         this.currentHealth = this.maxHealth;
+        this.isYellow = false;
+        this.allowRender = true;
+    }
+
+    public void setAllowRender(boolean allow) {
+        this.allowRender = allow;
+    }
+
+    public boolean isAllowRender() {
+        return this.allowRender;
     }
 }

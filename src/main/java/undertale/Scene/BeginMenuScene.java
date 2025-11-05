@@ -2,6 +2,7 @@ package undertale.Scene;
 
 import undertale.GameMain.InputManager;
 import undertale.GameObject.ObjectManager;
+import undertale.UI.UIManager;
 
 public class BeginMenuScene extends Scene {
     public BeginMenuScene(ObjectManager objectManager, InputManager inputManager) {
@@ -18,6 +19,9 @@ public class BeginMenuScene extends Scene {
         if(!soundManager.isMusicPlaying("main_menu")) {
             soundManager.playMusic("main_menu");
         }
+        // 确保UI处于BEGIN状态并重置Begin Menu相关变量
+        objectManager.resetGame();
+        uiManager.resetVars(UIManager.MenuState.BEGIN);
         uiManager.resetBeginMenu();
     }
 

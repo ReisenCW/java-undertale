@@ -247,3 +247,4 @@ public class SoundManager {
         return currentMusicPath.equals(path);
     }
 }
+// TODO : 实现volume控制

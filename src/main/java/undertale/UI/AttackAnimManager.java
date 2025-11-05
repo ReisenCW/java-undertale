@@ -3,6 +3,7 @@ package undertale.UI;
 import undertale.Animation.Animation;
 import undertale.Animation.AnimationManager;
 import undertale.Enemy.Enemy;
+import undertale.Enemy.EnemyManager;
 import undertale.GameMain.Game;
 import undertale.GameObject.Player;
 import undertale.Scene.SceneManager;
@@ -15,6 +16,7 @@ public class AttackAnimManager extends UIBase {
     private AnimationManager animationManager;
     private FontManager fontManager;
     private SoundManager soundManager;
+    private EnemyManager enemyManager;
     private Player player;
 
     private Texture attack_panel;
@@ -51,6 +53,7 @@ public class AttackAnimManager extends UIBase {
         super(configManager);
         this.fontManager = fontManager;
         this.soundManager = SoundManager.getInstance();
+        this.enemyManager = EnemyManager.getInstance();
         this.player = player;
         animationManager = AnimationManager.getInstance();
         attack_bar_offset = 0.0f;
@@ -189,7 +192,9 @@ public class AttackAnimManager extends UIBase {
                 showDamage = false;
                 damageDisplayElapsed = 0f;
                 // 切换场景
-                SceneManager.getInstance().shouldSwitch = true;
+                if(!enemyManager.isAllEnemiesDefeated()) {
+                    SceneManager.getInstance().shouldSwitch = true;
+                }
             }
         }
     }
@@ -252,5 +257,13 @@ public class AttackAnimManager extends UIBase {
             updateAttackBarIndex(deltaTime);
             attack_animation.updateAnimation(deltaTime);
         }
+    }
+
+    public boolean isAttackAnimFinished() {
+        return attack_animation.isFinished();
+    }
+
+    public boolean isDamageDisplayFinished() {
+        return !showDamage;
     }
 }

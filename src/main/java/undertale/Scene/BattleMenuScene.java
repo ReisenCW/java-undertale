@@ -4,6 +4,7 @@ import undertale.Enemy.EnemyManager;
 import undertale.GameMain.InputManager;
 import undertale.GameObject.ObjectManager;
 import undertale.UI.UIManager;
+import undertale.UI.ScreenFadeManager;
 
 public class BattleMenuScene extends Scene {
     private EnemyManager enemyManager = EnemyManager.getInstance();
@@ -33,7 +34,7 @@ public class BattleMenuScene extends Scene {
         }
         objectManager.allowPlayerMovement(false);
         objectManager.clearBullets();
-        uiManager.resetVars();
+        uiManager.resetVars(UIManager.MenuState.MAIN);
         round = Math.min(++round, roundMessages.length);
     }
 
@@ -53,7 +54,11 @@ public class BattleMenuScene extends Scene {
         resetBattleFrame(deltaTime);
         uiManager.updatePlayerMenuPosition();
         objectManager.updateMenuScene(deltaTime);
-        SceneManager.getInstance().switchScene(SceneEnum.BATTLE_FIGHT);
+        SceneEnum nextScene = SceneEnum.BATTLE_FIGHT;
+        if(enemyManager.isAllEnemiesDefeated()) {
+            nextScene = SceneEnum.START_MENU;
+        }
+        SceneManager.getInstance().switchScene(nextScene);
     }
 
     @Override

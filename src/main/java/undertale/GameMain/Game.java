@@ -170,9 +170,9 @@ public class Game {
         return uiManager.getFrameBottom();
     }
 
-    public static void resetGame() {
+    public static void resetGame(UIManager.MenuState menuState) {
         objectManager.resetGame();
-        uiManager.resetVars();
+        uiManager.resetVars(menuState);
         sceneManager.reset();
     }
 }
