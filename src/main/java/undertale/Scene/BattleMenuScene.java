@@ -4,7 +4,6 @@ import undertale.Enemy.EnemyManager;
 import undertale.GameMain.InputManager;
 import undertale.GameObject.ObjectManager;
 import undertale.UI.UIManager;
-import undertale.UI.ScreenFadeManager;
 
 public class BattleMenuScene extends Scene {
     private EnemyManager enemyManager = EnemyManager.getInstance();
