@@ -17,27 +17,36 @@ import static org.lwjgl.opengl.GL20.*;
  * 将其编译并缓存为 GL Program，按 config.json 中的 "shaders" 键进行初始化。
  */
 public class ShaderManager {
-    private static ShaderManager instance;
-    static {
-        instance = new ShaderManager();
-    }
+    private static volatile ShaderManager instance;
 
-    private final Map<String, Integer> programs = new HashMap<>();
+    private Map<String, Integer> shaders = new HashMap<>();
+    private Map<String, Integer> programs = new HashMap<>();
 
     private ShaderManager() {
         ConfigManager configManager = Game.getConfigManager();
-        if (configManager != null && configManager.shaders != null) {
-            for (Map.Entry<String, String> e : configManager.shaders.entrySet()) {
-                String key = e.getKey();
-                String path = e.getValue();
-                try {
-                    int prog = loadAndCompileShader(path);
-                    if (prog != 0) {
-                        programs.put(key, prog);
-                    }
-                } catch (Exception ex) {
-                    System.err.println("Failed to load shader '" + key + "' from '" + path + "': " + ex.getMessage());
-                }
+       
+        if (configManager != null) {
+            Map<String, String> vertexShaderMap = configManager.vertexShaders;
+            Map<String, String> fragmentShaderMap = configManager.fragmentShaders;
+            // 加载, 编译shader
+            loadShaders(vertexShaderMap, GL_VERTEX_SHADER);
+            loadShaders(fragmentShaderMap, GL_FRAGMENT_SHADER);
+            // link shader programs
+            linkShaderPrograms();
+            // delete shader
+            deleteShaders();
+        }
+    }
+
+    private void loadShaders(Map<String, String> shaderMap, int shaderType) {
+        for (Map.Entry<String, String> entry : shaderMap.entrySet()) {
+            String k = entry.getKey();
+            String v = entry.getValue();
+            try {
+                int shaderId = loadAndCompileShader(v, shaderType);
+                shaders.put(k, shaderId);
+            } catch (Exception ex) {
+                System.err.println("Failed to load shader '" + k + "' from '" + v + "': " + ex.getMessage());
             }
         }
     }
@@ -59,73 +68,60 @@ public class ShaderManager {
         programs.clear();
     }
 
+    public void deleteShaders() {
+        for (int shaderId : shaders.values()) {
+            if (shaderId != 0) glDeleteShader(shaderId);
+        }
+        shaders.clear();
+    }
+
     /**
-     * 从资源文件加载并编译 shader 程序
-     * @param shaderPath shader 文件路径
-     * @return shader program id
+     * 从资源（classpath）加载并编译一个 shader 文件
+     * 返回 GL program id（或抛出异常）。
      */
-    private int loadAndCompileShader(String shaderPath) {
-        // shader 文件包含两部分，以 @shader vertex / @shader fragment 标记
+
+    private int loadAndCompileShader(String shaderPath, int shaderType) {
         InputStream in = getClass().getClassLoader().getResourceAsStream(shaderPath);
         if (in == null) {
             throw new RuntimeException("Shader resource not found: " + shaderPath);
         }
 
-        StringBuilder vertex = new StringBuilder();
-        StringBuilder fragment = new StringBuilder();
+        StringBuilder shader = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
             String line;
-            String current = null;
             while ((line = br.readLine()) != null) {
-                if (line.trim().startsWith("@shader")) {
-                    String[] parts = line.trim().split("\\s+");
-                    if (parts.length >= 2) {
-                        if (parts[1].equalsIgnoreCase("vertex")) current = "vertex";
-                        else if (parts[1].equalsIgnoreCase("fragment")) current = "fragment";
-                        else current = null;
-                    } else {
-                        current = null;
-                    }
-                    continue;
-                }
-
-                if ("vertex".equals(current)) vertex.append(line).append('\n');
-                else if ("fragment".equals(current)) fragment.append(line).append('\n');
+                shader.append(line).append('\n');
             }
         } catch (Exception e) {
-            throw new RuntimeException("Failed to read shader file: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to read shader file: " + shaderPath + " - " + e.getMessage(), e);
         }
+        String shaderSrc = shader.toString();
+        return compileShader(shaderSrc, shaderType);
+    }
 
-        String vSrc = vertex.toString();
-        String fSrc = fragment.toString();
-
-        if (vSrc.isEmpty() || fSrc.isEmpty()) {
-            throw new RuntimeException("Shader file must contain both vertex and fragment sections: " + shaderPath);
-        }
-
-        // compile
-        // vertex shader
-        int vShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vShader, vSrc);
-        glCompileShader(vShader);
+    private int compileShader(String shaderSrc, int shaderType) {
+        int shader = glCreateShader(shaderType);
+        glShaderSource(shader, shaderSrc);
+        glCompileShader(shader);
         // compile 错误信息
-        if (glGetShaderi(vShader, GL_COMPILE_STATUS) == GL_FALSE) {
-            String log = glGetShaderInfoLog(vShader);
-            glDeleteShader(vShader);
-            throw new RuntimeException("Vertex shader compile error: " + log);
+        if (glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE) {
+            String log = glGetShaderInfoLog(shader);
+            glDeleteShader(shader);
+            throw new RuntimeException("Shader compile error: " + log);
         }
+        // 如果compile成功, 将shader ID 返回
+        return shader;
+    }
 
-        // fragment shader
-        int fShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fShader, fSrc);
-        glCompileShader(fShader);
-        if (glGetShaderi(fShader, GL_COMPILE_STATUS) == GL_FALSE) {
-            String log = glGetShaderInfoLog(fShader);
-            glDeleteShader(vShader);
-            glDeleteShader(fShader);
-            throw new RuntimeException("Fragment shader compile error: " + log);
-        }
+    private void linkShaderPrograms() {
+        programs.put("texture_shader", linkShader(
+            shaders.get("texture_vertex_shader"),
+            shaders.get("texture_fragment_shader")
+        ));
+    }
 
+    // 链接 shader program
+    private int linkShader(int vShader, int fShader) {
         // link shader program
         int prog = glCreateProgram();
         glAttachShader(prog, vShader);
@@ -138,15 +134,15 @@ public class ShaderManager {
             glDeleteProgram(prog);
             throw new RuntimeException("Shader program link error: " + log);
         }
-
-        // 成功获得program后可清除shader
-        glDeleteShader(vShader);
-        glDeleteShader(fShader);
-
         return prog;
     }
 
     public static ShaderManager getInstance() {
+        if (instance == null) {
+            synchronized (ShaderManager.class) {
+                if (instance == null) instance = new ShaderManager();
+            }
+        }
         return instance;
     }
 }

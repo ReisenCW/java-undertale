@@ -1,4 +1,3 @@
-@shader vertex
 #version 330 core
 
 layout(location = 0) in vec2 aPos;
@@ -15,19 +14,4 @@ void main()
     float y = 1.0 - aPos.y / float(uScreenSize.y) * 2.0;
     gl_Position = vec4(x, y, 0.0, 1.0);
     vTex = aTex;
-}
-
-@shader fragment
-#version 330 core
-
-in vec2 vTex;
-out vec4 fragColor;
-
-uniform sampler2D uTexture;
-uniform vec4 uColor;
-
-void main()
-{
-    vec4 texColor = texture(uTexture, vTex);
-    fragColor = texColor * uColor;
 }

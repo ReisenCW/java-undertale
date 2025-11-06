@@ -107,8 +107,11 @@
     {"key": "determination", "path": "determinationmonoweb-webfont.ttf"},
     {"key": "pixel", "path": "PixelOperator-Bold.ttf"}
   ],
-  "shaders": [
-    {"key": "texture_shader", "path": "shaders/texture_shader.glsl"}
+  "vertexShaders": [
+    {"key": "texture_vertex_shader", "path": "shaders/texture_vertex_shader.glsl"}
+  ],
+  "fragmentShaders": [
+    {"key": "texture_fragment_shader", "path": "shaders/texture_fragment_shader.glsl"}
   ],
   "window" : {
     "width": 1280,
