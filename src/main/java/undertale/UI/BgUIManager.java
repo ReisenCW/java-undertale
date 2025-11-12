@@ -65,7 +65,7 @@ public class BgUIManager extends UIBase {
         float scale = 2.0f;
         // 先绘制tensionBar背景
         float barx = LEFT_MARGIN + 35;
-        float bary = TOP_MARGIN + 100;
+        float bary = TOP_MARGIN + 120;
         Texture.drawTexture(tensionBar.getId(), barx, bary, tensionBar.getWidth() * scale, tensionBar.getHeight() * scale);
 
         // 再根据tp绘制填充部分(从底部往上竖向填充)
@@ -73,13 +73,30 @@ public class BgUIManager extends UIBase {
         float fillHeight = tensionBarFill.getHeight() * scale * tpPercent;
         float fillY = bary + tensionBar.getHeight() * scale - fillHeight;
         Texture.drawTexture(tensionBarFill.getId(), 
-            barx + 2 * scale, 
-            fillY, 
-            tensionBarFill.getWidth() * scale, 
+            barx + 2 * scale,
+            fillY,
+            tensionBarFill.getWidth() * scale,
             fillHeight,
-            0, 0, 64, 192, 255,
+            0, 0, 64.0f / 255.0f, 192.0f / 255.0f, 1.0f,
             0.0f, 1.0f,
             1.0f, 1.0f - tpPercent
+        );
+        
+        // 在tp bar顶部上方绘制TP 数字%
+        float margin = 30;
+        String tpText = tp + " %";
+        float textWidth = fontManager.getTextWidth(tpText);
+        fontManager.drawText(tpText,
+            barx + (tensionBar.getWidth() * scale - textWidth) / 2 + 45,
+            bary - margin - fontManager.getFontHeight() / 2,
+            1.0f, 1.0f, 1.0f, 1.0f
+        );
+        float tpScale = 1.3f;
+        fontManager.drawText("TP ",
+            barx + (tensionBar.getWidth() * scale - fontManager.getTextWidth("TP "))  / 2 - 10,
+            bary - margin - tpScale * fontManager.getFontHeight() / 2, 
+            tpScale,
+            1.0f, 1.0f, 1.0f, 1.0f
         );
     }
 
