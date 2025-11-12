@@ -104,6 +104,7 @@ public class UIManager extends UIBase {
         boolean allowFocus = menuState != MenuState.SUCCESS;
         bgUIManager.renderButtons(selectedAction, allowFocus);
         bgUIManager.renderPlayerInfo();
+        bgUIManager.renderTensionBar();
         battleFrameManager.renderBattleFrame();
     }
 

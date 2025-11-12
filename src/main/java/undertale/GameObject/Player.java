@@ -22,6 +22,7 @@ public class Player extends GameObject {
     private float hScale;
     private float highSpeed;
     private float lowSpeed;
+    private int tensionPoints;
 
     public enum LightLevel {
         NORMAL,
@@ -70,6 +71,7 @@ public class Player extends GameObject {
         this.highSpeed = Float.parseFloat(playerMap.getOrDefault("highSpeed", "180.0"));
         this.lowSpeed = Float.parseFloat(playerMap.getOrDefault("lowSpeed", "80.0"));
         this.speed = highSpeed;
+        this.tensionPoints = 0;
 
         this.enhancedLightRadius = Float.parseFloat(playerMap.getOrDefault("enhancedLightRadius", "150.0"));
         this.normalLightRadius = Float.parseFloat(playerMap.getOrDefault("normalLightRadius", "100.0"));
@@ -97,12 +99,24 @@ public class Player extends GameObject {
         soundManager = SoundManager.getInstance();
     }
 
+    int m = 1;
+
     @Override
     public void update(float deltaTime) {
         handleSpeedMode();
         updatePosition(deltaTime); // 按键处理在inputManager中
         updateLight(deltaTime);
         handlePlayerOutBound(0, Game.getWindowWidth(), 0, Game.getWindowHeight());
+        tensionPoints += m;
+        if(tensionPoints == 100) {
+            tensionPoints--;
+            m = -1;
+        }
+        if(tensionPoints == 0) {
+            tensionPoints++;
+            m = 1;
+        }
+        System.out.println("TP: " + tensionPoints);
     }
 
     // 回合开始时调用, 开始光圈扩展动画
@@ -413,9 +427,23 @@ public class Player extends GameObject {
         this.currentHealth = this.maxHealth;
         this.isHurt = false;
         this.isMovable = true;
+        this.tensionPoints = 0;
         this.x = Game.getWindowWidth() / 2 - heartTexture.getWidth() / 2;
         this.y = Game.getWindowHeight() / 2 - heartTexture.getHeight() / 2;
         this.setCurrentLightRadius(LightLevel.NORMAL);
         this.setTargetLightRadius(LightLevel.NORMAL);
+    }
+
+    public void setTensionPoints(int points) {
+        this.tensionPoints = points;
+        if (this.tensionPoints < 0) {
+            this.tensionPoints = 0;
+        } else if(tensionPoints > 100) {
+            this.tensionPoints = 100;
+        }
+    }
+
+    public int getTensionPoints() {
+        return tensionPoints;
     }
 }

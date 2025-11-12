@@ -78,9 +78,24 @@ public class Texture {
 
     /**
      * 绘制纹理
-     * 颜色为相乘模式
+     * @param textureId 纹理ID
+     * @param x 绘制位置X
+     * @param y 绘制位置Y
+     * @param width 绘制宽度
+     * @param height 绘制高度
+     * @param rotation 旋转角度（度）
+     * @param r 红色分量
+     * @param g 绿色分量
+     * @param b 蓝色分量
+     * @param a 透明度
+     * @param u0 纹理坐标左上角U (0-1)
+     * @param v0 纹理坐标左上角V (0-1)
+     * @param u1 纹理坐标右下角U (0-1)
+     * @param v1 纹理坐标右下角V (0-1)
+     * @param shaderName shader名称
+     * @param uniformSetter uniform设置函数
      */
-    public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation, float r, float g, float b, float a, boolean horizontalReverse, boolean verticalReverse, String shaderName, Consumer<Integer> uniformSetter) {
+    public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation, float r, float g, float b, float a, float u0, float v0, float u1, float v1, String shaderName, Consumer<Integer> uniformSetter) {
         ensureGLInitialized();
 
         // 中心点坐标
@@ -109,15 +124,6 @@ public class Texture {
         float px2 = cx + rx2; float py2 = cy + ry2;
         float px3 = cx + rx3; float py3 = cy + ry3;
 
-        // 水平方向起点
-        float u0 = horizontalReverse ? 1.0f : 0.0f;
-        // 水平方向终点
-        float u1 = horizontalReverse ? 0.0f : 1.0f;
-        // 垂直方向起点
-        float v0 = verticalReverse ? 0.0f : 1.0f;
-        // 垂直方向终点
-        float v1 = verticalReverse ? 1.0f : 0.0f;
-
         // 存储6个顶点(2个三角形, 每个三角形3个顶点), 每个顶点4个数据(x,y,u,v)
         FloatBuffer buf = BufferUtils.createFloatBuffer(6 * 4);
         // triangle1
@@ -134,8 +140,34 @@ public class Texture {
         renderBuffer(buf, 1, textureId, r, g, b, a, shaderName, uniformSetter);
     }
 
+    /**
+     * 绘制纹理
+     * 颜色为相乘模式
+     */
+    public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation, float r, float g, float b, float a, boolean horizontalReverse, boolean verticalReverse, String shaderName, Consumer<Integer> uniformSetter) {
+       drawTexture(textureId, x, y, width, height, rotation, r, g, b, a,
+           horizontalReverse ? 1.0f : 0.0f,
+           verticalReverse ? 0.0f : 1.0f,
+           horizontalReverse ? 0.0f : 1.0f,
+           verticalReverse ? 1.0f : 0.0f,
+           shaderName,
+           uniformSetter
+        );
+    }
+
     public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation, float r, float g, float b, float a, boolean horizontalReverse, boolean verticalReverse) {
         drawTexture(textureId, x, y, width, height, rotation, r, g, b, a, horizontalReverse, verticalReverse, "texture_shader", program -> {
+            int locScreenSize = glGetUniformLocation(program, "uScreenSize");
+            int locColor = glGetUniformLocation(program, "uColor");
+            int locTexture = glGetUniformLocation(program, "uTexture");
+            glUniform2i(locScreenSize, screenWidth, screenHeight);
+            glUniform4f(locColor, r, g, b, a);
+            glUniform1i(locTexture, 0);
+        });
+    }
+
+    public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation, float r, float g, float b, float a, float u0, float v0, float u1, float v1) {
+        drawTexture(textureId, x, y, width, height, rotation, r, g, b, a, u0, v0, u1, v1, "texture_shader", program -> {
             int locScreenSize = glGetUniformLocation(program, "uScreenSize");
             int locColor = glGetUniformLocation(program, "uColor");
             int locTexture = glGetUniformLocation(program, "uTexture");

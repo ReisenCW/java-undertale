@@ -10,15 +10,17 @@ public class BgUIManager extends UIBase {
     private FontManager fontManager;
     private Player player;
 
-    private Texture hp_text;
-    private Texture attack_normal;
-    private Texture attack_chosen;
-    private Texture act_normal;
-    private Texture act_chosen;
-    private Texture item_normal;
-    private Texture item_chosen;
-    private Texture mercy_normal;
-    private Texture mercy_chosen;
+    private Texture hpText;
+    private Texture attackNormal;
+    private Texture attackChosen;
+    private Texture actNormal;
+    private Texture actChosen;
+    private Texture itemNormal;
+    private Texture itemChosen;
+    private Texture mercyNormal;
+    private Texture mercyChosen;
+    private Texture tensionBar;
+    private Texture tensionBarFill;
     private Texture[] buttons;
 
     public BgUIManager(ConfigManager configManager, FontManager fontManager, Player player) {
@@ -31,19 +33,22 @@ public class BgUIManager extends UIBase {
     }
 
     public void loadResources() {
-        attack_normal = Game.getTexture("attack_normal");
-        attack_chosen = Game.getTexture("attack_chosen");
-        act_normal = Game.getTexture("act_normal");
-        act_chosen = Game.getTexture("act_chosen");
-        item_normal = Game.getTexture("item_normal");
-        item_chosen = Game.getTexture("item_chosen");
-        mercy_normal = Game.getTexture("mercy_normal");
-        mercy_chosen = Game.getTexture("mercy_chosen");
-        hp_text = Game.getTexture("hp_text");
+        attackNormal = Game.getTexture("attack_normal");
+        attackChosen = Game.getTexture("attack_chosen");
+        actNormal = Game.getTexture("act_normal");
+        actChosen = Game.getTexture("act_chosen");
+        itemNormal = Game.getTexture("item_normal");
+        itemChosen = Game.getTexture("item_chosen");
+        mercyNormal = Game.getTexture("mercy_normal");
+        mercyChosen = Game.getTexture("mercy_chosen");
+        hpText = Game.getTexture("hp_text");
+
+        tensionBar = Game.getTexture("tension_bar");
+        tensionBarFill = Game.getTexture("tension_bar_fill");
 
         buttons = new Texture[]{
-            attack_normal, act_normal, item_normal, mercy_normal,
-            attack_chosen, act_chosen, item_chosen, mercy_chosen
+            attackNormal, actNormal, itemNormal, mercyNormal,
+            attackChosen, actChosen, itemChosen, mercyChosen
         };
     }
 
@@ -55,6 +60,26 @@ public class BgUIManager extends UIBase {
         }
     }
 
+    public void renderTensionBar() {
+        int tp = player.getTensionPoints();
+        float scale = 2.0f;
+        // 先绘制tensionBar背景
+        float barx = LEFT_MARGIN + 35;
+        float bary = TOP_MARGIN + 100;
+        Texture.drawTexture(tensionBar.getId(), barx, bary, tensionBar.getWidth() * scale, tensionBar.getHeight() * scale);
+
+        // 再根据tp绘制填充部分(从底部往上竖向填充)
+        float tpPercent = tp / 100.0f;
+        float fillHeight = tensionBarFill.getHeight() * scale * tpPercent;
+        float fillY = bary + tensionBar.getHeight() * scale - fillHeight;
+        Texture.drawTexture(tensionBarFill.getId(), 
+        barx + 2 * scale, 
+        fillY, 
+        tensionBarFill.getWidth() * scale, 
+        fillHeight,
+        0, 0, 64, 192, 255);
+    }
+
     public void renderPlayerInfo() {
         // 绘制 name, LV, HP/MaxHP信息
         float HEIGHT = BOTTOM_MARGIN - BOTTOM_OFFSET - BTN_HEIGHT - 20;
@@ -64,9 +89,9 @@ public class BgUIManager extends UIBase {
         // 绘制LV
         fontManager.drawText("LV " + player.getLevel(), OFFSET + BTN_WIDTH / 4 * 3, HEIGHT, 1.0f, 1.0f, 1.0f, 1.0f);
         // 绘制HP
-        float hpLeft = OFFSET + BTN_WIDTH * 3 / 2 + BTN_MARGIN - hp_text.getWidth();
-        float hpTop = HEIGHT - hp_text.getHeight() * 2;
-        Texture.drawTexture(hp_text.getId(), hpLeft, hpTop, hp_text.getWidth() * 2, hp_text.getHeight() * 2);
+        float hpLeft = OFFSET + BTN_WIDTH * 3 / 2 + BTN_MARGIN - hpText.getWidth();
+        float hpTop = HEIGHT - hpText.getHeight() * 2;
+        Texture.drawTexture(hpText.getId(), hpLeft, hpTop, hpText.getWidth() * 2, hpText.getHeight() * 2);
         // 绘制HP条，用红色绘制maxHealth长度，再用黄色覆盖currentHealth长度
         float HP_BAR_WIDTH = player.getMaxHealth() * 3;
         float HP_BAR_CURRENT_WIDTH = player.getCurrentHealth() * 3;

@@ -31,6 +31,7 @@ public class EnemyManager {
         return enemyManager;
     }
 
+    // TODO: 给act加一个参数function，用于判断是否能够执行该act
     private void init() {
         // enemy_titan
         ConfigManager configManager = Game.getConfigManager();
@@ -46,12 +47,18 @@ public class EnemyManager {
             "* Your soul emits a greater light.",
             () -> {
                 Player player = Game.getPlayer();
+                player.setTensionPoints(player.getTensionPoints() - 4);
                 player.setTargetLightRadius(Player.LightLevel.ENHANCED);
             }
         );
         titan.addAct(
             "unleash",
-            "* Your soul emits a gentle light.\n* The titan's defense dropped to zero."
+            "* Your soul emits a gentle light.\n* The titan's defense dropped to zero.",
+            () -> {
+                Player player = Game.getPlayer();
+                player.setTensionPoints(player.getTensionPoints() - 80);
+                // TODO: titan 两回合防御下降
+            }
         );
         titan.addAct(
             "single heal",
@@ -60,6 +67,7 @@ public class EnemyManager {
                 Player player = Game.getPlayer();
                 int healAmount = 8 + (int)(Math.random() * 16);
                 player.heal(healAmount);
+                player.setTensionPoints(player.getTensionPoints() - 4);
             }
         );
 
