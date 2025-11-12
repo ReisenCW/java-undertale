@@ -36,17 +36,22 @@ public class EnemyManager {
         // enemy_titan
         ConfigManager configManager = Game.getConfigManager();
         AnimationManager animationManager = AnimationManager.getInstance();
+        Player player = Game.getPlayer();
 
         Enemy titan = new Enemy("Titan", 500, 500, 50, 20);
         titan.addAct(
             "check",
-            "* Dark element boss.\n* Emit light, gather courage and use unleash to weaken it."
+            "* Dark element boss.\n* Emit light, gather courage and use unleash to weaken it.",
+            "check enemy info",
+            () -> true,
+            () -> {}
         );
         titan.addAct(
             "light",
             "* Your soul emits a greater light.",
+            "costs 4 tp, player emits greater light",
+            () -> (player.getTensionPoints() >= 4),
             () -> {
-                Player player = Game.getPlayer();
                 player.setTensionPoints(player.getTensionPoints() - 4);
                 player.setTargetLightRadius(Player.LightLevel.ENHANCED);
             }
@@ -54,8 +59,9 @@ public class EnemyManager {
         titan.addAct(
             "unleash",
             "* Your soul emits a gentle light.\n* The titan's defense dropped to zero.",
+            "costs 80 tp, titan gets weakened for 1 turn",
+            () -> (player.getTensionPoints() >= 80),
             () -> {
-                Player player = Game.getPlayer();
                 player.setTensionPoints(player.getTensionPoints() - 80);
                 // TODO: titan 两回合防御下降
             }
@@ -63,8 +69,9 @@ public class EnemyManager {
         titan.addAct(
             "single heal",
             "* You healed a small amount of HP.",
+            "costs 4 tp, heals a small amount of hp",
+            () -> (player.getTensionPoints() >= 4),
             () -> {
-                Player player = Game.getPlayer();
                 int healAmount = 8 + (int)(Math.random() * 16);
                 player.heal(healAmount);
                 player.setTensionPoints(player.getTensionPoints() - 4);

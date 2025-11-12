@@ -3,6 +3,7 @@ package undertale.Enemy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.function.Supplier;
 
 import undertale.Animation.Animation;
 
@@ -16,9 +17,7 @@ public class Enemy {
 
     public boolean isYellow;
 
-    private ArrayList<String> acts;
-    private ArrayList<String> descriptions;
-    private ArrayList<Runnable> actFunctions;
+    private ArrayList<Act> acts;
     private static class AnimationEntry {
         String name;
         Animation animation;
@@ -38,10 +37,51 @@ public class Enemy {
 
     private ArrayList<AnimationEntry> animationEntries;
 
-    Enemy(String name, int maxHealth, int currentHealth, int dropGold, int dropExp, ArrayList<String> acts, ArrayList<String> descriptions, Runnable... actFunctions) {
+    public static class Act {
+        private String name;
+        private String description;
+        private String requirement;
+        private Supplier<Boolean> requirementChecker;
+        private Runnable function;
+
+        public Act(String name, String description, String requirement, Supplier<Boolean> requirementChecker, Runnable function) {
+            this.name = name;
+            this.description = description;
+            this.requirement = requirement;
+            this.requirementChecker = requirementChecker;
+            this.function = function;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+        
+        public String getRequirement() {
+            return requirement;
+        }
+
+        public Supplier<Boolean> getRequirementChecker() {
+            return requirementChecker;
+        }
+
+        public Runnable getFunction() {
+            return function;
+        }
+    }
+
+    Enemy(String name, int maxHealth, int currentHealth, int dropGold, int dropExp, ArrayList<String> acts, ArrayList<String> descriptions, ArrayList<String> requirements, ArrayList<Supplier<Boolean>> requirementCheckers, Runnable... actFunctions) {
         this.animationEntries = new ArrayList<>();
-        this.actFunctions = new ArrayList<>();
-        Collections.addAll(this.actFunctions, actFunctions);
+        this.acts = new ArrayList<>();
+        if (acts != null && descriptions != null && requirements != null && actFunctions != null && acts.size() == descriptions.size() && acts.size() == requirements.size() && acts.size() == actFunctions.length) {
+            for (int i = 0; i < acts.size(); i++) {
+                Supplier<Boolean> checker = (requirementCheckers != null && i < requirementCheckers.size()) ? requirementCheckers.get(i) : () -> true;
+                this.acts.add(new Act(acts.get(i), descriptions.get(i), requirements.get(i), checker, actFunctions[i]));
+            }
+        }
         this.name = name;
         this.maxHealth = maxHealth;
         this.currentHealth = currentHealth;
@@ -49,21 +89,14 @@ public class Enemy {
         this.dropExp = dropExp;
         this.allowRender = true;
         this.isYellow = false;
-        if (acts != null && !acts.isEmpty() && descriptions != null && !descriptions.isEmpty() && acts.size() == descriptions.size()) {
-            this.acts = acts;
-            this.descriptions = descriptions;
-        } else {
-            this.acts = new ArrayList<>();
-            this.descriptions = new ArrayList<>();
-        }
     }
 
     Enemy(String name, int maxHealth) {
-        this(name, maxHealth, maxHealth, 0, 0, null, null);
+        this(name, maxHealth, maxHealth, 0, 0, null, null, null, null);
     }
 
     Enemy(String name, int maxHealth, int currentHealth, int dropGold, int dropExp) {
-        this(name, maxHealth, currentHealth, dropGold, dropExp, null, null);
+        this(name, maxHealth, currentHealth, dropGold, dropExp, null, null, null, null);
     }
 
     public void update(float deltaTime) {
@@ -73,7 +106,6 @@ public class Enemy {
     }
 
     public void render() {
-        // Do not render dead enemies
         if (!isAllowRender()) return;
         // 按priority升序排序，priority高的后渲染
         Collections.sort(animationEntries, Comparator.comparingInt(e -> e.priority));
@@ -135,50 +167,24 @@ public class Enemy {
         animationEntries.add(new AnimationEntry(name, animation, left, bottom, priority, scaler));
     }
 
-    public ArrayList<String> getActs() {
+    public ArrayList<Act> getActs() {
         return acts;
     }
 
-    public ArrayList<Runnable> getActFunctions() {
-        return actFunctions;
-    }
-
-    public ArrayList<String> getDescriptions() {
-        return descriptions;
-    }
-
-    public String getActByIndex(int index) {
-        if (index >= 0 && index < acts.size()) {
-            return acts.get(index);
-        }
-        return null;
-    }
-
-    public String getDescriptionByIndex(int index) {
-        if (index >= 0 && index < descriptions.size()) {
-            return descriptions.get(index);
-        }
-        return null;
-    }
-
     public void addAct(String act, String description) {
-        acts.add(act);
-        descriptions.add(description);
-        actFunctions.add(() -> {});
+        addAct(act, description, "", () -> {});
     }
 
     public void addAct(String act, String description, Runnable actFunction) {
-        acts.add(act);
-        descriptions.add(description);
-        actFunctions.add(actFunction);
+        addAct(act, description, "", actFunction);
     }
 
-    public String getActDescription(String act) {
-        int index = acts.indexOf(act);
-        if (index != -1 && index < descriptions.size()) {
-            return descriptions.get(index);
-        }
-        return null;
+    public void addAct(String act, String description, String requirement, Runnable actFunction) {
+        acts.add(new Act(act, description, requirement, () -> true, actFunction));
+    }
+
+    public void addAct(String act, String description, String requirement, Supplier<Boolean> requirementChecker, Runnable actFunction) {
+        acts.add(new Act(act, description, requirement, requirementChecker, actFunction));
     }
 
     public AnimationEntry getAnimationEntry(String name) {

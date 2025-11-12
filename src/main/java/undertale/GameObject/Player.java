@@ -107,16 +107,6 @@ public class Player extends GameObject {
         updatePosition(deltaTime); // 按键处理在inputManager中
         updateLight(deltaTime);
         handlePlayerOutBound(0, Game.getWindowWidth(), 0, Game.getWindowHeight());
-        tensionPoints += m;
-        if(tensionPoints == 100) {
-            tensionPoints--;
-            m = -1;
-        }
-        if(tensionPoints == 0) {
-            tensionPoints++;
-            m = 1;
-        }
-        System.out.println("TP: " + tensionPoints);
     }
 
     // 回合开始时调用, 开始光圈扩展动画

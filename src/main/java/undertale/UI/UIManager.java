@@ -122,7 +122,7 @@ public class UIManager extends UIBase {
                 renderMercyList();
             case ACT -> {
                 Enemy enemy = enemyManager.getCurrentEnemy();
-                menuTypeWriter.renderTextsInMenu(enemy.getDescriptionByIndex(selectedAct));
+                menuTypeWriter.renderTextsInMenu(enemy.getActs().get(selectedAct).getDescription());
             }
             case ITEM -> {
                 // 当进入 ITEM 状态时，消费物品的逻辑已在选择确认时执行一次，并把要显示的文本存入 pendingItemDescription
@@ -173,8 +173,17 @@ public class UIManager extends UIBase {
         float top = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 50;
         float left = MENU_FRAME_LEFT + 100;
         for (int i = 0; i < actCnt; i++) {
-            String act = enemy.getActs().get(i);
-            fontManager.drawText(act, left, top + i * (fontManager.getFontHeight() + 20), 1.0f, 1.0f, 1.0f, 1.0f);
+            Enemy.Act act = enemy.getActs().get(i);
+            // act name
+            float greyRGB = 180.0f / 255.0f;
+            float actColor = act.getRequirementChecker().get() ? 1.0f : greyRGB;
+            fontManager.drawText(act.getName(), left, top + i * (fontManager.getFontHeight() + 20), actColor, actColor, actColor, 1.0f);
+
+            // act requirement
+            fontManager.drawText(act.getRequirement(),
+            left + 300, top + i * (fontManager.getFontHeight() + 20),
+            0.8f,
+            greyRGB, greyRGB, greyRGB, 1.0f);
         }
     }
 
@@ -312,8 +321,13 @@ public class UIManager extends UIBase {
                     // 执行act对应函数
                     soundManager.playSE("confirm");
                     Enemy enemy = enemyManager.getCurrentEnemy();
-                    enemy.getActFunctions().get(selectedAct).run();
-                    yield MenuState.ACT;
+                    // 如果不满足act条件则不执行
+                    if (enemy.getActs().get(selectedAct).getRequirementChecker().get()) {
+                        enemy.getActs().get(selectedAct).getFunction().run();
+                        yield MenuState.ACT;
+                    } else {
+                        yield MenuState.ACT_SELECT_ACT;
+                    }
                 }
                 case ITEM_SELECT_ITEM -> {
                     soundManager.playSE("confirm");
