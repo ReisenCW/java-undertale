@@ -73,11 +73,14 @@ public class BgUIManager extends UIBase {
         float fillHeight = tensionBarFill.getHeight() * scale * tpPercent;
         float fillY = bary + tensionBar.getHeight() * scale - fillHeight;
         Texture.drawTexture(tensionBarFill.getId(), 
-        barx + 2 * scale, 
-        fillY, 
-        tensionBarFill.getWidth() * scale, 
-        fillHeight,
-        0, 0, 64, 192, 255);
+            barx + 2 * scale, 
+            fillY, 
+            tensionBarFill.getWidth() * scale, 
+            fillHeight,
+            0, 0, 64, 192, 255,
+            0.0f, 1.0f,
+            1.0f, 1.0f - tpPercent
+        );
     }
 
     public void renderPlayerInfo() {
