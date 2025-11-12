@@ -10,4 +10,5 @@ void main()
 {
     vec4 texColor = texture(uTexture, vTex);
     fragColor = texColor * uColor;
+    fragColor.rgb = clamp(fragColor.rgb, 0.0f, 1.0f);
 }

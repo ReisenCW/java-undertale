@@ -111,7 +111,8 @@
     {"key": "texture_vertex_shader", "path": "shaders/texture_vertex_shader.glsl"}
   ],
   "fragmentShaders": [
-    {"key": "texture_fragment_shader", "path": "shaders/texture_fragment_shader.glsl"}
+    {"key": "texture_fragment_shader", "path": "shaders/texture_fragment_shader.glsl"},
+    {"key": "titan_spawn_fragment_shader", "path": "shaders/titan_spawn_fragment_shader.glsl"}
   ],
   "window" : {
     "width": 1280,

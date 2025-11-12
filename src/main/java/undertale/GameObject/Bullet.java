@@ -174,4 +174,8 @@ public class Bullet extends GameObject{
         }
         return CollisionDetector.checkRectCircleCollision(this, player, 5.0f);
     }
+
+    public boolean hasAnimation() {
+        return animation != null;
+    }
 }

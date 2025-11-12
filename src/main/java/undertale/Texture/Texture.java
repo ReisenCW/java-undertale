@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.FloatBuffer;
+import java.util.function.Consumer;
 
 public class Texture {
     private int id;
@@ -27,10 +28,6 @@ public class Texture {
     // Shared rendering resources for textured quads (lazy init)
     private static int quadVao = 0;
     private static int quadVbo = 0;
-    private static int quadShaderProgram = 0;
-    private static int locScreenSize = -1;
-    private static int locColor = -1;
-    private static int locTexture = -1;
     private static int whiteTextureId = 0; // 1x1 white texture for color-only draws
     private static boolean glInitialized = false;
     private static int screenWidth = Game.getWindowWidth();
@@ -83,7 +80,7 @@ public class Texture {
      * 绘制纹理
      * 颜色为相乘模式
      */
-    public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation, float r, float g, float b, float a, boolean horizontalReverse, boolean verticalReverse) {
+    public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation, float r, float g, float b, float a, boolean horizontalReverse, boolean verticalReverse, String shaderName, Consumer<Integer> uniformSetter) {
         ensureGLInitialized();
 
         // 中心点坐标
@@ -134,7 +131,18 @@ public class Texture {
         // 切换缓冲区为读模式
         buf.flip();
 
-        renderBuffer(buf, 1, textureId, r, g, b, a);
+        renderBuffer(buf, 1, textureId, r, g, b, a, shaderName, uniformSetter);
+    }
+
+    public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation, float r, float g, float b, float a, boolean horizontalReverse, boolean verticalReverse) {
+        drawTexture(textureId, x, y, width, height, rotation, r, g, b, a, horizontalReverse, verticalReverse, "texture_shader", program -> {
+            int locScreenSize = glGetUniformLocation(program, "uScreenSize");
+            int locColor = glGetUniformLocation(program, "uColor");
+            int locTexture = glGetUniformLocation(program, "uTexture");
+            glUniform2i(locScreenSize, screenWidth, screenHeight);
+            glUniform4f(locColor, r, g, b, a);
+            glUniform1i(locTexture, 0);
+        });
     }
 
     public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation, float r, float g, float b, float a){
@@ -191,7 +199,14 @@ public class Texture {
             buf.put(x2); buf.put(y2); buf.put(0.5f); buf.put(0.5f);
         }
         buf.flip();
-        renderTriangles(buf, segment * 3, whiteTextureId, r, g, b, a);
+        renderTriangles(buf, segment * 3, whiteTextureId, r, g, b, a, "texture_shader", program -> {
+            int locScreenSize = glGetUniformLocation(program, "uScreenSize");
+            int locColor = glGetUniformLocation(program, "uColor");
+            int locTexture = glGetUniformLocation(program, "uTexture");
+            glUniform2i(locScreenSize, screenWidth, screenHeight);
+            glUniform4f(locColor, r, g, b, a);
+            glUniform1i(locTexture, 0);
+        });
     }
 
     public static void drawCircle(float x, float y, float radius, float r, float g, float b, float a) {
@@ -226,7 +241,14 @@ public class Texture {
             buf.put(ix2); buf.put(iy2); buf.put(0.5f); buf.put(0.5f);
         }
         buf.flip();
-        renderTriangles(buf, segment * 6, whiteTextureId, r, g, b, a);
+        renderTriangles(buf, segment * 6, whiteTextureId, r, g, b, a, "texture_shader", program -> {
+            int locScreenSize = glGetUniformLocation(program, "uScreenSize");
+            int locColor = glGetUniformLocation(program, "uColor");
+            int locTexture = glGetUniformLocation(program, "uTexture");
+            glUniform2i(locScreenSize, screenWidth, screenHeight);
+            glUniform4f(locColor, r, g, b, a);
+            glUniform1i(locTexture, 0);
+        });
     }
 
     public static void drawHollowCircle(float x, float y, float radius, float r, float g, float b, float a) {
@@ -317,11 +339,6 @@ public class Texture {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
 
-        quadShaderProgram = shaderManager.getProgram("texture_shader");
-        locScreenSize = glGetUniformLocation(quadShaderProgram, "uScreenSize");
-        locColor = glGetUniformLocation(quadShaderProgram, "uColor");
-        locTexture = glGetUniformLocation(quadShaderProgram, "uTexture");
-
         // create a 1x1 white texture for color-only drawing (used for shapes)
         whiteTextureId = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, whiteTextureId);
@@ -340,19 +357,18 @@ public class Texture {
      * @param buf 包含三角形顶点数据的缓冲区
      * @param vertexCount 顶点数量
      */
-    private static void renderTriangles(FloatBuffer buf, int vertexCount, int textureId, float r, float g, float b, float a) {
+    private static void renderTriangles(FloatBuffer buf, int vertexCount, int textureId, float r, float g, float b, float a, String shaderName, Consumer<Integer> uniformSetter) {
         ensureGLInitialized();
 
         glBindBuffer(GL_ARRAY_BUFFER, quadVbo);
         glBufferData(GL_ARRAY_BUFFER, buf, GL_STREAM_DRAW);
 
-        glUseProgram(quadShaderProgram);
-        glUniform2i(locScreenSize, screenWidth, screenHeight);
-        glUniform4f(locColor, r, g, b, a);
+        int program = shaderManager.getProgram(shaderName);
+        glUseProgram(program);
+        uniformSetter.accept(program);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textureId);
-        glUniform1i(locTexture, 0);
 
         glBindVertexArray(quadVao);
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
@@ -368,19 +384,18 @@ public class Texture {
      * @param buf 包含多个四边形顶点数据的缓冲区
      * @param quadCount 四边形数量
      */
-    private static void renderBuffer(FloatBuffer buf, int quadCount, int textureId, float r, float g, float b, float a) {
+    private static void renderBuffer(FloatBuffer buf, int quadCount, int textureId, float r, float g, float b, float a, String shaderName, Consumer<Integer> uniformSetter) {
         ensureGLInitialized();
 
         glBindBuffer(GL_ARRAY_BUFFER, quadVbo);
         glBufferData(GL_ARRAY_BUFFER, buf, GL_STREAM_DRAW);
 
-        glUseProgram(quadShaderProgram);
-        glUniform2i(locScreenSize, screenWidth, screenHeight);
-        glUniform4f(locColor, r, g, b, a);
+        int program = shaderManager.getProgram(shaderName);
+        glUseProgram(program);
+        uniformSetter.accept(program);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textureId);
-        glUniform1i(locTexture, 0);
 
         glBindVertexArray(quadVao);
         glDrawArrays(GL_TRIANGLES, 0, quadCount * 6);
@@ -397,6 +412,13 @@ public class Texture {
      * @param quadCount 四边形数量
      */
     public static void drawQuads(FloatBuffer buf, int quadCount, int textureId, float r, float g, float b, float a) {
-        renderBuffer(buf, quadCount, textureId, r, g, b, a);
+        renderBuffer(buf, quadCount, textureId, r, g, b, a, "texture_shader", program -> {
+            int locScreenSize = glGetUniformLocation(program, "uScreenSize");
+            int locColor = glGetUniformLocation(program, "uColor");
+            int locTexture = glGetUniformLocation(program, "uTexture");
+            glUniform2i(locScreenSize, screenWidth, screenHeight);
+            glUniform4f(locColor, r, g, b, a);
+            glUniform1i(locTexture, 0);
+        });
     }
 }

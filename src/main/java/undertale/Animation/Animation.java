@@ -1,6 +1,7 @@
 package undertale.Animation;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 import undertale.Texture.Texture;
 
@@ -99,6 +100,19 @@ public class Animation {
     public float getFrameHeight() {
         if (frameCount == 0) return 0;
         return frames.get(0).getHeight();
+    }
+
+    public void renderCurrentFrame(float x, float y, float scaleX, float scaleY, float angle, float r, float g, float b, float a, String shaderName, Consumer<Integer> uniformSetter) {
+        if(isEnd && disappearAfterEnds) return;
+        Texture currentTexture = getCurrentFrame();
+        if (currentTexture != null) {
+            Texture.drawTexture(currentTexture.getId(), x, y, scaleX * currentTexture.getWidth(), scaleY * currentTexture.getHeight(), angle, r, g, b, a, horizontalReverse, verticalReverse, shaderName, uniformSetter);
+            if (!loop && currentFrame == frameCount - 1) {
+                isEnd = true;
+            } else {
+                isEnd = false;
+            }
+        }
     }
 
     public void renderCurrentFrame(float x, float y, float scaleX, float scaleY, float angle, float r, float g, float b, float a) {

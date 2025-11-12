@@ -176,25 +176,9 @@ public class ObjectManager {
     public void renderFightScene(boolean renderBullets, boolean renderPlayer){
         // bullets
         if(renderBullets) {
-            bulletRenderer.clearBulletRenderData();
+            bulletRenderer.clearBullets();
             for (Bullet bullet : bullets) {
-                Texture currentTexture = bullet.getCurrentTexture();
-                if (currentTexture != null) {
-                    BulletRenderer.BulletRenderData br = bulletRenderer.new BulletRenderData(
-                        bullet.getId(),
-                        currentTexture.getId(),
-                        bullet.getX(),
-                        bullet.getY(),
-                        bullet.getSelfAngle(),
-                        bullet.getHScale(),
-                        bullet.getVScale(),
-                        currentTexture.getWidth(),
-                        currentTexture.getHeight(),
-                        bullet.rgba,
-                        bullet.getAnimation() != null
-                    );
-                    bulletRenderer.addBulletRenderData(br);
-                }
+                bulletRenderer.addBullet(bullet);
             }
             bulletRenderer.renderBullets();
         }

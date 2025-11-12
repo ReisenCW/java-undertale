@@ -118,6 +118,10 @@ public class ShaderManager {
             shaders.get("texture_vertex_shader"),
             shaders.get("texture_fragment_shader")
         ));
+        programs.put("titan_spawn_shader", linkShader(
+            shaders.get("texture_vertex_shader"),
+            shaders.get("titan_spawn_fragment_shader")
+        ));
     }
 
     // 链接 shader program

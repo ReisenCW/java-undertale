@@ -1,5 +1,7 @@
 package undertale.GameObject;
 
+import static org.lwjgl.opengl.GL20.*;
+
 import undertale.Animation.Animation;
 import undertale.Utils.GameUtilities;
 import undertale.GameMain.Game;
@@ -143,7 +145,16 @@ public class TitanSpawn extends Bullet{
     
     @Override
     public void render() {
-        animation.renderCurrentFrame(this.x, this.y, getHScale(), getVScale(), this.getSelfAngle(), rgba[0], rgba[1], rgba[2], rgba[3]);
+        animation.renderCurrentFrame(this.x, this.y, getHScale(), getVScale(), this.getSelfAngle(), rgba[0], rgba[1], rgba[2], rgba[3], "titan_spawn_shader", program -> {
+            int locScreenSize = glGetUniformLocation(program, "uScreenSize");
+            int locColor = glGetUniformLocation(program, "uColor");
+            int locTexture = glGetUniformLocation(program, "uTexture");
+            int locScale = glGetUniformLocation(program, "uScale");
+            glUniform2i(locScreenSize, Game.getWindowWidth(), Game.getWindowHeight());
+            glUniform4f(locColor, rgba[0], rgba[1], rgba[2], rgba[3]);
+            glUniform1i(locTexture, 0);
+            glUniform1f(locScale, (getHScale() + getVScale()) / 2.0f);
+        });
     }
 
     @Override

@@ -11,45 +11,17 @@ import undertale.Texture.Texture;
 
 // 子弹渲染器, 用于批量渲染子弹以提升性能
 public class BulletRenderer {
-    public class BulletRenderData {
-        public int id;
-        public int textureId;
-        public float x;
-        public float y;
-        public float angle;
-        public float hScale;
-        public float vScale;
-        public float width;
-        public float height;
-        public float[] rgba;
-        public boolean isAnimation;
-
-        public BulletRenderData(int id, int textureId, float x, float y, float angle, float hScale, float vScale, float width, float height, float[] rgba, boolean isAnimation) {
-            this.id = id;
-            this.textureId = textureId;
-            this.x = x;
-            this.y = y;
-            this.angle = angle;
-            this.hScale = hScale;
-            this.vScale = vScale;
-            this.width = width;
-            this.height = height;
-            this.rgba = rgba;
-            this.isAnimation = isAnimation;
-        }
-    }
-
-    private ArrayList<BulletRenderData> renderDataList;
+    private ArrayList<Bullet> bulletsToRender;
 
     public BulletRenderer() {
-        renderDataList = new ArrayList<>();
+        bulletsToRender = new ArrayList<>();
     }
-    public void addBulletRenderData(BulletRenderData data) {
-        renderDataList.add(data);
+    public void addBullet(Bullet bullet) {
+        bulletsToRender.add(bullet);
     }
 
-    public void clearBulletRenderData() {
-        renderDataList.clear();
+    public void clearBullets() {
+        bulletsToRender.clear();
     }
 
     /**
@@ -57,14 +29,14 @@ public class BulletRenderer {
      */
     public void renderBullets() {
         // 分离Animation和非Animation的bullet
-        ArrayList<BulletRenderData> staticBullets = new ArrayList<>();
-        ArrayList<BulletRenderData> animatedBullets = new ArrayList<>();
+        ArrayList<Bullet> staticBullets = new ArrayList<>();
+        ArrayList<Bullet> animatedBullets = new ArrayList<>();
         
-        for (BulletRenderData data : renderDataList) {
-            if (data.isAnimation) {
-                animatedBullets.add(data);
+        for (Bullet bullet : bulletsToRender) {
+            if (bullet.hasAnimation()) {
+                animatedBullets.add(bullet);
             } else {
-                staticBullets.add(data);
+                staticBullets.add(bullet);
             }
         }
 
@@ -78,11 +50,13 @@ public class BulletRenderer {
     /**
      * 渲染静态子弹
      */
-    private void renderStaticBullets(ArrayList<BulletRenderData> staticBullets) {
+    private void renderStaticBullets(ArrayList<Bullet> staticBullets) {
         // 按纹理ID分组渲染数据
-        ArrayList<ArrayList<BulletRenderData>> groupedData = new ArrayList<>();
-        for (BulletRenderData data : staticBullets) {
-            int textureId = data.textureId;
+        ArrayList<ArrayList<Bullet>> groupedData = new ArrayList<>();
+        for (Bullet data : staticBullets) {
+            Texture currentTexture = data.getCurrentTexture();
+            if (currentTexture == null) continue;
+            int textureId = currentTexture.getId();
             while (groupedData.size() <= textureId) {
                 groupedData.add(new ArrayList<>());
             }
@@ -91,11 +65,11 @@ public class BulletRenderer {
 
         // 对每个纹理组进行渲染
         for (int textureId = 0; textureId < groupedData.size(); textureId++) {
-            ArrayList<BulletRenderData> dataList = groupedData.get(textureId);
+            ArrayList<Bullet> dataList = groupedData.get(textureId);
             if (dataList.isEmpty()) continue;
 
-            // 按ID排序以确保渲染顺序稳定
-            dataList.sort((data1, data2) -> Float.compare(data2.y, data1.y));
+            // 按id排序以确保渲染顺序稳定
+            dataList.sort((data1, data2) -> Integer.compare(data1.getId(), data2.getId()));
 
             // 计算四边形数量
             int quadCount = dataList.size();
@@ -103,11 +77,11 @@ public class BulletRenderer {
             // 每个顶点 -> 4个浮点数(x,y,u,v)
             FloatBuffer buf = BufferUtils.createFloatBuffer(quadCount * 6 * 4);
 
-            for (int i = 0; i < dataList.size(); i++) {
-                BulletRenderData data = dataList.get(i);
-                float width = data.hScale * data.width;
-                float height = data.vScale * data.height;
-                Texture.appendQuad(buf, data.x, data.y, width, height, data.angle, 0.0f, 0.0f, 1.0f, 1.0f);
+            for (Bullet data : dataList) {
+                Texture currentTexture = data.getCurrentTexture();
+                float width = data.getHScale() * currentTexture.getWidth();
+                float height = data.getVScale() * currentTexture.getHeight();
+                Texture.appendQuad(buf, data.x, data.y, width, height, data.getSelfAngle(), 0.0f, 0.0f, 1.0f, 1.0f);
             }
 
             buf.flip();
@@ -119,18 +93,13 @@ public class BulletRenderer {
     /**
      * 渲染动画子弹
      */
-    private void renderAnimatedBullets(ArrayList<BulletRenderData> animatedBullets) {
+    private void renderAnimatedBullets(ArrayList<Bullet> animatedBullets) {
         // 按id排序以确保渲染顺序稳定
-        animatedBullets.sort(Comparator.comparingInt(data -> data.id));
+        animatedBullets.sort(Comparator.comparingInt(bullet -> bullet.getId()));
 
         // 对于动画纹理, 逐个渲染
-        for (BulletRenderData data : animatedBullets) {
-            float width = data.hScale * data.width;
-            float height = data.vScale * data.height;
-            FloatBuffer buf = BufferUtils.createFloatBuffer(6 * 4);
-            Texture.appendQuad(buf, data.x, data.y, width, height, data.angle, 0f, 0f, 1f, 1f);
-            buf.flip();
-            Texture.drawQuads(buf, 1, data.textureId, data.rgba[0], data.rgba[1], data.rgba[2], data.rgba[3]);
+        for (Bullet bullet : animatedBullets) {
+            bullet.render();
         }
     }
 }
