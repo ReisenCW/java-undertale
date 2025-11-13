@@ -212,20 +212,29 @@ public class UIManager extends UIBase {
             }
         }
         // 分页指示器：竖直小方块，当前页为大实心，其余为小空心
-        int totalPages = Math.max(itemCnt - 3, 1);
-        int currentPage = itemListFirstIndex;
-        float indicatorX = MENU_FRAME_LEFT + MENU_FRAME_WIDTH - 30; // 靠近对话框右边框左侧
-        float indicatorTop = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 30;
-        float gap = 40;
-        for (int p = 0; p < totalPages; p++) {
-            float cx = indicatorX;
-            float cy = indicatorTop + p * gap;
-            if (p == currentPage) {
-                // 大实心方块
-                Texture.drawRect(cx, cy, 14, 14, 1.0f, 1.0f, 1.0f, 1.0f);
-            } else {
-                // 小空心方块
-                Texture.drawHollowRect(cx + 2, cy + 2, 10, 10, 1.0f, 1.0f, 1.0f, 1.0f, 2.0f);
+        // 只有当item数量>4时才绘制分页指示器
+        if (itemCnt > 4) {
+            int totalPages = Math.max(itemCnt - 3, 1);
+            int currentPage = itemListFirstIndex;
+            float indicatorX = MENU_FRAME_LEFT + MENU_FRAME_WIDTH - 30; // 靠近对话框右边框左侧
+            
+            // 计算对话框中心Y坐标
+            float frameCenterY = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT / 2;
+            
+            // 计算方框间距，让所有方框相对于对话框中心上下对称
+            float totalHeight = (totalPages - 1) * 40; // 40是gap
+            float indicatorTop = frameCenterY - totalHeight / 2;
+            
+            for (int p = 0; p < totalPages; p++) {
+                float cx = indicatorX;
+                float cy = indicatorTop + p * 40; // 40是gap
+                if (p == currentPage) {
+                    // 大实心方块
+                    Texture.drawRect(cx, cy, 14, 14, 1.0f, 1.0f, 1.0f, 1.0f);
+                } else {
+                    // 小空心方块
+                    Texture.drawHollowRect(cx + 2, cy + 2, 10, 10, 1.0f, 1.0f, 1.0f, 1.0f, 2.0f);
+                }
             }
         }
         if (itemListFirstIndex > 0) {
