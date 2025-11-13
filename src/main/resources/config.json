@@ -29,6 +29,7 @@
     {"key": "main_menu_bg_4", "path": "main_menu/img_main_menu_bg_4.png"},
     {"key": "tension_bar", "path": "tension_bar/img_tension_bar.png"},
     {"key": "tension_bar_fill", "path": "tension_bar/img_tension_bar_fill.png"},
+    {"key": "tension_point", "path": "img_tp.png"},
     {"key": "titan_body", "path": "enemy_titan/img_titan_body.png"},
     {"key": "titan_star", "path": "enemy_titan/img_titan_star.png"},
     {"key": "titan_backwing_0_0", "path": "enemy_titan/img_titan_backwing_0/spr_titan_backwing_0.png"},

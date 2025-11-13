@@ -49,6 +49,7 @@ public class BattleFightScene extends Scene {
         objectManager.allowPlayerMovement(false);
         uiManager.setSelected(0);
         objectManager.clearBullets();
+        objectManager.clearCollectables();
     }
 
     @Override

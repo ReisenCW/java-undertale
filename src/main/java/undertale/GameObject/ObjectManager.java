@@ -18,8 +18,15 @@ public class ObjectManager {
     private ArrayList<Bullet> bulletPool;
     // 声明为成员变量避免频繁创建临时列表
     private ArrayList<Bullet> toRemove;
+
+    // 可拾取物
+    private ArrayList<Collectable> collectables;
+    private ArrayList<Collectable> collectablePool;
+    private ArrayList<Collectable> collectablesToRemove;
+
     private EnemyManager enemyManager;
     private BulletRenderer bulletRenderer;
+    private CollectableRenderer collectableRenderer;
     private SoundManager soundManager;
 
     public ObjectManager(Player player){
@@ -31,8 +38,12 @@ public class ObjectManager {
         bullets = new ArrayList<>();
         bulletPool = new ArrayList<>();
         toRemove = new ArrayList<>();
+        collectables = new ArrayList<>();
+        collectablePool = new ArrayList<>();
+        collectablesToRemove = new ArrayList<>();
         enemyManager = EnemyManager.getInstance();
         bulletRenderer = new BulletRenderer();
+        collectableRenderer = new CollectableRenderer();
         soundManager = SoundManager.getInstance();
     }
 
@@ -74,9 +85,40 @@ public class ObjectManager {
         bulletPool.add(bullet);
     }
 
+    private void returnCollectableToPool(Collectable collectable) {
+        collectablePool.add(collectable);
+    }
+
+    private Collectable getCollectableFromPool() {
+        if (collectablePool.isEmpty()) {
+            return null;
+        }
+        // 从对象池中获取collectable并移出对象池
+        return collectablePool.remove(collectablePool.size() - 1);
+    }
+
+    public Collectable createCollectable(float x, float y, float initialScale) {
+        TensionPoint tp = (TensionPoint) getCollectableFromPool();
+        if (tp == null) {
+            // 如果对象池中没有可用TensionPoint，则创建新的
+            tp = new TensionPoint(x, y, initialScale);
+        } else {
+            // 重置TensionPoint属性
+            tp.reset(x, y, initialScale);
+        }
+        collectables.add(tp);
+        return tp;
+    }
+
     public void addBullet(Bullet bullet) {
         if (bullet != null) {
             bullets.add(bullet);
+        }
+    }
+
+    public void addCollectable(Collectable collectable) {
+        if (collectable != null) {
+            collectables.add(collectable);
         }
     }
 
@@ -111,7 +153,7 @@ public class ObjectManager {
 
             // 先检查子弹是否超出屏幕边界
             float margin = Math.max(bullet.getWidth(), bullet.getHeight()) / 2.0f;
-            if (bullet.bound && isBulletOutOfBounds(bullet, margin)) {
+            if (bullet.bound && isOutOfBounds(bullet, margin)) {
                 toRemove.add(bullet);
                 continue;
             }
@@ -126,13 +168,34 @@ public class ObjectManager {
             bullets.remove(bullet);
             returnBulletToPool(bullet);
         }
+
+        // Collectables
+        collectablesToRemove.clear();
+        for (Collectable collectable : collectables) {
+            collectable.update(deltaTime);
+            // 如果超出边界
+            float margin = Math.max(collectable.getWidth(), collectable.getHeight()) / 2.0f;
+            if (isOutOfBounds(collectable, margin)) {
+                collectablesToRemove.add(collectable);
+                continue;
+            }
+            if(collectable.isCollected()) {
+                collectablesToRemove.add(collectable);
+                continue;
+            }
+        }
+        // 移除已收集的collectables
+        for (Collectable collectable : collectablesToRemove) {
+            collectables.remove(collectable);
+            returnCollectableToPool(collectable);
+        }
     }
 
-    private boolean isBulletOutOfBounds(Bullet bullet, float margin) {
-        return bullet.getX() < -margin ||
-               bullet.getX() > Game.getWindowWidth() + margin ||
-               bullet.getY() < -margin ||
-               bullet.getY() > Game.getWindowHeight() + margin;
+    private boolean isOutOfBounds(GameObject obj, float margin) {
+        return obj.getX() < -margin ||
+               obj.getX() > Game.getWindowWidth() + margin ||
+               obj.getY() < -margin ||
+               obj.getY() > Game.getWindowHeight() + margin;
     }
 
     private boolean checkPlayerBulletCollisionReturnHit(Bullet bullet){
@@ -170,10 +233,18 @@ public class ObjectManager {
     }
 
     public void renderFightScene(){
-        renderFightScene(true, true);
+        renderFightScene(true, true, true);
     }
 
-    public void renderFightScene(boolean renderBullets, boolean renderPlayer){
+    public void renderFightScene(boolean renderBullets, boolean renderPlayer, boolean renderCollectables){
+        // collectables
+        if(renderCollectables) {
+            collectableRenderer.clearCollectables();
+            for (Collectable collectable : collectables) {
+                collectableRenderer.addCollectable(collectable);
+            }
+            collectableRenderer.renderCollectables();
+        }
         // bullets
         if(renderBullets) {
             bulletRenderer.clearBullets();
@@ -206,6 +277,12 @@ public class ObjectManager {
 
     public void clearBullets() {
         bullets.clear();
+        bulletPool.clear();
+    }
+
+    public void clearCollectables() {
+        collectables.clear();
+        collectablePool.clear();
     }
 
     public void allowPlayerMovement(boolean allow) {

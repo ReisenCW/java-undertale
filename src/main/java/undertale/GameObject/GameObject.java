@@ -10,10 +10,11 @@ public abstract class GameObject {
     protected float y;
     protected float speed;
 
-    private float[] direction = {0.0f, 0.0f};
-    private float speedAngle; // 单位为度
-    private float selfAngle; // 单位为度
-    private boolean isNavi = false; // selfAngle是否跟随speedAngle
+    protected float[] direction = {0.0f, 0.0f};
+    protected float speedAngle; // 单位为度
+    protected float selfAngle; // 单位为度
+    protected boolean isNavi = false; // selfAngle是否跟随speedAngle
+    protected boolean isColli = false;
 
     public abstract void update(float deltaTime);
 
@@ -156,5 +157,17 @@ public abstract class GameObject {
         x + getWidth() <= right &&
         y + getHeight() >= top && 
         y - getHeight() <= bottom;
+    }
+
+    public boolean checkCollisionWithPlayer(Player player) {
+        return CollisionDetector.checkCircleCollision(this, player);
+    }
+
+    public void setColli(boolean colli) {
+        isColli = colli;
+    }
+
+    public boolean isColli() {
+        return isColli;
     }
 }

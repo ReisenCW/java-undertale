@@ -52,7 +52,7 @@ public class EnemyManager {
             "costs 4 tp, player emits greater light",
             () -> (player.getTensionPoints() >= 4),
             () -> {
-                player.setTensionPoints(player.getTensionPoints() - 4);
+                player.updateTensionPoints(-4);
                 player.setTargetLightRadius(Player.LightLevel.ENHANCED);
             }
         );
@@ -62,7 +62,7 @@ public class EnemyManager {
             "costs 80 tp, titan gets weakened for 1 turn",
             () -> (player.getTensionPoints() >= 80),
             () -> {
-                player.setTensionPoints(player.getTensionPoints() - 80);
+                player.updateTensionPoints(-80);
                 // TODO: titan 两回合防御下降
             }
         );
@@ -74,7 +74,7 @@ public class EnemyManager {
             () -> {
                 int healAmount = 8 + (int)(Math.random() * 16);
                 player.heal(healAmount);
-                player.setTensionPoints(player.getTensionPoints() - 4);
+                player.updateTensionPoints(-4);
             }
         );
 

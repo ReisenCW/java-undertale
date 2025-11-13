@@ -12,7 +12,6 @@ public class Bullet extends GameObject{
     protected float[] rgba;
     public boolean bound;
     public boolean destroyableOnHit;
-    public boolean isColli;
     protected Texture texture;
     protected Animation animation;
 

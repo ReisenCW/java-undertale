@@ -52,6 +52,7 @@ public class UIManager extends UIBase {
     public int selectedAction = -1;
 
     public boolean sliceSEPlayed = false;
+    private boolean isBackToMain = false;
 
     static {
         instance = new UIManager();
@@ -89,6 +90,7 @@ public class UIManager extends UIBase {
         selectedAction = 0;
         itemListFirstIndex = 0;
         sliceSEPlayed = false;
+        isBackToMain = false;
         setSelected(0);
 
         attackAnimManager.resetStates();
@@ -262,7 +264,8 @@ public class UIManager extends UIBase {
 
     // 菜单“确定”操作
     public void handleMenuSelect() {
-        if(menuState == MenuState.SUCCESS){
+        if(menuState == MenuState.SUCCESS && menuTypeWriter.isTypewriterAllShown() && !isBackToMain) {
+            isBackToMain = true;
             // 使用渐暗再变亮的特效切回战斗菜单
             ScreenFadeManager.getInstance().startFadeOutIn(
                 1.5f,

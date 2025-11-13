@@ -436,4 +436,8 @@ public class Player extends GameObject {
     public int getTensionPoints() {
         return tensionPoints;
     }
+
+    public void updateTensionPoints(int delta) {
+        setTensionPoints(this.tensionPoints + delta);
+    }
 }
