@@ -24,6 +24,9 @@ public class ObjectManager {
     private ArrayList<Collectable> collectablePool;
     private ArrayList<Collectable> collectablesToRemove;
 
+    // 涟漪效果
+    private ArrayList<RippleEffect> rippleEffects;
+
     private EnemyManager enemyManager;
     private BulletRenderer bulletRenderer;
     private CollectableRenderer collectableRenderer;
@@ -41,6 +44,7 @@ public class ObjectManager {
         collectables = new ArrayList<>();
         collectablePool = new ArrayList<>();
         collectablesToRemove = new ArrayList<>();
+        rippleEffects = new ArrayList<>();
         enemyManager = EnemyManager.getInstance();
         bulletRenderer = new BulletRenderer();
         collectableRenderer = new CollectableRenderer();
@@ -180,6 +184,10 @@ public class ObjectManager {
                 continue;
             }
             if(collectable.isCollected()) {
+                // 如果是TensionPoint，创建涟漪效果
+                if (collectable instanceof TensionPoint) {
+                    rippleEffects.add(new RippleEffect(collectable.getX(), collectable.getY()));
+                }
                 collectablesToRemove.add(collectable);
                 continue;
             }
@@ -188,6 +196,15 @@ public class ObjectManager {
         for (Collectable collectable : collectablesToRemove) {
             collectables.remove(collectable);
             returnCollectableToPool(collectable);
+        }
+
+        // 更新涟漪效果
+        for (int i = rippleEffects.size() - 1; i >= 0; i--) {
+            RippleEffect effect = rippleEffects.get(i);
+            effect.update(deltaTime);
+            if (!effect.isActive()) {
+                rippleEffects.remove(i);
+            }
         }
     }
 
@@ -244,6 +261,10 @@ public class ObjectManager {
                 collectableRenderer.addCollectable(collectable);
             }
             collectableRenderer.renderCollectables();
+        }
+        // 渲染涟漪效果
+        for (RippleEffect effect : rippleEffects) {
+            effect.render();
         }
         // bullets
         if(renderBullets) {
