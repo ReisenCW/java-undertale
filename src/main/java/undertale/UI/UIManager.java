@@ -341,6 +341,8 @@ public class UIManager extends UIBase {
                     pendingItemDescription = "* You ate the " + item.getName() + ", healed " + healAmount + " HP.\n" + item.getAdditionalDescription();
                     // 重置打字机以便从头开始显示文字
                     menuTypeWriter.reset();
+                    // 从玩家物品栏中移除该物品
+                    player.removeItemByIndex(selectedItem);
                     yield MenuState.ITEM;
                 }
                 case MERCY_SELECT_ENEMY -> {

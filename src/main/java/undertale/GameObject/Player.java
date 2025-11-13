@@ -367,14 +367,46 @@ public class Player extends GameObject {
     }
 
     public int getItemNumber() {
-        return items.length;
+        int count = 0;
+        for (Item item : items) {
+            if (item != null) {
+                count++;
+            }
+        }
+        return count;
     }
 
     public Item getItemByIndex(int index) {
-        if (index < 0 || index >= items.length) {
+        if (index < 0) {
             throw new IndexOutOfBoundsException("Invalid item index: " + index);
         }
-        return items[index];
+        int count = 0;
+        for (Item item : items) {
+            if (item != null) {
+                if (count == index) {
+                    return item;
+                }
+                count++;
+            }
+        }
+        throw new IndexOutOfBoundsException("Invalid item index: " + index);
+    }
+
+    public void removeItemByIndex(int index) {
+        if (index < 0) {
+            throw new IndexOutOfBoundsException("Invalid item index: " + index);
+        }
+        int count = 0;
+        for (int i = 0; i < items.length; i++) {
+            if (items[i] != null) {
+                if (count == index) {
+                    items[i] = null;
+                    return;
+                }
+                count++;
+            }
+        }
+        throw new IndexOutOfBoundsException("Invalid item index: " + index);
     }
 
     public float getCurrentLightRadius() {
