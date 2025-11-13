@@ -10,7 +10,7 @@ uniform float uScale;
 void main() {
   vec4 texColor = texture(uTexture, vTex);
   float whiteMix = 1.0 - uScale * uScale;
-  vec3 highlightedColor = mix(texColor.rgb * uColor.rgb, vec3(1.0f), whiteMix);
+  vec3 highlightedColor = mix(texColor.rgb, vec3(1.0f), whiteMix);
   fragColor = vec4(highlightedColor, texColor.a * uColor.a);
   fragColor.rgb = clamp(fragColor.rgb, 0.0f, 1.0f);
 }

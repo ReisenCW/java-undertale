@@ -99,7 +99,9 @@
     {"key": "heal", "path": "se/se_heal.wav"},
     {"key": "heart_break", "path": "se/se_heart_break.wav"},
     {"key": "heart_explode", "path": "se/se_heart_explode.wav"},
-    {"key": "text_print", "path": "se/se_text_print.wav"}
+    {"key": "text_print", "path": "se/se_text_print.wav"},
+    {"key": "spawn_attack", "path": "se/se_spawn_attack.wav"},
+    {"key": "titan_weakened", "path": "se/se_titan_weakened.wav"}
   ],
   "music": [
     {"key": "gameover", "path": "music/mus_gameover.wav"},
