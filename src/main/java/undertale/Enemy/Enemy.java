@@ -14,6 +14,7 @@ public class Enemy {
     private int dropGold;
     private int dropExp;
     private boolean allowRender;
+    private float defenseRate;
 
     public boolean isYellow;
 
@@ -89,6 +90,7 @@ public class Enemy {
         this.dropExp = dropExp;
         this.allowRender = true;
         this.isYellow = false;
+        this.defenseRate = 0.0f;
     }
 
     Enemy(String name, int maxHealth) {
@@ -125,7 +127,7 @@ public class Enemy {
     }
 
     public void takeDamage(float damage) {
-        currentHealth -= damage;
+        currentHealth -= damage * (1 - defenseRate);
         if (currentHealth < 0) currentHealth = 0;
     }
 
@@ -230,5 +232,15 @@ public class Enemy {
 
     public boolean isAllowRender() {
         return this.allowRender;
+    }
+
+    public void setDefenseRate(float rate) {
+        if(rate > 1.0f) rate = 1.0f;
+        else if(rate < 0.0f) rate = 0.0f;
+        this.defenseRate = rate;
+    }
+
+    public float getDefenseRate() {
+        return this.defenseRate;
     }
 }

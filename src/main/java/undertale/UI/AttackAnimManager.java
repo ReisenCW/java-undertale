@@ -179,7 +179,8 @@ public class AttackAnimManager extends UIBase {
             displayedHealth = enemy.currentHealth;
             damageDisplayElapsed = 0f;
             enemy.takeDamage(damage);
-            damagePerMilliSecond = (float)damage / damageDisplayDuration * 8;
+            float realDamage = damage * (1 - enemy.getDefenseRate());
+            damagePerMilliSecond = (float)realDamage / damageDisplayDuration * 8;
         }
         if(showDamage) {
             displayedHealth -= damagePerMilliSecond * deltaTime * 1000;

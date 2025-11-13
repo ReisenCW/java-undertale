@@ -38,7 +38,7 @@ public class EnemyManager {
         AnimationManager animationManager = AnimationManager.getInstance();
         Player player = Game.getPlayer();
 
-        Enemy titan = new Enemy("Titan", 500, 500, 50, 20);
+        Enemy titan = new Enemy("Titan", 15000, 15000, 114514, 1919810);
         titan.addAct(
             "check",
             "* Dark element boss.\n* Emit light, gather courage and use unleash to weaken it.",
