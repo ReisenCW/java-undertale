@@ -2,7 +2,9 @@ package undertale.Scene;
 
 import java.util.ArrayList;
 
+import undertale.Enemy.Enemy;
 import undertale.Enemy.EnemyManager;
+import undertale.Enemy.Titan;
 import undertale.GameMain.InputManager;
 import undertale.GameObject.ObjectManager;
 import undertale.Scene.Rounds.*;
@@ -71,6 +73,11 @@ public class BattleFightScene extends Scene {
         }
         objectManager.updateFightScene(deltaTime);
         uiManager.makePlayerInFrame();
+        // 回合结束，处理Titan的weaken状态
+        Enemy currentEnemy = enemyManager.getCurrentEnemy();
+        if (SceneManager.getInstance().shouldSwitch && currentEnemy instanceof Titan) {
+            ((Titan) currentEnemy).endTurn();
+        }
         SceneManager.getInstance().switchScene(SceneEnum.BATTLE_MENU);
     }
 

@@ -9,6 +9,7 @@ import undertale.Utils.ConfigManager;
 
 public class Titan extends Enemy {
     private boolean weakened;
+    private int weakenTurns;
     private SoundManager soundManager;
 
     public Titan() {
@@ -45,11 +46,10 @@ public class Titan extends Enemy {
             "unleash",
             "* Your soul emits a gentle light.\n* The titan's defense dropped to zero.",
             "costs 80 tp, titan gets weakened for 1 turn",
-            () -> (player.getTensionPoints() >= 80),
+            () -> (player.getTensionPoints() >= 80 && !weakened),
             () -> {
                 player.updateTensionPoints(-80);
-                // TODO: titan 两回合防御下降
-                // defenseWeaken();
+                defenseWeaken(2); // 2回合
             }
         );
         addAct(
@@ -112,16 +112,32 @@ public class Titan extends Enemy {
         }
     }
 
-    public void defenseWeaken() {
+    public void defenseWeaken(int turns) {
         // 进入防御下降状态
         setDefenseRate(0.0f);
         weakened = true;
+        weakenTurns = turns;
         // 播放音效
         soundManager.playSE("titan_weakened");
+        // star逐渐变暗消失
+        setAnimationAlpha("star", 0.0f, 0.5f); // 0.5秒内淡出
     }
 
     public boolean isWeakened() {
         return weakened;
+    }
+
+    public void endTurn() {
+        if (weakened) {
+            weakenTurns--;
+            if (weakenTurns <= 0) {
+                // 恢复防御
+                setDefenseRate(1.0f);
+                weakened = false;
+                // star淡入显示
+                setAnimationAlpha("star", 1.0f, 0.5f); // 0.5秒内淡入
+            }
+        }
     }
 
     @Override

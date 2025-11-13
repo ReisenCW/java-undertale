@@ -26,6 +26,11 @@ public class Enemy {
         float bottom;
         int priority;
         float scaler;
+        float alpha;
+        float targetAlpha;
+        float alphaSpeed;
+        boolean alphaAnimating;
+        
         AnimationEntry(String name, Animation animation, float left, float bottom, int priority, float scaler) {
             this.name = name;
             this.animation = animation;
@@ -33,6 +38,10 @@ public class Enemy {
             this.bottom = bottom;
             this.priority = priority;
             this.scaler = scaler;
+            this.alpha = 1.0f;
+            this.targetAlpha = 1.0f;
+            this.alphaSpeed = 0.0f;
+            this.alphaAnimating = false;
         }
     }
 
@@ -104,6 +113,20 @@ public class Enemy {
     public void update(float deltaTime) {
         for (AnimationEntry entry : animationEntries) {
             entry.animation.updateAnimation(deltaTime);
+            // 处理alpha动画
+            if (entry.alphaAnimating) {
+                if (Math.abs(entry.alpha - entry.targetAlpha) < 0.01f) {
+                    entry.alpha = entry.targetAlpha;
+                    entry.alphaAnimating = false;
+                } else {
+                    entry.alpha += entry.alphaSpeed * deltaTime;
+                    if ((entry.alphaSpeed > 0 && entry.alpha > entry.targetAlpha) ||
+                        (entry.alphaSpeed < 0 && entry.alpha < entry.targetAlpha)) {
+                        entry.alpha = entry.targetAlpha;
+                        entry.alphaAnimating = false;
+                    }
+                }
+            }
         }
     }
 
@@ -115,7 +138,7 @@ public class Enemy {
             entry.animation.renderCurrentFrame(
                 entry.left,
                 entry.bottom - entry.animation.getFrameHeight() * entry.scaler,
-                entry.scaler, entry.scaler, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+                entry.scaler, entry.scaler, 0.0f, 1.0f, 1.0f, 1.0f, entry.alpha);
         }
     }
 
@@ -167,6 +190,17 @@ public class Enemy {
 
     public void addAnimation(String name, Animation animation, float left, float bottom, int priority, float scaler) {
         animationEntries.add(new AnimationEntry(name, animation, left, bottom, priority, scaler));
+    }
+
+    public void setAnimationAlpha(String name, float targetAlpha, float duration) {
+        for (AnimationEntry entry : animationEntries) {
+            if (entry.name.equals(name)) {
+                entry.targetAlpha = targetAlpha;
+                entry.alphaSpeed = (targetAlpha - entry.alpha) / duration;
+                entry.alphaAnimating = true;
+                break;
+            }
+        }
     }
 
     public ArrayList<Act> getActs() {

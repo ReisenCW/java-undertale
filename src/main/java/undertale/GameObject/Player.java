@@ -71,7 +71,7 @@ public class Player extends GameObject {
         this.highSpeed = Float.parseFloat(playerMap.getOrDefault("highSpeed", "180.0"));
         this.lowSpeed = Float.parseFloat(playerMap.getOrDefault("lowSpeed", "80.0"));
         this.speed = highSpeed;
-        this.tensionPoints = 0;
+        this.tensionPoints = 80;
 
         this.enhancedLightRadius = Float.parseFloat(playerMap.getOrDefault("enhancedLightRadius", "150.0"));
         this.normalLightRadius = Float.parseFloat(playerMap.getOrDefault("normalLightRadius", "100.0"));
@@ -449,7 +449,7 @@ public class Player extends GameObject {
         this.currentHealth = this.maxHealth;
         this.isHurt = false;
         this.isMovable = true;
-        this.tensionPoints = 0;
+        this.tensionPoints = 80;
         this.x = Game.getWindowWidth() / 2 - heartTexture.getWidth() / 2;
         this.y = Game.getWindowHeight() / 2 - heartTexture.getHeight() / 2;
         this.setCurrentLightRadius(LightLevel.NORMAL);
