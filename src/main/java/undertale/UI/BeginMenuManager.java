@@ -7,6 +7,7 @@ import undertale.Scene.SceneManager;
 import undertale.Texture.FontManager;
 import undertale.Texture.Texture;
 import undertale.Utils.ConfigManager;
+import undertale.Utils.SaveManager;
 
 public class BeginMenuManager extends UIBase {
     class Option {
@@ -57,6 +58,8 @@ public class BeginMenuManager extends UIBase {
         renderBackground();
         // 绘制选项
         renderOptions();
+        // 绘制success计数
+        renderSuccessCount();
         // 绘制heart
         renderHeart();
     }
@@ -80,6 +83,15 @@ public class BeginMenuManager extends UIBase {
             fontManager.drawText(option.text, option.positionX, option.positionY, 1.2f,
                                 0.0f, 0.4f, 1.0f, 1.0f);
         }
+    }
+
+    private void renderSuccessCount() {
+        int successCount = SaveManager.getInstance().getSuccessCount();
+        String text = "You have won: " + successCount + " times";
+        float textWidth = fontManager.getTextWidth(text);
+        float x = RIGHT_MARGIN - textWidth - 20; // 右边距20
+        float y = 50; // 上边距50
+        fontManager.drawText(text, x, y, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
     }
 
     private void renderHeart() {
@@ -109,7 +121,7 @@ public class BeginMenuManager extends UIBase {
                 );
                 break;
             case 1: // Reset
-                // TODO: 删除游戏存档
+                SaveManager.getInstance().reset();
                 break;
             case 2: // Exit
                 // 渐暗后退出

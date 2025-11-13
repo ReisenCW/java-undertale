@@ -11,9 +11,10 @@ public class Titan extends Enemy {
     private boolean weakened;
     private int weakenTurns;
     private SoundManager soundManager;
+    private int roundsPerWeaken;
 
     public Titan() {
-        super("Titan", 15000, 15000, 114514, 1919810);
+        super("Titan", 150, 150, 114514, 1919810);
         this.weakened = false;
         init();
     }
@@ -23,6 +24,7 @@ public class Titan extends Enemy {
         AnimationManager animationManager = AnimationManager.getInstance();
         soundManager = SoundManager.getInstance();
         Player player = Game.getPlayer();
+        roundsPerWeaken = 2;
 
         // 添加Act行为
         addAct(
@@ -49,7 +51,7 @@ public class Titan extends Enemy {
             () -> (player.getTensionPoints() >= 80 && !weakened),
             () -> {
                 player.updateTensionPoints(-80);
-                defenseWeaken(2); // 2回合
+                defenseWeaken(roundsPerWeaken); // 2回合
             }
         );
         addAct(
@@ -128,6 +130,8 @@ public class Titan extends Enemy {
     }
 
     public void endTurn() {
+        // 如果 roundsPerWeaken 设置为 -1, 则永久保持防御下降状态
+        if(weakenTurns == -1) return;
         if (weakened) {
             weakenTurns--;
             if (weakenTurns <= 0) {
@@ -140,9 +144,17 @@ public class Titan extends Enemy {
         }
     }
 
+    public void setRoundsPerWeaken(int rounds) {
+        this.roundsPerWeaken = rounds;
+        if(rounds != -1 && rounds < 2)
+            this.roundsPerWeaken = 2;
+    }
+
     @Override
     public void reset() {
         super.reset();
         this.weakened = false;
+        this.weakenTurns = 0;
+        this.roundsPerWeaken = 2;
     }
 }

@@ -6,15 +6,20 @@ import java.util.Comparator;
 import java.util.function.Supplier;
 
 import undertale.Animation.Animation;
+import undertale.Utils.SaveManager;
 
 public class Enemy {
     private String name;
     public int maxHealth;
+    private int initialHealth;
     public int currentHealth;
     private int dropGold;
     private int dropExp;
     private boolean allowRender;
     private float defenseRate;
+    private boolean isDying = false;
+    private float deathAlpha = 1.0f;
+    private float deathAlphaSpeed = -2.0f; // 0.5秒内消失
 
     public boolean isYellow;
 
@@ -94,6 +99,7 @@ public class Enemy {
         }
         this.name = name;
         this.maxHealth = maxHealth;
+        this.initialHealth = currentHealth;
         this.currentHealth = currentHealth;
         this.dropGold = dropGold;
         this.dropExp = dropExp;
@@ -128,6 +134,15 @@ public class Enemy {
                 }
             }
         }
+        
+        // 处理死亡动画
+        if (isDying) {
+            deathAlpha += deathAlphaSpeed * deltaTime;
+            if (deathAlpha <= 0) {
+                deathAlpha = 0;
+                allowRender = false; // 完全消失后停止渲染
+            }
+        }
     }
 
     public void render() {
@@ -138,7 +153,7 @@ public class Enemy {
             entry.animation.renderCurrentFrame(
                 entry.left,
                 entry.bottom - entry.animation.getFrameHeight() * entry.scaler,
-                entry.scaler, entry.scaler, 0.0f, 1.0f, 1.0f, 1.0f, entry.alpha);
+                entry.scaler, entry.scaler, 0.0f, 1.0f, 1.0f, 1.0f, entry.alpha * deathAlpha);
         }
     }
 
@@ -151,7 +166,14 @@ public class Enemy {
 
     public void takeDamage(float damage) {
         currentHealth -= damage * (1 - defenseRate);
-        if (currentHealth < 0) currentHealth = 0;
+        if (currentHealth <= 0) {
+            currentHealth = 0;
+            if (!isDying) {
+                isDying = true;
+                // 增加success计数
+                SaveManager.getInstance().incrementSuccess();
+            }
+        }
     }
 
     public boolean isAlive() {
@@ -255,9 +277,11 @@ public class Enemy {
     }
 
     public void reset() {
-        this.currentHealth = this.maxHealth;
+        this.currentHealth = this.initialHealth;
         this.isYellow = false;
         this.allowRender = true;
+        this.isDying = false;
+        this.deathAlpha = 1.0f;
     }
 
     public void setAllowRender(boolean allow) {
