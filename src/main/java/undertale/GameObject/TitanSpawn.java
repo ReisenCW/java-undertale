@@ -139,7 +139,7 @@ public class TitanSpawn extends Bullet{
                     this.isColli = false;
                     markedForRemoval = true;
                     // 创建一个tension point
-                    TensionPoint tp = new TensionPoint(this.x + this.getWidth() / 2.0f, this.y + this.getHeight() / 2.0f, 1.5f);
+                    TensionPoint tp = new TensionPoint(this.x + this.getWidth() / 2.0f, this.y + this.getHeight() / 2.0f, 1.6f);
                     Game.getObjectManager().addCollectable(tp);
                 }
             }

@@ -1,5 +1,7 @@
 package undertale.GameObject;
 
+import static org.lwjgl.opengl.GL20.*;
+
 import undertale.GameMain.Game;
 import undertale.Texture.Texture;
 
@@ -7,13 +9,14 @@ public class TensionPoint extends Collectable{
     private boolean turn = false;
     private Texture tpTexture;
     private float currentScale;
-    private float targetScale = 1.0f;
+    private float initialScale;
+    private float targetScale = 0.7f;
     private float scaleSpeed;
-    private float rotationSpeed = (Math.random() >= 0.5 ? -1 : 1) * (float) (160 + Math.random() * 20);
-    private float shrinkDuration = 1.5f;
+    private float rotationSpeed = (Math.random() >= 0.5 ? -1 : 1) * (float) (580 + Math.random() * 20);
+    private float shrinkDuration = 0.8f;
     
     // 移动相关
-    private float initialSpeed = 150f;
+    private float initialSpeed = 120f;
     private float maxSpeed = 150f;
     private float initialAngle = 0.0f;
 
@@ -23,8 +26,9 @@ public class TensionPoint extends Collectable{
             Game.getPlayer().updateTensionPoints(1);
         });
         this.currentScale = initialScale;
+        this.initialScale = initialScale;
         this.scaleSpeed = (initialScale - targetScale) / shrinkDuration; // shrinkDuration秒内缩放到targetScale
-        this.canCollect = true;
+        this.canCollect = false;
         this.isNavi = false;
         this.speed = initialSpeed; // 初始速度
         // 随机起始角度
@@ -62,6 +66,7 @@ public class TensionPoint extends Collectable{
             if (currentScale < targetScale) {
                 currentScale = targetScale;
                 turn = true;
+                canCollect = true;
                 speed = 0; // 缩放结束时速度为0
             } else {
                 // 缩放期间：远离玩家并减速
@@ -85,7 +90,7 @@ public class TensionPoint extends Collectable{
                 float moveAngle = (float) Math.atan2(dy, dx);
                 setSpeedAngle((float) Math.toDegrees(moveAngle));
                 // 加速朝向玩家，速度上限为maxSpeed
-                speed = Math.min(maxSpeed, speed + maxSpeed * deltaTime * 2); // 2秒内加速到maxSpeed
+                speed = Math.min(maxSpeed, speed + maxSpeed * deltaTime * 1); // 1秒内加速到maxSpeed
             }
         }
         
@@ -100,7 +105,16 @@ public class TensionPoint extends Collectable{
     public void render() {
         if (tpTexture != null && currentScale > 0) {
             // 金黄色: RGB(1.0, 1.0, 0.0)
-            Texture.drawTexture(tpTexture.getId(), x, y, currentScale * tpTexture.getWidth(), currentScale * tpTexture.getHeight(), getSelfAngle(), 1.0f, 1.0f, 0.0f, 1.0f);
+            Texture.drawTexture(tpTexture.getId(), x, y, currentScale * tpTexture.getWidth(), currentScale * tpTexture.getHeight(), getSelfAngle(), 1.0f, 1.0f, 0.0f, 1.0f, false, false, "tp_shader", program -> {
+                int locScreenSize = glGetUniformLocation(program, "uScreenSize");
+                int locColor = glGetUniformLocation(program, "uColor");
+                int locTexture = glGetUniformLocation(program, "uTexture");
+                int locWhiteStrength = glGetUniformLocation(program, "uWhiteStrength");
+                glUniform2i(locScreenSize, Game.getWindowWidth(), Game.getWindowHeight());
+                glUniform4f(locColor, 1.0f , 1.0f, 0.0f, 1.0f);
+                glUniform1i(locTexture, 0);
+                glUniform1f(locWhiteStrength, (currentScale - targetScale) / (initialScale - targetScale));
+            });
         }
     }
 
@@ -128,7 +142,7 @@ public class TensionPoint extends Collectable{
         this.x = x;
         this.y = y;
         this.currentScale = initialScale;
-        this.canCollect = true;
+        this.canCollect = false;
         this.turn = false;
         this.speed = initialSpeed; // 重置初始速度
         // 随机起始角度
