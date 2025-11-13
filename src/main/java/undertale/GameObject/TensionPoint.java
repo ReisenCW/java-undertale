@@ -4,12 +4,18 @@ import undertale.GameMain.Game;
 import undertale.Texture.Texture;
 
 public class TensionPoint extends Collectable{
+    private boolean turn = false;
     private Texture tpTexture;
     private float currentScale;
-    private float targetScale;
+    private float targetScale = 1.0f;
     private float scaleSpeed;
-    private float rotationSpeed;
-    private float shrinkDuration;
+    private float rotationSpeed = (Math.random() >= 0.5 ? -1 : 1) * (float) (160 + Math.random() * 20);
+    private float shrinkDuration = 1.5f;
+    
+    // 移动相关
+    private float initialSpeed = 150f;
+    private float maxSpeed = 150f;
+    private float initialAngle = 0.0f;
 
     public TensionPoint(float x, float y, float initialScale) {
         super(x, y, () -> {
@@ -17,37 +23,75 @@ public class TensionPoint extends Collectable{
             Game.getPlayer().updateTensionPoints(1);
         });
         this.currentScale = initialScale;
-        this.targetScale = 1.0f;
-        this.shrinkDuration = 1.5f;
         this.scaleSpeed = (initialScale - targetScale) / shrinkDuration; // shrinkDuration秒内缩放到targetScale
         this.canCollect = true;
+        this.isNavi = false;
+        this.speed = initialSpeed; // 初始速度
         // 随机起始角度
         setSelfAngle((float)(Math.random() * 360));
-        // 随机旋转速度 (-180 到 180 度/秒)
-        this.rotationSpeed = (float)(Math.random() * 360 - 180);
         init();
     }
 
     private void init() {
         tpTexture = Game.getTexture("tension_point");
+
+        // 获取玩家位置
+        Player player = Game.getPlayer();
+        float playerX = player.getX();
+        float playerY = player.getY();
+        
+        // 计算到玩家的向量
+        float dx = playerX - x;
+        float dy = playerY - y;
+        float dist = (float) Math.sqrt(dx * dx + dy * dy);
+        if(dist > 0.0f){
+            initialAngle = (float) Math.toDegrees(Math.atan2(dy, dx)) + 180.0f;
+        } else {
+            initialAngle = 0.0f;
+        }
     }
     
     @Override
     public void update(float deltaTime) {
         // 旋转
         setSelfAngle(getSelfAngle() + rotationSpeed * deltaTime);
+        
         // 缩放
         if (currentScale > targetScale) {
             currentScale -= scaleSpeed * deltaTime;
             if (currentScale < targetScale) {
                 currentScale = targetScale;
-                canCollect = true; // 缩放完毕后可收集
+                turn = true;
+                speed = 0; // 缩放结束时速度为0
+            } else {
+                // 缩放期间：远离玩家并减速
+                // 远离玩家的方向（取反）
+                setSpeedAngle(initialAngle);
+                // 减速到0
+                speed = Math.max(0, speed - (initialSpeed / shrinkDuration) * deltaTime);
+            }
+        } else if (turn) {
+            // 缩放结束后：朝向玩家加速
+            // 获取玩家位置
+            Player player = Game.getPlayer();
+            float playerX = player.getX();
+            float playerY = player.getY();
+            
+            // 计算到玩家的向量
+            float dx = playerX - x;
+            float dy = playerY - y;
+            float distance = (float) Math.sqrt(dx * dx + dy * dy);
+            if (distance > 0) {
+                float moveAngle = (float) Math.atan2(dy, dx);
+                setSpeedAngle((float) Math.toDegrees(moveAngle));
+                // 加速朝向玩家，速度上限为maxSpeed
+                speed = Math.min(maxSpeed, speed + maxSpeed * deltaTime * 2); // 2秒内加速到maxSpeed
             }
         }
+        
         if(canCollect && !isCollected && checkCollisionWithPlayer(Game.getPlayer())) {
             isCollected = true;
             onCollect.run();
-            System.out.println("Collected a Tension Point!");
         }
         updatePosition(deltaTime);
     }
@@ -84,12 +128,13 @@ public class TensionPoint extends Collectable{
         this.x = x;
         this.y = y;
         this.currentScale = initialScale;
-        this.targetScale = 1.0f;
-        this.scaleSpeed = (initialScale - targetScale) / 2.0f; // 2秒内缩放到targetScale
         this.canCollect = true;
+        this.turn = false;
+        this.speed = initialSpeed; // 重置初始速度
         // 随机起始角度
         setSelfAngle((float)(Math.random() * 360));
         // 随机旋转速度 (-180 到 180 度/秒)
-        this.rotationSpeed = (float)(Math.random() * 360 - 180);
+        rotationSpeed = (Math.random() >= 0.5 ? -1 : 1) * (float) (160 + Math.random() * 20);
+
     }
 }
