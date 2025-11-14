@@ -579,8 +579,9 @@ public class UIManager extends UIBase {
 
     public void handleBeginMenuSelect() {
         soundManager.playSE("confirm");
-        menuState = MenuState.MAIN;
-        beginMenuManager.confirmSelection();
+        if(beginMenuManager.confirmSelection()) {
+            menuState = MenuState.MAIN;
+        }
     }
 
     public void handleGameOverConfirm() {

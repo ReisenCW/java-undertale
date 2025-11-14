@@ -111,7 +111,11 @@ public class BeginMenuManager extends UIBase {
         choiceIndex = (choiceIndex + 1) % options.length;
     }
 
-    public void confirmSelection() {
+    /**
+     * 开始菜单的确认选择
+     * @return 是否开始游戏
+     */
+    public boolean confirmSelection() {
         switch (choiceIndex) {
             case 0: // Start
                 // 使用渐暗再变亮的特效切换场景
@@ -119,7 +123,7 @@ public class BeginMenuManager extends UIBase {
                     () -> SceneManager.getInstance().shouldSwitch = true,
                     null
                 );
-                break;
+                return true;
             case 1: // Reset
                 SaveManager.getInstance().reset();
                 break;
@@ -130,6 +134,7 @@ public class BeginMenuManager extends UIBase {
             default:
                 break;
         }
+        return false;
     }
 
     public int getChoiceIndex() {
