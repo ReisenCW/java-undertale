@@ -25,6 +25,10 @@ public class TitanSpawn extends Bullet{
     
     private final float MIN_VISIBLE_SCALE = 0.35f;
 
+    // 粒子生成
+    private float particleSpawnTimer = 0.0f;
+    private float particleSpawnInterval = 0.3f;
+
     public TitanSpawn(float x, float y, float maxSpeed, int damage, Animation animation) {
         super(x, y, 0, 0, 0, damage, animation);
         setNavi(false);
@@ -128,21 +132,60 @@ public class TitanSpawn extends Bullet{
 
             // 接触光圈时缩小
             if (contacting) {
-                float t = Math.min(1.0f, contactTimer / contactDisapperTime);
-                // 不将scale降为0, 保留最小可见比例以保持良好体验
-                float scale = Math.max(MIN_VISIBLE_SCALE, 1.0f - t);
-                setHScale(initialHScale * scale);
-                setVScale(initialVScale * scale);
-                // 接触超过contactDisapperTime后消失
-                if (Math.abs(scale - MIN_VISIBLE_SCALE) < 0.01f) {
-                    this.rgba[3] = 0.0f;
-                    this.isColli = false;
-                    markedForRemoval = true;
-                    // 创建一个tension point
-                    TensionPoint tp = new TensionPoint(this.x + this.getWidth() / 2.0f, this.y + this.getHeight() / 2.0f, 1.6f);
-                    Game.getObjectManager().addCollectable(tp);
-                }
+                spawnParticle(deltaTime, player);
             }
+        }
+    }
+
+    private void spawnParticle(float deltaTime, Player player) {
+        // 生成粒子
+        particleSpawnTimer += deltaTime;
+        if (particleSpawnTimer >= particleSpawnInterval) {
+            particleSpawnTimer -= particleSpawnInterval;
+            // 计算远离 player 的边缘位置
+            float ppx = player.getX() + player.getWidth() / 2.0f;
+            float ppy = player.getY() + player.getHeight() / 2.0f;
+            float cx = this.x + this.getWidth() / 2.0f;
+            float cy = this.y + this.getHeight() / 2.0f;
+            float ddx = cx - ppx;
+            float ddy = cy - ppy;
+            float distance = (float) Math.sqrt(ddx * ddx + ddy * ddy);
+            if (distance > 0) {
+                // 远离方向
+                float dirX = ddx / distance;
+                float dirY = ddy / distance;
+                float awayAngle = (float) Math.toDegrees(Math.atan2(ddy, ddx));
+                // 随机角度偏移 +-10度
+                float randomOffset = (float) ((Math.random() - 0.5) * 20);
+                float spawnAngle = awayAngle + randomOffset;
+                // 随机距离从中心到边缘
+                float halfW = this.getWidth() / 2.0f;
+                float halfH = this.getHeight() / 2.0f;
+                float randomDist = (float) Math.random() * Math.max(halfW, halfH);
+                float spawnX = cx - dirX * randomDist;
+                float spawnY = cy - dirY * randomDist;
+                // 确保在边界内
+                spawnX = Math.max(cx - halfW, Math.min(cx + halfW, spawnX));
+                spawnY = Math.max(cy - halfH, Math.min(cy + halfH, spawnY));
+                // 创建粒子
+                TitanSpawnParticle particle = new TitanSpawnParticle(spawnX, spawnY, spawnAngle);
+                Game.getObjectManager().addTitanSpawnParticle(particle);
+            }
+        }
+
+        float t = Math.min(1.0f, contactTimer / contactDisapperTime);
+        // 不将scale降为0, 保留最小可见比例以保持良好体验
+        float scale = Math.max(MIN_VISIBLE_SCALE, 1.0f - t);
+        setHScale(initialHScale * scale);
+        setVScale(initialVScale * scale);
+        // 接触超过contactDisapperTime后消失
+        if (Math.abs(scale - MIN_VISIBLE_SCALE) < 0.01f) {
+            this.rgba[3] = 0.0f;
+            this.isColli = false;
+            markedForRemoval = true;
+            // 创建一个tension point
+            TensionPoint tp = new TensionPoint(this.x + this.getWidth() / 2.0f, this.y + this.getHeight() / 2.0f, 1.6f);
+            Game.getObjectManager().addCollectable(tp);
         }
     }
     

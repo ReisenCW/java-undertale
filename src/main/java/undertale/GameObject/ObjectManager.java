@@ -27,6 +27,9 @@ public class ObjectManager {
     // 涟漪效果
     private ArrayList<RippleEffect> rippleEffects;
 
+    // TitanSpawn 粒子
+    private ArrayList<TitanSpawnParticle> titanSpawnParticles;
+
     private EnemyManager enemyManager;
     private BulletRenderer bulletRenderer;
     private CollectableRenderer collectableRenderer;
@@ -45,6 +48,7 @@ public class ObjectManager {
         collectablePool = new ArrayList<>();
         collectablesToRemove = new ArrayList<>();
         rippleEffects = new ArrayList<>();
+        titanSpawnParticles = new ArrayList<>();
         enemyManager = EnemyManager.getInstance();
         bulletRenderer = new BulletRenderer();
         collectableRenderer = new CollectableRenderer();
@@ -123,6 +127,12 @@ public class ObjectManager {
     public void addCollectable(Collectable collectable) {
         if (collectable != null) {
             collectables.add(collectable);
+        }
+    }
+
+    public void addTitanSpawnParticle(TitanSpawnParticle particle) {
+        if (particle != null) {
+            titanSpawnParticles.add(particle);
         }
     }
 
@@ -206,6 +216,15 @@ public class ObjectManager {
                 rippleEffects.remove(i);
             }
         }
+
+        // 更新 TitanSpawn 粒子
+        for (int i = titanSpawnParticles.size() - 1; i >= 0; i--) {
+            TitanSpawnParticle particle = titanSpawnParticles.get(i);
+            particle.update(deltaTime);
+            if (!particle.isActive()) {
+                titanSpawnParticles.remove(i);
+            }
+        }
     }
 
     private boolean isOutOfBounds(GameObject obj, float margin) {
@@ -265,6 +284,10 @@ public class ObjectManager {
         // 渲染涟漪效果
         for (RippleEffect effect : rippleEffects) {
             effect.render();
+        }
+        // 渲染 TitanSpawn 粒子
+        for (TitanSpawnParticle particle : titanSpawnParticles) {
+            particle.render();
         }
         // bullets
         if(renderBullets) {
