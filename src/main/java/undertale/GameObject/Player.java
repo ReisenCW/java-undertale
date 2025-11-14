@@ -17,6 +17,7 @@ public class Player extends GameObject {
     private int maxHealth;
     private int level;
     private int attackPower;
+    private int baseAttack;
     private int invisibleTime;
     private int flashTime;
     private float vScale;
@@ -66,6 +67,7 @@ public class Player extends GameObject {
         this.maxHealth =  16 + 4 * this.level;
         this.currentHealth = this.maxHealth;
         this.attackPower = Integer.parseInt(playerMap.getOrDefault("attackPower", "1000"));
+        this.baseAttack = Integer.parseInt(playerMap.getOrDefault("baseAttack", "50"));
 
         this.vScale = Float.parseFloat(playerMap.getOrDefault("vScale", "3.0"));
         this.hScale = Float.parseFloat(playerMap.getOrDefault("hScale", "3.0"));
@@ -250,6 +252,10 @@ public class Player extends GameObject {
 
     public int getAttackPower() {
         return attackPower;
+    }
+
+    public int getBaseAttack() {
+        return baseAttack;
     }
 
     public void setCurrentHealth(int currentHealth) {

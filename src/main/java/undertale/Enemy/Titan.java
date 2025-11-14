@@ -12,6 +12,7 @@ public class Titan extends Enemy {
     private int weakenTurns;
     private SoundManager soundManager;
     private int roundsPerWeaken;
+    private float initialDefenseRate = 0.8f;
 
     public Titan() {
         super("Titan", 150, 150, 114514, 19198);
@@ -25,7 +26,7 @@ public class Titan extends Enemy {
         soundManager = SoundManager.getInstance();
         Player player = Game.getPlayer();
         roundsPerWeaken = 2;
-
+        defenseRate = initialDefenseRate;
         // 添加Act行为
         addAct(
             "check",
@@ -156,5 +157,8 @@ public class Titan extends Enemy {
         this.weakened = false;
         this.weakenTurns = 0;
         this.roundsPerWeaken = 2;
+        this.defenseRate = initialDefenseRate;
+        // star显示
+        setAnimationAlpha("star", 1.0f, 0.0f);
     }
 }

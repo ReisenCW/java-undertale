@@ -9,22 +9,22 @@ import undertale.Animation.Animation;
 import undertale.Utils.SaveManager;
 
 public class Enemy {
-    private String name;
+    protected String name;
     public int maxHealth;
-    private int initialHealth;
+    protected int initialHealth;
     public int currentHealth;
-    private int dropGold;
-    private int dropExp;
-    private boolean allowRender;
-    private float defenseRate;
-    private boolean isDying = false;
-    private float deathAlpha = 1.0f;
-    private float deathAlphaSpeed = -2.0f; // 0.5秒内消失
+    protected int dropGold;
+    protected int dropExp;
+    protected boolean allowRender;
+    protected float defenseRate;
+    protected boolean isDying = false;
+    protected float deathAlpha = 1.0f;
+    protected float deathAlphaSpeed = -2.0f; // 0.5秒内消失
 
     public boolean isYellow;
 
-    private ArrayList<Act> acts;
-    private static class AnimationEntry {
+    protected ArrayList<Act> acts;
+    protected static class AnimationEntry {
         String name;
         Animation animation;
         float left;
@@ -50,7 +50,7 @@ public class Enemy {
         }
     }
 
-    private ArrayList<AnimationEntry> animationEntries;
+    protected ArrayList<AnimationEntry> animationEntries;
 
     public static class Act {
         private String name;

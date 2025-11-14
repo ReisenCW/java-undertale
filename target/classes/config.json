@@ -133,8 +133,9 @@
   },
   "player": {
     "name": "Frisk",
-    "level": 0,
+    "level": 4,
     "attackPower": 1000,
+    "base_attack": 100,
     "vScale": 3.0,
     "hScale": 3.0,
     "highSpeed": 280.0,

@@ -6,11 +6,15 @@ import undertale.Enemy.Enemy;
 import undertale.Enemy.EnemyManager;
 import undertale.GameMain.Game;
 import undertale.GameObject.Player;
+import undertale.Scene.BattleFightScene;
+import undertale.Scene.Scene;
 import undertale.Scene.SceneManager;
 import undertale.Sound.SoundManager;
 import undertale.Texture.FontManager;
 import undertale.Texture.Texture;
 import undertale.Utils.ConfigManager;
+
+import java.util.Random;
 
 public class AttackAnimManager extends UIBase {
     private AnimationManager animationManager;
@@ -28,6 +32,7 @@ public class AttackAnimManager extends UIBase {
     private boolean attackBarStopped = false;
     // 伤害显示
     private boolean showDamage  = false;
+    private float realDamage =0.0f;
     private long damageDisplayDuration = 2000; // 持续时间，单位ms
     private float displayedHealth = 0f; // 造成伤害时显示的血量,动态变化
     private float damagePerMilliSecond = 0f;
@@ -124,7 +129,7 @@ public class AttackAnimManager extends UIBase {
         float y = enemy.getEntryBottom("body") - enemy.getHeight("body") / 2 - scaler * attack_animation.getFrameHeight() / 2;
 
         attack_animation.renderCurrentFrame(x, y, scaler, scaler, 0, 1, 1, 1, 1);
-        renderDamage(enemy, player.getAttackPower() * attackRate);
+        renderDamage(enemy, realDamage);
     }
 
     private void renderMiss(Enemy enemy) {
@@ -171,15 +176,35 @@ public class AttackAnimManager extends UIBase {
         }
     }
 
+    private int caculateDamage(Enemy enemy) {
+        // player的attack power
+        int baseDamage = player.getAttackPower();
+        // player的随机伤害部分
+        Random rand = new Random();
+        int randomDamage = rand.nextInt(player.getBaseAttack() + 1); // 0 to baseAttack
+        baseDamage += randomDamage;
+        // 回合伤害加成
+        Scene currentScene = SceneManager.getInstance().getCurrentScene();
+        float roundBonus = 0.0f;
+        if (currentScene instanceof BattleFightScene) {
+            int round = ((BattleFightScene) currentScene).getRoundNumber();
+            roundBonus = Math.min(0.25f, round * 0.01f); // 每回合1%，最高25%
+        }
+        int damage = (int)(baseDamage * attackRate * (1 + roundBonus));
+        return damage;
+    }
+
     private void updateSliceHpDisplay(float deltaTime, Enemy enemy) {
         if (attack_animation.isFinished() && !showDamage) {
             soundManager.playSE("enemy_hurt");
-            int damage = (int)(player.getAttackPower() * attackRate);
+            // 计算伤害
+            int damage = caculateDamage(enemy);
             showDamage = true;
             displayedHealth = enemy.currentHealth;
             damageDisplayElapsed = 0f;
             enemy.takeDamage(damage);
-            float realDamage = damage * (1 - enemy.getDefenseRate());
+            realDamage = damage * (1 - enemy.getDefenseRate());
+            System.out.println("defense rate:"+enemy.getDefenseRate());
             damagePerMilliSecond = (float)realDamage / damageDisplayDuration * 8;
         }
         if(showDamage) {
