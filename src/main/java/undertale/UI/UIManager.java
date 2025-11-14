@@ -153,7 +153,7 @@ public class UIManager extends UIBase {
                 menuTypeWriter.renderTextsInMenu(text);
             }
             case SUCCESS -> {
-                String msg = "* You won!\n* You earned " + enemyManager.getTotalExp() + " EXP and " + enemyManager.getTotalGold(true) + " gold.";
+                String msg = "* You won!\n* You earned " + enemyManager.getTotalExp() + " EXP and " + enemyManager.getTotalGold(false) + " gold.";
                 menuTypeWriter.renderTextsInMenu(msg);
             }
         }

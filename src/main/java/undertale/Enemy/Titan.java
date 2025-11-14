@@ -14,7 +14,7 @@ public class Titan extends Enemy {
     private int roundsPerWeaken;
 
     public Titan() {
-        super("Titan", 150, 150, 114514, 1919810);
+        super("Titan", 150, 150, 114514, 19198);
         this.weakened = false;
         init();
     }

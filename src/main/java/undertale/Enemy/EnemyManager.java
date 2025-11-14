@@ -41,7 +41,7 @@ public class EnemyManager {
     public int getTotalExp() {
         int totalExp = 0;
         for (Enemy enemy : enemies) {
-            if (enemy.isAlive()) {
+            if (!enemy.isAlive()) {
                 totalExp += enemy.getDropExp();
             }
         }
@@ -51,7 +51,7 @@ public class EnemyManager {
     public int getTotalGold(boolean includeAlive) {
         int totalGold = 0;
         for (Enemy enemy : enemies) {
-            if (enemy.isAlive() || includeAlive) {
+            if (!enemy.isAlive() || includeAlive) {
                 totalGold += enemy.getDropGold();
             }
         }

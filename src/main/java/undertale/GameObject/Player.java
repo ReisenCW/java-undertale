@@ -9,6 +9,7 @@ import undertale.Item.Item;
 import undertale.Sound.SoundManager;
 import undertale.Texture.Texture;
 import undertale.Utils.ConfigManager;
+import undertale.Utils.SaveManager;
 
 public class Player extends GameObject {
     private String name;
@@ -23,6 +24,7 @@ public class Player extends GameObject {
     private float highSpeed;
     private float lowSpeed;
     private int tensionPoints;
+    private int baseTakenDamage;
 
     public enum LightLevel {
         NORMAL,
@@ -97,6 +99,8 @@ public class Player extends GameObject {
         items[7] = new Item("Legendary Hero", "* Your ATK increased by 4.", 45);
 
         soundManager = SoundManager.getInstance();
+        SaveManager saveManager = SaveManager.getInstance();
+        baseTakenDamage = saveManager.getSuccessCount() * 5;
     }
 
     int m = 1;
@@ -273,7 +277,7 @@ public class Player extends GameObject {
     }
 
     public void takeDamage(int damage) {
-        currentHealth -= damage;
+        currentHealth -= (damage + baseTakenDamage);
         if (currentHealth < 0) currentHealth = 0;
     }
 
