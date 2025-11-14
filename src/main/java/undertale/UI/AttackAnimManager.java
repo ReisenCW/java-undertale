@@ -192,6 +192,10 @@ public class AttackAnimManager extends UIBase {
             if (damageDisplayElapsed >= damageDisplayDuration) {
                 showDamage = false;
                 damageDisplayElapsed = 0f;
+                // 如果敌人死亡，开始死亡动画
+                if (enemy.currentHealth <= 0) {
+                    enemy.startDeathAnimation();
+                }
                 // 切换场景
                 if(!enemyManager.isAllEnemiesDefeated()) {
                     SceneManager.getInstance().shouldSwitch = true;

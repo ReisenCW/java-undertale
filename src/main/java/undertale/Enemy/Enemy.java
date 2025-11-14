@@ -168,11 +168,6 @@ public class Enemy {
         currentHealth -= damage * (1 - defenseRate);
         if (currentHealth <= 0) {
             currentHealth = 0;
-            if (!isDying) {
-                isDying = true;
-                // 增加success计数
-                SaveManager.getInstance().incrementSuccess();
-            }
         }
     }
 
@@ -300,5 +295,13 @@ public class Enemy {
 
     public float getDefenseRate() {
         return this.defenseRate;
+    }
+
+    public void startDeathAnimation() {
+        if (!isDying) {
+            isDying = true;
+            // 增加success计数
+            SaveManager.getInstance().incrementSuccess();
+        }
     }
 }
