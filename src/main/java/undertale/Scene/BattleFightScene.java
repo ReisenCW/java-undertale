@@ -8,6 +8,7 @@ import undertale.Enemy.Titan;
 import undertale.GameMain.InputManager;
 import undertale.GameObject.ObjectManager;
 import undertale.Scene.Rounds.*;
+import undertale.Sound.SoundManager;
 
 public class BattleFightScene extends Scene {
     private EnemyManager enemyManager = EnemyManager.getInstance();
@@ -73,6 +74,10 @@ public class BattleFightScene extends Scene {
         }
         objectManager.updateFightScene(deltaTime);
         uiManager.makePlayerInFrame();
+        // 持续播放 spawn_attack SE
+        if (!SoundManager.getInstance().isSePlaying("spawn_attack")) {
+            SoundManager.getInstance().playSE("spawn_attack");
+        }
         // 回合结束，处理Titan的weaken状态
         Enemy currentEnemy = enemyManager.getCurrentEnemy();
         if (SceneManager.getInstance().shouldSwitch && currentEnemy instanceof Titan) {
