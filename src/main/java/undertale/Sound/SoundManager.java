@@ -4,6 +4,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 
 import undertale.GameMain.Game;
 import undertale.Utils.ConfigManager;
@@ -39,6 +40,9 @@ public class SoundManager {
     private Clip musicClip;
     private final Object musicLock = new Object();
 
+    // 当前音乐音量
+    private float currentMusicVolume = 1.0f;
+
     static {
         instance = new SoundManager();
     }
@@ -53,6 +57,15 @@ public class SoundManager {
 
     public static SoundManager getInstance() {
         return instance;
+    }
+
+    // 设置 Clip 的音量 (0.0f - 1.0f)
+    private void setClipVolume(Clip clip, float volume) {
+        if (clip != null && clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+            FloatControl gain = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            float dB = (float) (Math.log10(Math.max(volume, 0.0001f)) * 20.0f);
+            gain.setValue(Math.max(gain.getMinimum(), Math.min(gain.getMaximum(), dB)));
+        }
     }
 
     // 加载 Clip
@@ -130,6 +143,11 @@ public class SoundManager {
 
     // 播放音效
     public void playSE(String soundFile) {
+        playSE(soundFile, 1.0f);
+    }
+
+    // 播放音效 (带音量)
+    public void playSE(String soundFile, float volume) {
         try {
             // soundFile 为 真实路径或配置中的逻辑键
             String path = (soundEffects != null && soundEffects.containsKey(soundFile)
@@ -148,6 +166,8 @@ public class SoundManager {
 
             if (clip == null) return;
 
+            setClipVolume(clip, volume);
+
             if (clip.isRunning()) {
                 clip.stop();
             }
@@ -161,6 +181,11 @@ public class SoundManager {
 
     // 播放背景音乐, 暂停当前音乐
     public void playMusic(String musicFile) {
+        playMusic(musicFile, currentMusicVolume);
+    }
+
+    // 播放背景音乐 (带音量)
+    public void playMusic(String musicFile, float volume) {
         synchronized (musicLock) {
             try {
                 stopMusic();
@@ -174,6 +199,8 @@ public class SoundManager {
                 if (cached != null) {
                     musicClip = cached;
                     currentMusicPath = path;
+                    setClipVolume(musicClip, volume);
+                    currentMusicVolume = volume;
                     if (musicClip.isRunning()) musicClip.stop();
                     musicClip.setFramePosition(0);
                     musicClip.loop(Clip.LOOP_CONTINUOUSLY);
@@ -185,11 +212,23 @@ public class SoundManager {
                 musicClip = loadClip(path);
                 currentMusicPath = path;
                 if (musicClip == null) return;
+                setClipVolume(musicClip, volume);
+                currentMusicVolume = volume;
                 musicClip.loop(Clip.LOOP_CONTINUOUSLY);
                 musicClip.start();
             } catch (Exception e) {
                 System.err.println("Error playing music: " + musicFile);
                 e.printStackTrace();
+            }
+        }
+    }
+
+    // 设置当前音乐音量
+    public void setCurrentMusicVolume(float volume) {
+        synchronized (musicLock) {
+            currentMusicVolume = volume;
+            if (musicClip != null) {
+                setClipVolume(musicClip, volume);
             }
         }
     }
@@ -212,6 +251,41 @@ public class SoundManager {
                 currentMusicPath = null;
             }
         }
+    }
+
+    // 停止所有音效
+    public void stopAllSe() {
+        for (Clip clip : seCache.values()) {
+            try {
+                if (clip != null && clip.isRunning()) {
+                    clip.stop();
+                    clip.setFramePosition(0);
+                }
+            } catch (Exception ignored) {}
+        }
+    }
+
+    // 停止指定音效
+    public void stopSe(String soundFile) {
+        String path = (soundEffects != null && soundEffects.containsKey(soundFile)
+                ? soundEffects.get(soundFile)
+                : soundFile);
+        Clip clip = seCache.get(path);
+        if (clip != null && clip.isRunning()) {
+            try {
+                clip.stop();
+                clip.setFramePosition(0);
+            } catch (Exception ignored) {}
+        }
+    }
+
+    // 检查音效是否正在播放
+    public boolean isSePlaying(String soundFile) {
+        String path = (soundEffects != null && soundEffects.containsKey(soundFile)
+                ? soundEffects.get(soundFile)
+                : soundFile);
+        Clip clip = seCache.get(path);
+        return clip != null && clip.isRunning();
     }
 
     // 关闭 SoundManager, 释放资源
@@ -247,4 +321,3 @@ public class SoundManager {
         return currentMusicPath.equals(path);
     }
 }
-// TODO : 实现volume控制
