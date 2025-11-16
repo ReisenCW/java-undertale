@@ -1,4 +1,4 @@
-package undertale.GameObject;
+package undertale.GameObject.Effects;
 
 import undertale.Texture.Texture;
 

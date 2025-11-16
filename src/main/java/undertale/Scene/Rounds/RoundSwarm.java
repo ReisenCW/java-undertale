@@ -3,7 +3,7 @@ package undertale.Scene.Rounds;
 import undertale.Animation.Animation;
 import undertale.Animation.AnimationManager;
 import undertale.GameObject.Player;
-import undertale.GameObject.TitanSpawn;
+import undertale.GameObject.Bullets.TitanSpawn;
 import undertale.UI.UIManager;
 import undertale.GameObject.ObjectManager;
 import undertale.GameMain.Game;

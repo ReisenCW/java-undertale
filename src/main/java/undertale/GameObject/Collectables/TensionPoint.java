@@ -1,8 +1,9 @@
-package undertale.GameObject;
+package undertale.GameObject.Collectables;
 
 import static org.lwjgl.opengl.GL20.*;
 
 import undertale.GameMain.Game;
+import undertale.GameObject.Player;
 import undertale.Texture.Texture;
 
 public class TensionPoint extends Collectable{

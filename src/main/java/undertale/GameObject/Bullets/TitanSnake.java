@@ -1,4 +1,4 @@
-package undertale.GameObject;
+package undertale.GameObject.Bullets;
 
 import undertale.Animation.Animation;
 

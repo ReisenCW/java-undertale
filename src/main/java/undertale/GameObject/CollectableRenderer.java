@@ -2,6 +2,8 @@ package undertale.GameObject;
 
 import java.util.ArrayList;
 
+import undertale.GameObject.Collectables.Collectable;
+
 public class CollectableRenderer {
     private ArrayList<Collectable> collectables;
 

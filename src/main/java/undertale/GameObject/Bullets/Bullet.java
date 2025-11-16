@@ -1,6 +1,9 @@
-package undertale.GameObject;
+package undertale.GameObject.Bullets;
 
 import undertale.Animation.Animation;
+import undertale.GameObject.CollisionDetector;
+import undertale.GameObject.GameObject;
+import undertale.GameObject.Player;
 import undertale.Texture.Texture;
 
 public class Bullet extends GameObject{

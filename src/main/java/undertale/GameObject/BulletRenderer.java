@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 import org.lwjgl.BufferUtils;
+
+import undertale.GameObject.Bullets.Bullet;
 import undertale.Texture.Texture;
 
  

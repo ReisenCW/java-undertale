@@ -1,10 +1,13 @@
-package undertale.GameObject;
+package undertale.GameObject.Bullets;
 
 import static org.lwjgl.opengl.GL20.*;
 
 import undertale.Animation.Animation;
 import undertale.Utils.GameUtilities;
 import undertale.GameMain.Game;
+import undertale.GameObject.Player;
+import undertale.GameObject.Collectables.TensionPoint;
+import undertale.GameObject.Effects.TitanSpawnParticle;
 
 public class TitanSpawn extends Bullet{
     private float maxSpeed;

@@ -1,4 +1,6 @@
-package undertale.GameObject;
+package undertale.GameObject.Collectables;
+
+import undertale.GameObject.GameObject;
 
 public abstract class Collectable extends GameObject{
     protected boolean canCollect;
