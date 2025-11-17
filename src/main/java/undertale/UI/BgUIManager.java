@@ -88,7 +88,7 @@ public class BgUIManager extends UIBase {
         float textWidth = fontManager.getTextWidth(tpText);
         fontManager.drawText(tpText,
             barx + (tensionBar.getWidth() * scale - textWidth) / 2 + 45,
-            bary - margin - fontManager.getFontHeight() / 2,
+            bary - margin - fontManager.getFontHeight() / 2 - 3,
             1.0f, 1.0f, 1.0f, 1.0f
         );
         float tpScale = 1.3f;

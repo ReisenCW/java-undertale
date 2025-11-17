@@ -4,6 +4,8 @@ import undertale.Animation.Animation;
 import undertale.Animation.AnimationManager;
 import undertale.GameMain.Game;
 import undertale.GameObject.Player;
+import undertale.Scene.SceneManager;
+import undertale.Scene.BattleFightScene;
 import undertale.Sound.SoundManager;
 import undertale.Utils.ConfigManager;
 
@@ -15,7 +17,7 @@ public class Titan extends Enemy {
     private float initialDefenseRate = 0.8f;
 
     public Titan() {
-        super("Titan", 150, 150, 114514, 19198);
+        super("Titan", 10000, 10000, 114514, 19198);
         this.weakened = false;
         init();
     }
@@ -53,6 +55,10 @@ public class Titan extends Enemy {
             () -> {
                 player.updateTensionPoints(-80);
                 defenseWeaken(roundsPerWeaken); // 2回合
+                // 执行特殊攻击，进入下一个阶段
+                if (SceneManager.getInstance().getCurrentScene() instanceof BattleFightScene) {
+                    ((BattleFightScene) SceneManager.getInstance().getCurrentScene()).afterUnleash();
+                }
             }
         );
         addAct(

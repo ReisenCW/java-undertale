@@ -7,6 +7,7 @@ import undertale.GameObject.Player;
 import undertale.Item.Item;
 import undertale.Scene.SceneManager;
 import undertale.Sound.SoundManager;
+import undertale.Scene.BattleFightScene;
 import undertale.Texture.FontManager;
 import undertale.Texture.Texture;
 import undertale.Utils.ConfigManager;
@@ -502,7 +503,7 @@ public class UIManager extends UIBase {
             attackAnimManager.updateAttackAnim(deltaTime, enemyManager.getCurrentEnemy());
         }
         attackAnimManager.updateMissTime(deltaTime);
-        if (!battleFrameManager.isFrameMoving()) {
+        if (!battleFrameManager.isFrameMoving() && !(SceneManager.getInstance().getCurrentScene() instanceof BattleFightScene)) {
             menuTypeWriter.update(deltaTime);
         }
         if(attackAnimManager.isAttackAnimFinished()) {

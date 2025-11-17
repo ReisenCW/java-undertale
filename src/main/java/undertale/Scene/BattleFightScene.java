@@ -12,7 +12,8 @@ import undertale.Sound.SoundManager;
 
 public class BattleFightScene extends Scene {
     private EnemyManager enemyManager = EnemyManager.getInstance();
-    private int round;
+    private int phase = 0; // 0-3
+    private int phaseRound = 0; // 0-2
     private ArrayList<Round> rounds;
     private long roundTime;
 
@@ -23,19 +24,30 @@ public class BattleFightScene extends Scene {
 
     @Override
     public void init() {
-        // round = 0;
-        round = 1; //test
+        phase = 0;
+        phaseRound = -1;
         rounds = new ArrayList<>();
-        rounds.add(new RoundSwarm(1, 12000, 1500));
-        rounds.add(new RoundSnake(1, 17000, 1500));
+        // 4个阶段, 前三个阶段每个阶段3个round
+        for(int p = 0; p < 3; p++) {
+            rounds.add(new RoundSwarm(p + 1, 12000, 1500));
+            rounds.add(new RoundSnake(p + 1, 17000, 1500));
+            // rounds.add(new RoundFinger(p + 1, 12000, 1500));
+        }
         roundTime = 0;
     }
 
     @Override
     public void onEnter() {
         roundTime = 0;
-        round = Math.min(round + 1, rounds.size());
-        rounds.get(round - 1).onEnter();
+        phaseRound++;
+        if (phase < 3 && phaseRound > 2) {
+            phaseRound = 0;
+            phase = (phase + 1) % 4;
+        } else if (phase >= 3){
+            phaseRound = 0;
+        }
+        int roundIndex = phase * 3 + phaseRound;
+        rounds.get(roundIndex).onEnter();
         uiManager.setSelected(-1);
         objectManager.initPlayerPosition();
         objectManager.startPlayerLightExpansion();
@@ -46,7 +58,14 @@ public class BattleFightScene extends Scene {
      * 返回当前回合编号（1-based）。如果尚未进入回合则返回 0。
      */
     public int getRoundNumber() {
-        return round;
+        return phase * 3 + phaseRound;
+    }
+
+    public void afterUnleash() {
+        // 进入下一个阶段
+        phase = phase + 1;
+        if(phase > 3) phase = 3;
+        phaseRound = 0;
     }
 
     @Override
@@ -65,7 +84,8 @@ public class BattleFightScene extends Scene {
             return;
         }
         roundTime += deltaTime * 1000;
-        Round currentRound = rounds.get(round - 1);
+        int roundIndex = phase * 3 + phaseRound;
+        Round currentRound = rounds.get(roundIndex);
 
         currentRound.moveBattleFrame(deltaTime);
         
