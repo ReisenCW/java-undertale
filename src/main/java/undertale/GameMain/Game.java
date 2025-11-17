@@ -2,7 +2,6 @@ package undertale.GameMain;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-import undertale.Animation.AnimationManager;
 import undertale.GameObject.ObjectManager;
 import undertale.GameObject.Player;
 import undertale.Scene.BattleFightScene;

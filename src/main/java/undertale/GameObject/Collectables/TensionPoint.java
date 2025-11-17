@@ -46,8 +46,8 @@ public class TensionPoint extends Collectable{
         float playerY = player.getY();
         
         // 计算到玩家的向量
-        float dx = playerX - x;
-        float dy = playerY - y;
+        float dx = playerX + player.getWidth() / 2.0f - (x + getWidth() / 2.0f);
+        float dy = playerY + player.getHeight() / 2.0f - (y + getHeight() / 2.0f);
         float dist = (float) Math.sqrt(dx * dx + dy * dy);
         if(dist > 0.0f){
             initialAngle = (float) Math.toDegrees(Math.atan2(dy, dx)) + 180.0f;

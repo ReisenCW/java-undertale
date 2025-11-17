@@ -25,7 +25,8 @@ public class BattleFightScene extends Scene {
     public void init() {
         round = 0;
         rounds = new ArrayList<>();
-        rounds.add(new RoundSwarm(10000, 1500));
+        rounds.add(new RoundSwarm(1, 15000, 1500));
+        rounds.add(new RoundSnake(1, 20000, 1500));
         roundTime = 0;
     }
 

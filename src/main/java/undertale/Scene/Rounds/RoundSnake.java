@@ -3,32 +3,34 @@ package undertale.Scene.Rounds;
 import undertale.Animation.Animation;
 import undertale.Animation.AnimationManager;
 import undertale.GameObject.Player;
+import undertale.GameObject.Bullets.TitanSnake;
 import undertale.GameObject.Bullets.TitanSpawn;
 import undertale.UI.UIManager;
 import undertale.GameObject.ObjectManager;
 import undertale.GameMain.Game;
 
-public class RoundSwarm extends Round{
+public class RoundSnake extends Round{
     private ObjectManager objectManager;
     private UIManager uiManager;
 
     private float spawnTimer = 0f;
-    private static final float SPAWN_INTERVAL = 0.3f; // 0.3秒生成一次
+    private static final float SPAWN_INTERVAL = 0.7f; // 0.7秒生成一次
     private static final float MIN_RADIUS = 250f;
     private static final float MAX_RADIUS = 300f;
-    private Animation[] titanSpawnAnimation = new Animation[3];
+    private Animation titanSpawnAnimation;
 
     private final float edge;
     private final float centerX;
     private final float centerY;
     private final int intensity;
+    private boolean snakeSpawned = false;
 
-    public RoundSwarm(int intensity, long duration, long frameMoveTime) {
+    public RoundSnake(int intensity, long duration, long frameMoveTime) {
         super(duration, frameMoveTime);
         objectManager = Game.getObjectManager();
         uiManager = UIManager.getInstance();
         AnimationManager animationManager = AnimationManager.getInstance();
-        titanSpawnAnimation[0] = animationManager.getAnimation("titan_spawn_animation");
+        titanSpawnAnimation = animationManager.getAnimation("titan_snake_body");
 
         this.intensity = intensity;
         this.edge = 400.0f;
@@ -43,11 +45,11 @@ public class RoundSwarm extends Round{
         
         if (spawnTimer >= SPAWN_INTERVAL) {
             spawnTimer -= SPAWN_INTERVAL;
-            spawnTitanSpawn();
+            spawnBullets();
         }
     }
 
-    private void spawnTitanSpawn() {
+    private void spawnBullets() {
         Player player = Game.getPlayer();
         if (player == null) return;
 
@@ -59,8 +61,19 @@ public class RoundSwarm extends Round{
         float spawnX = player.getX() + player.getWidth() / 2.0f + (float)(Math.cos(angle) * radius);
         float spawnY = player.getY() + player.getHeight() / 2.0f + (float)(Math.sin(angle) * radius);
 
+        if(!snakeSpawned){
+            for(int i = 0;i < intensity; i++) {
+            // 创建TitanSnake
+            TitanSnake snake = new TitanSnake(spawnX, spawnY, 3, 5);
+            // 将spawn添加到objectManager的bullets列表中
+            objectManager.addBullet(snake);
+            }
+            snakeSpawned = true;
+        }
         // 创建TitanSpawn
-        TitanSpawn spawn = new TitanSpawn(spawnX, spawnY, 80f, 5, titanSpawnAnimation[0]);
+        TitanSpawn spawn = new TitanSpawn(spawnX, spawnY, 60f, 5, titanSpawnAnimation);
+        spawn.setNavi(true);
+
         // 将spawn添加到objectManager的bullets列表中
         objectManager.addBullet(spawn);
     }

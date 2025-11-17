@@ -42,6 +42,8 @@ public class TitanSpawn extends Bullet{
         this.isColli = false; // 初始无判定
         this.initialHScale = getHScale();
         this.initialVScale = getVScale();
+        setHScale(0.0f);
+        setVScale(0.0f);
     }
 
     private void updateCurrentSpeed(float deltaTime) {
@@ -55,8 +57,8 @@ public class TitanSpawn extends Bullet{
         // 总是瞄准玩家
         Player player = Game.getPlayer();
         if (player != null) {
-            float dx = player.getX() - this.getX();
-            float dy = player.getY() - this.getY();
+            float dx = player.getX() + player.getWidth() / 2.0f - (this.getX() + this.getWidth() / 2.0f);
+            float dy = player.getY() + player.getHeight() / 2.0f - (this.getY() + this.getHeight() / 2.0f);
             float angleDeg = (float)Math.toDegrees(Math.atan2(dy, dx));
             this.setSpeedAngle(angleDeg);
         }
@@ -76,12 +78,15 @@ public class TitanSpawn extends Bullet{
 
     @Override
     public void update(float deltaTime) {
-        // 在1秒内, alpha从0增加到1
+        // 在1秒内, alpha从0增加到1, scale从0增加到initialScale
         if (rgba[3] < 1.0f) {
             rgba[3] += GameUtilities.getChangeStep(0.0f, 1.0f, deltaTime, 1.0f).floatValue();
             if (rgba[3] > 1.0f) {
                 rgba[3] = 1.0f;
             }
+            float t = rgba[3];
+            setHScale(initialHScale * t);
+            setVScale(initialVScale * t);
         } else {
             // 完全显现, 恢复判定
             if(!this.isColli){
@@ -90,7 +95,7 @@ public class TitanSpawn extends Bullet{
             updateCurrentSpeed(deltaTime);
         }
         super.update(deltaTime);
-        animation.updateAnimation(deltaTime);
+
 
         // 如果已经标记为删除则直接返回
         if (markedForRemoval) return;
@@ -183,15 +188,18 @@ public class TitanSpawn extends Bullet{
     
     @Override
     public void render() {
-        animation.renderCurrentFrame(this.x, this.y, getHScale(), getVScale(), this.getSelfAngle(), rgba[0], rgba[1], rgba[2], rgba[3], "titan_spawn_shader", program -> {
+        String shaderName = (rgba[3] < 1.0f) ? "texture_shader" : "titan_spawn_shader";
+        animation.renderCurrentFrame(this.x, this.y, getHScale(), getVScale(), this.getSelfAngle(), rgba[0], rgba[1], rgba[2], rgba[3], shaderName, program -> {
             int locScreenSize = glGetUniformLocation(program, "uScreenSize");
             int locColor = glGetUniformLocation(program, "uColor");
             int locTexture = glGetUniformLocation(program, "uTexture");
-            int locScale = glGetUniformLocation(program, "uScale");
             glUniform2i(locScreenSize, Game.getWindowWidth(), Game.getWindowHeight());
             glUniform4f(locColor, rgba[0], rgba[1], rgba[2], rgba[3]);
             glUniform1i(locTexture, 0);
-            glUniform1f(locScale, (getHScale() + getVScale()) / 2.0f);
+            if (shaderName.equals("titan_spawn_shader")) {
+                int locScale = glGetUniformLocation(program, "uScale");
+                glUniform1f(locScale, (getHScale() + getVScale()) / 2.0f);
+            }
         });
     }
 
