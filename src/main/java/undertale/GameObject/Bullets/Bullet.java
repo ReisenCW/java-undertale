@@ -26,7 +26,7 @@ public class Bullet extends GameObject{
         this.y = y;
         setSelfAngle(selfAngle);
         setSpeedAngle(speedAngle);
-        this.speed = speed;
+        this.setSpeed(speed);
         this.damage = damage;
         this.texture = texture;
         this.animation = null;
@@ -44,7 +44,7 @@ public class Bullet extends GameObject{
         this.y = y;
         setSelfAngle(selfAngle);
         setSpeedAngle(speedAngle);
-        this.speed = speed;
+        this.setSpeed(speed);
         this.damage = damage;
         this.texture = null;
         this.animation = animation;
@@ -144,7 +144,7 @@ public class Bullet extends GameObject{
         this.y = y;
         setSelfAngle(selfAngle);
         setSpeedAngle(speedAngle);
-        this.speed = speed;
+        this.setSpeed(speed);
         this.damage = damage;
         this.texture = texture;
         this.animation = null;
@@ -160,7 +160,7 @@ public class Bullet extends GameObject{
         this.y = y;
         setSelfAngle(selfAngle);
         setSpeedAngle(speedAngle);
-        this.speed = speed;
+        this.setSpeed(speed);
         this.damage = damage;
         this.texture = null;
         this.animation = animation;

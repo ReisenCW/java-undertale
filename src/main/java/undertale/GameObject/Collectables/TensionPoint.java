@@ -31,7 +31,7 @@ public class TensionPoint extends Collectable{
         this.scaleSpeed = (initialScale - targetScale) / shrinkDuration; // shrinkDuration秒内缩放到targetScale
         this.canCollect = false;
         this.isNavi = false;
-        this.speed = initialSpeed; // 初始速度
+        this.setSpeed(initialSpeed); // 初始速度
         // 随机起始角度
         setSelfAngle((float)(Math.random() * 360));
         init();
@@ -68,13 +68,13 @@ public class TensionPoint extends Collectable{
                 currentScale = targetScale;
                 turn = true;
                 canCollect = true;
-                speed = 0; // 缩放结束时速度为0
+                setSpeed(0); // 缩放结束时速度为0
             } else {
                 // 缩放期间：远离玩家并减速
                 // 远离玩家的方向（取反）
                 setSpeedAngle(initialAngle);
                 // 减速到0
-                speed = Math.max(0, speed - (initialSpeed / shrinkDuration) * deltaTime);
+                setSpeed(Math.max(0, getSpeed() - (initialSpeed / shrinkDuration) * deltaTime));
             }
         } else if (turn) {
             // 缩放结束后：朝向玩家加速
@@ -91,7 +91,7 @@ public class TensionPoint extends Collectable{
                 float moveAngle = (float) Math.atan2(dy, dx);
                 setSpeedAngle((float) Math.toDegrees(moveAngle));
                 // 加速朝向玩家，速度上限为maxSpeed
-                speed = Math.min(maxSpeed, speed + maxSpeed * deltaTime * 1); // 1秒内加速到maxSpeed
+                setSpeed(Math.min(maxSpeed, getSpeed() + maxSpeed * deltaTime * 1)); // 1秒内加速到maxSpeed
             }
         }
         
@@ -145,7 +145,7 @@ public class TensionPoint extends Collectable{
         this.currentScale = initialScale;
         this.canCollect = false;
         this.turn = false;
-        this.speed = initialSpeed; // 重置初始速度
+        this.setSpeed(initialSpeed); // 重置初始速度
         // 随机起始角度
         setSelfAngle((float)(Math.random() * 360));
         // 随机旋转速度 (-180 到 180 度/秒)

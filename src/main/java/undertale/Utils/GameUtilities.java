@@ -14,8 +14,8 @@ public class GameUtilities {
     }
 
     public static float getDistSquared(GameObject obj1, GameObject obj2) {
-        float dx = obj1.getX() - obj2.getX();
-        float dy = obj1.getY() - obj2.getY();
+        float dx = obj1.getX() + obj1.getWidth() / 2.0f - (obj2.getX() + obj2.getWidth() / 2.0f);
+        float dy = obj1.getY() + obj1.getHeight() / 2.0f - (obj2.getY() + obj2.getHeight() / 2.0f);
         return dx * dx + dy * dy;
     }
 }

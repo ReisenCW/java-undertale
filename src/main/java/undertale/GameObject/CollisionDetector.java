@@ -15,9 +15,16 @@ public class CollisionDetector {
         return checkRectCollision(obj1, obj2, 0f);
     }
 
+    /**
+     * 检测两个圆形物体的碰撞
+     * @param obj1
+     * @param obj2
+     * @param padding : 额外的碰撞距离，正值表示增加碰撞范围，负值表示减少碰撞范围
+     * @return
+     */
     public static boolean checkCircleCollision(GameObject obj1, GameObject obj2, float padding) {
         float distance = (float) Math.sqrt(GameUtilities.getDistSquared(obj1, obj2));
-        return distance < (obj1.getWidth() / 2 + obj2.getWidth() / 2 + padding);
+        return distance < (obj1.getWidth() / 2 + obj2.getWidth() / 2 - padding);
     }
 
     public static boolean checkCircleCollision(GameObject obj1, GameObject obj2) {

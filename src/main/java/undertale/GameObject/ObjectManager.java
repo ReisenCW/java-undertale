@@ -9,6 +9,7 @@ import undertale.Enemy.EnemyManager;
 import undertale.GameMain.Game;
 import undertale.GameObject.Bullets.Bullet;
 import undertale.GameObject.Bullets.TitanSpawn;
+import undertale.GameObject.Bullets.TitanSnake;
 import undertale.GameObject.Collectables.Collectable;
 import undertale.GameObject.Collectables.TensionPoint;
 import undertale.GameObject.Effects.RippleEffect;
@@ -162,9 +163,16 @@ public class ObjectManager {
             if(!player.isAlive())
                 continue;
 
-            // 如果是TitanSpawn并且已标记为删除，加入移除列表
+            // 如果是TitanSpawn或TitanSnake并且已标记为删除，加入移除列表
             if (bullet instanceof TitanSpawn) {
                 TitanSpawn ts = (TitanSpawn) bullet;
+                if (ts.isMarkedForRemoval()) {
+                    toRemove.add(bullet);
+                    continue;
+                }
+            }
+            if (bullet instanceof TitanSnake) {
+                TitanSnake ts = (TitanSnake) bullet;
                 if (ts.isMarkedForRemoval()) {
                     toRemove.add(bullet);
                     continue;
@@ -338,7 +346,8 @@ public class ObjectManager {
     public void allowPlayerMovement(boolean allow) {
         player.isMovable = allow;
         if(!allow) {
-            player.setDirection(0.0f, 0.0f);
+            player.setSpeedX(0);
+            player.setSpeedY(0);
         }
     }
 

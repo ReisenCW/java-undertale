@@ -13,8 +13,6 @@ public class TitanSpawn extends Bullet{
     private float maxSpeed;
 
     private float cycleTimerSec = 0f;
-    private boolean aimedThisCycle = false;
-    private int aimTime = 4;
     // 接触光圈缩小相关变量
     private float contactTimer = 0f; // seconds
     private float contactDisapperTime = 1.5f; // seconds, 接触光圈1.5s后消失
@@ -50,35 +48,26 @@ public class TitanSpawn extends Bullet{
         // 每cycleDuration秒: 周期开始瞄准玩家
         // 前speedDuration秒速度按 sin 包络上升再下降, 之后速度为0
         cycleTimerSec += deltaTime;
-        if (cycleTimerSec >= cycleDuration && aimTime > 0) {
+        if (cycleTimerSec >= cycleDuration) {
             cycleTimerSec -= cycleDuration;
-            aimedThisCycle = false; // 新周期开始
         }
 
-        // 周期开始时（极短的起始窗口）锁定朝向玩家, 最多锁定2次
-        if (!aimedThisCycle && aimTime > 0) {
-            Player player = Game.getPlayer();
-            if (player != null) {
-                float dx = player.getX() - this.getX();
-                float dy = player.getY() - this.getY();
-                float angleDeg = (float)Math.toDegrees(Math.atan2(dy, dx));
-                this.setSpeedAngle(angleDeg);
-            }
-            aimTime--;
-            aimedThisCycle = true;
+        // 总是瞄准玩家
+        Player player = Game.getPlayer();
+        if (player != null) {
+            float dx = player.getX() - this.getX();
+            float dy = player.getY() - this.getY();
+            float angleDeg = (float)Math.toDegrees(Math.atan2(dy, dx));
+            this.setSpeedAngle(angleDeg);
         }
+
         // 速度包络:0~speedDuration秒为 maxSpeed * sin(pi * t / speedDuration), speedDuration~cycleDuration秒为0
         float t = cycleTimerSec;
         float speed;
         if (t < speedDuration) {
             speed = (float)(maxSpeed * Math.sin(Math.PI * (t / speedDuration)));
         } else {
-            if(aimTime > 0) {
-                speed = 0.0f;
-            }
-            else{
-                speed = maxSpeed;
-            }
+            speed = 0.0f;
         }
         if (speed < 0.0f) speed = 0.0f;
         if (speed > maxSpeed) speed = maxSpeed;
@@ -175,7 +164,7 @@ public class TitanSpawn extends Bullet{
                 Game.getObjectManager().addTitanSpawnParticle(particle);
             }
         }
-
+ 
         float t = Math.min(1.0f, contactTimer / contactDisapperTime);
         // 不将scale降为0, 保留最小可见比例以保持良好体验
         float scale = Math.max(MIN_VISIBLE_SCALE, 1.0f - t);

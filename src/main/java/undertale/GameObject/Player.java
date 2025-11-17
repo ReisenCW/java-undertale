@@ -24,8 +24,10 @@ public class Player extends GameObject {
     private float hScale;
     private float highSpeed;
     private float lowSpeed;
+    private float currentSpeed;
     private int tensionPoints;
     private int baseTakenDamage;
+    private float[] direction = {0.0f, 0.0f};
 
     public enum LightLevel {
         NORMAL,
@@ -74,7 +76,8 @@ public class Player extends GameObject {
 
         this.highSpeed = Float.parseFloat(playerMap.getOrDefault("highSpeed", "180.0"));
         this.lowSpeed = Float.parseFloat(playerMap.getOrDefault("lowSpeed", "80.0"));
-        this.speed = highSpeed;
+        this.currentSpeed = highSpeed;
+        this.setSpeed(highSpeed);
         this.tensionPoints = 80;
 
         this.enhancedLightRadius = Float.parseFloat(playerMap.getOrDefault("enhancedLightRadius", "150.0"));
@@ -110,7 +113,17 @@ public class Player extends GameObject {
     @Override
     public void update(float deltaTime) {
         handleSpeedMode();
-        updatePosition(deltaTime); // 按键处理在inputManager中
+        float dirLen = (float)Math.sqrt(direction[0]*direction[0] + direction[1]*direction[1]);
+        if (dirLen > 0.0f && isMovable) {
+            float normDirX = direction[0] / dirLen;
+            float normDirY = direction[1] / dirLen;
+            this.setSpeedX(normDirX * this.currentSpeed);
+            this.setSpeedY(normDirY * this.currentSpeed);
+        } else {
+            this.setSpeedX(0.0f);
+            this.setSpeedY(0.0f);
+        }
+        updatePosition(deltaTime);
         updateLight(deltaTime);
         handlePlayerOutBound(0, Game.getWindowWidth(), 0, Game.getWindowHeight());
     }
@@ -145,12 +158,12 @@ public class Player extends GameObject {
         if(Game.isKeyPressed(GLFW_KEY_LEFT_SHIFT) || Game.isKeyPressed(GLFW_KEY_RIGHT_SHIFT)) {
             if (isHighSpeed) {
                 isHighSpeed = false;
-                this.speed = lowSpeed;
+                this.currentSpeed = lowSpeed;
             }
         } else {
             if (!isHighSpeed) {
                 isHighSpeed = true;
-                this.speed = highSpeed;
+                this.currentSpeed = highSpeed;
             }
         }
     }
@@ -481,5 +494,21 @@ public class Player extends GameObject {
 
     public void updateTensionPoints(int delta) {
         setTensionPoints(this.tensionPoints + delta);
+    }
+
+    public float getDirectionX() {
+        return direction[0];
+    }
+
+    public void setDirectionX(float dirX) {
+        this.direction[0] = dirX;
+    }
+
+    public float getDirectionY() {
+        return direction[1];
+    }
+
+    public void setDirectionY(float dirY) {
+        this.direction[1] = dirY;
     }
 }

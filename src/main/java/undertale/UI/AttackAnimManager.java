@@ -204,7 +204,6 @@ public class AttackAnimManager extends UIBase {
             damageDisplayElapsed = 0f;
             enemy.takeDamage(damage);
             realDamage = damage * (1 - enemy.getDefenseRate());
-            System.out.println("defense rate:"+enemy.getDefenseRate());
             damagePerMilliSecond = (float)realDamage / damageDisplayDuration * 8;
         }
         if(showDamage) {

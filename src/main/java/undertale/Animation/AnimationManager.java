@@ -14,6 +14,10 @@ public class AnimationManager {
     }
 
     private AnimationManager() {
+        init();
+    }
+
+    public void init() {
         textureManager = TextureManager.getInstance();
         animations = new HashMap<>();
         // attack_animation
@@ -82,6 +86,27 @@ public class AnimationManager {
                 titan_spawn_animation.addFrame(textureManager.getTexture("spawn_" + i));
             }
             animations.put("titan_spawn_animation", titan_spawn_animation);
+        }
+        // titan_snake_animation
+        {
+            Animation titan_snake_head = new Animation(0.3f, true,
+                textureManager.getTexture("titan_snake_head_0"),
+                textureManager.getTexture("titan_snake_head_1"),
+                textureManager.getTexture("titan_snake_head_2"));
+            animations.put("titan_snake_head", titan_snake_head);
+
+            Animation titan_snake_body = new Animation(0.3f, true,
+                textureManager.getTexture("titan_snake_body_0"),
+                textureManager.getTexture("titan_snake_body_1"),
+                textureManager.getTexture("titan_snake_body_2"));
+            animations.put("titan_snake_body", titan_snake_body);
+
+            Animation titan_snake_tail = new Animation(0.3f, true,
+                textureManager.getTexture("titan_snake_tail_0"),
+                textureManager.getTexture("titan_snake_tail_1"),
+                textureManager.getTexture("titan_snake_tail_2"),
+                textureManager.getTexture("titan_snake_tail_3"));
+            animations.put("titan_snake_tail", titan_snake_tail);
         }
         {
             // main menu

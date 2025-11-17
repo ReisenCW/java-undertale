@@ -3,6 +3,7 @@ package undertale.Scene.Rounds;
 import undertale.Animation.Animation;
 import undertale.Animation.AnimationManager;
 import undertale.GameObject.Player;
+import undertale.GameObject.Bullets.TitanSnake;
 import undertale.GameObject.Bullets.TitanSpawn;
 import undertale.UI.UIManager;
 import undertale.GameObject.ObjectManager;
@@ -14,8 +15,8 @@ public class RoundSwarm extends Round{
 
     private float spawnTimer = 0f;
     private static final float SPAWN_INTERVAL = 0.3f; // 0.3秒生成一次
-    private static final float MIN_RADIUS = 210f;
-    private static final float MAX_RADIUS = 260f;
+    private static final float MIN_RADIUS = 180f;
+    private static final float MAX_RADIUS = 240f;
     private Animation titanSpawnAnimation;
 
     private final float edge;
@@ -45,7 +46,9 @@ public class RoundSwarm extends Round{
         }
     }
 
+    private int count = 0;
     private void spawnTitanSpawn() {
+        if(count++ !=0 )return;
         Player player = Game.getPlayer();
         if (player == null) return;
 
@@ -59,9 +62,12 @@ public class RoundSwarm extends Round{
 
         // 创建TitanSpawn
         TitanSpawn spawn = new TitanSpawn(spawnX, spawnY, 110f, 5, titanSpawnAnimation);
+
+        TitanSnake snake = new TitanSnake(spawnX, spawnY, 3, 5);
         
         // 将spawn添加到objectManager的bullets列表中
         objectManager.addBullet(spawn);
+        objectManager.addBullet(snake);
     }
 
     @Override

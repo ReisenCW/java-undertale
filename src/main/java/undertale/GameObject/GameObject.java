@@ -2,27 +2,46 @@ package undertale.GameObject;
 
 /**
  * 游戏中的对象基类，包含位置、方向、速度等基本属性和方法
- * @field direction 向下为正, 向右为正
  * @field angle 为顺时针方向, 单位为度, 0度向右, 90度向下
  */
 public abstract class GameObject {
     protected float x;
     protected float y;
-    protected float speed;
 
-    protected float[] direction = {0.0f, 0.0f};
-    protected float speedAngle; // 单位为度
     protected float selfAngle; // 单位为度
     protected boolean isNavi = false; // selfAngle是否跟随speedAngle
     protected boolean isColli = false;
 
+    protected float speedX = 0.0f;
+    protected float speedY = 0.0f;
+    protected float accelerateX = 0.0f;
+    protected float accelerateY = 0.0f;
+    protected float maxSpeed = -1.0f;
+    protected float minSpeed = -1.0f;
+
     public abstract void update(float deltaTime);
 
     public void updatePosition(float deltaTime) {
-        float len = (float) Math.sqrt(direction[0] * direction[0] + direction[1] * direction[1]);
-        if (len != 0) {
-            x += direction[0] * speed / len * deltaTime;
-            y += direction[1] * speed / len * deltaTime;
+        speedX += accelerateX * deltaTime;
+        speedY += accelerateY * deltaTime;
+        x += speedX * deltaTime;
+        y += speedY * deltaTime;
+        limitSpeed();
+        if(isNavi) {
+            selfAngle = getSpeedAngle();
+        }
+    }
+
+    private void limitSpeed() {
+        if(maxSpeed == -1.0f && minSpeed == -1.0f) return;
+        float currentSpeed = (float) Math.sqrt(speedX * speedX + speedY * speedY);
+        if (maxSpeed != -1.0f && currentSpeed > maxSpeed) {
+            speedX = speedX / currentSpeed * maxSpeed;
+            speedY = speedY / currentSpeed * maxSpeed;
+        }
+        if (minSpeed != -1.0f && currentSpeed < minSpeed && currentSpeed > 0) {
+            speedX = speedX / currentSpeed * minSpeed;
+            speedY = speedY / currentSpeed * minSpeed;
         }
     }
 
@@ -43,8 +62,16 @@ public abstract class GameObject {
         return x;
     }
 
+    public void setX(float newX) {
+        x = newX;
+    }
+
     public float getY() {
         return y;
+    }
+
+    public void setY(float newY) {
+        y = newY;
     }
 
     public float getHeight() {
@@ -55,86 +82,42 @@ public abstract class GameObject {
         return 0;
     }
 
-    public void setDirection(float dirX, float dirY) {
-        direction[0] = dirX;
-        direction[1] = dirY;
-        float len = (float) Math.sqrt(direction[0] * direction[0] + direction[1] * direction[1]);
-        if (len != 0) {
-            direction[0] /= len;
-            direction[1] /= len;
-        }
-        speedAngle = (float) Math.toDegrees(Math.atan2(direction[1], direction[0]));
-        if (isNavi) {
-            selfAngle = speedAngle;
-        }
-    }
-
-    public void setDirectionX(float dirX) {
-        direction[0] = dirX;
-        float len = (float) Math.sqrt(direction[0] * direction[0] + direction[1] * direction[1]);
-        if (len != 0) {
-            direction[0] /= len;
-            direction[1] /= len;
-        }
-        speedAngle = (float) Math.toDegrees(Math.atan2(direction[1], direction[0]));
-        if (isNavi) {
-            selfAngle = speedAngle;
-        }
-    }
-
-    public void setDirectionY(float dirY) {
-        direction[1] = dirY;
-        float len = (float) Math.sqrt(direction[0] * direction[0] + direction[1] * direction[1]);
-        if (len != 0) {
-            direction[0] /= len;
-            direction[1] /= len;
-        }
-        speedAngle = (float) Math.toDegrees(Math.atan2(direction[1], direction[0]));
-        if (isNavi) {
-            selfAngle = speedAngle;
-        }
-    }
-
-    public float[] getDirection() {
-        return direction;
-    }
-
     public float getSpeed() {
-        return speed;
-    }
-
-    public float getSpeedX() {
-        float len = (float) Math.sqrt(direction[0] * direction[0] + direction[1] * direction[1]);
-        if (len == 0) return 0;
-        return direction[0] * speed / len;
-    }
-
-    public float getSpeedY() {
-        float len = (float) Math.sqrt(direction[0] * direction[0] + direction[1] * direction[1]);
-        if (len == 0) return 0;
-        return direction[1] * speed / len;
+        return (float) Math.sqrt(speedX * speedX + speedY * speedY);
     }
 
     public void setSpeed(float newSpeed) {
-        speed = newSpeed;
+        float current = getSpeed();
+        if (current != 0) {
+            speedX = speedX / current * newSpeed;
+            speedY = speedY / current * newSpeed;
+        } else {
+            // 如果当前速度为0, 使用selfAngle作为方向
+            speedX = (float) Math.cos(Math.toRadians(selfAngle)) * newSpeed;
+            speedY = (float) Math.sin(Math.toRadians(selfAngle)) * newSpeed;
+        }
+        limitSpeed();
     }
 
     public float getSpeedAngle() {
-        return speedAngle;
+        return (float) Math.toDegrees(Math.atan2(speedY, speedX));
     }
 
     public void setSpeedAngle(float newAngle) {
-        speedAngle = newAngle;
+        float current = getSpeed();
+        speedX = (float) Math.cos(Math.toRadians(newAngle)) * current;
+        speedY = (float) Math.sin(Math.toRadians(newAngle)) * current;
         if (isNavi) {
-            selfAngle = speedAngle;
+            selfAngle = newAngle;
         }
-        direction[0] = (float) Math.cos(Math.toRadians(speedAngle));
-        direction[1] = (float) Math.sin(Math.toRadians(speedAngle));
     }
 
     public void setSelfAngle(float newAngle) {
-        if(isNavi) return;
-        selfAngle = newAngle;
+        if(isNavi) {
+            setSpeedAngle(newAngle);
+        } else {
+            selfAngle = newAngle;
+        }
     }
 
     public float getSelfAngle() {
@@ -148,7 +131,7 @@ public abstract class GameObject {
     public void setNavi(boolean navi) {
         isNavi = navi;
         if (isNavi) {
-            selfAngle = speedAngle;
+            selfAngle = getSpeedAngle();
         }
     }
 
@@ -167,7 +150,53 @@ public abstract class GameObject {
         isColli = colli;
     }
 
-    public boolean isColli() {
-        return isColli;
+    public float getSpeedX() {
+        return speedX;
+    }
+
+    public void setSpeedX(float speedX) {
+        this.speedX = speedX;
+        if(isNavi) {
+            selfAngle = getSpeedAngle();
+        }
+        limitSpeed();
+    }
+
+    public float getSpeedY() {
+        return speedY;
+    }
+
+    public void setSpeedY(float speedY) {
+        this.speedY = speedY;
+        if(isNavi) {
+            selfAngle = getSpeedAngle();
+        }
+        limitSpeed();
+    }
+
+    public float getAccelerateX() {
+        return accelerateX;
+    }
+
+    public void setAccelerateX(float accelerateX) {
+        this.accelerateX = accelerateX;
+    }
+
+    public float getAccelerateY() {
+        return accelerateY;
+    }
+
+    public void setAccelerateY(float accelerateY) {
+        this.accelerateY = accelerateY;
+    }
+
+    public void setMaxSpeed(float maxSpeed) {
+        this.maxSpeed = maxSpeed;
+        limitSpeed();
+    }
+
+    public void setMinSpeed(float minSpeed) {
+        this.minSpeed = minSpeed;
+        limitSpeed();
     }
 }
