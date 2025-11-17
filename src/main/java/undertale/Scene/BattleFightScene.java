@@ -23,10 +23,11 @@ public class BattleFightScene extends Scene {
 
     @Override
     public void init() {
-        round = 0;
+        // round = 0;
+        round = 1; //test
         rounds = new ArrayList<>();
-        rounds.add(new RoundSwarm(1, 15000, 1500));
-        rounds.add(new RoundSnake(1, 20000, 1500));
+        rounds.add(new RoundSwarm(1, 12000, 1500));
+        rounds.add(new RoundSnake(1, 17000, 1500));
         roundTime = 0;
     }
 
@@ -34,6 +35,7 @@ public class BattleFightScene extends Scene {
     public void onEnter() {
         roundTime = 0;
         round = Math.min(round + 1, rounds.size());
+        rounds.get(round - 1).onEnter();
         uiManager.setSelected(-1);
         objectManager.initPlayerPosition();
         objectManager.startPlayerLightExpansion();

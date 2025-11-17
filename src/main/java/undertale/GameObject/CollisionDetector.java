@@ -24,7 +24,7 @@ public class CollisionDetector {
      */
     public static boolean checkCircleCollision(GameObject obj1, GameObject obj2, float padding) {
         float distance = (float) Math.sqrt(GameUtilities.getDistSquared(obj1, obj2));
-        return distance < (obj1.getWidth() / 2 + obj2.getWidth() / 2 - padding);
+        return distance < (obj1.getWidth() / 2 + obj2.getWidth() / 2 + padding);
     }
 
     public static boolean checkCircleCollision(GameObject obj1, GameObject obj2) {

@@ -5,6 +5,7 @@ import static org.lwjgl.opengl.GL20.*;
 import undertale.Animation.Animation;
 import undertale.Utils.GameUtilities;
 import undertale.GameMain.Game;
+import undertale.GameObject.CollisionDetector;
 import undertale.GameObject.Player;
 import undertale.GameObject.Collectables.TensionPoint;
 import undertale.GameObject.Effects.TitanSpawnParticle;
@@ -15,7 +16,7 @@ public class TitanSpawn extends Bullet{
     private float cycleTimerSec = 0f;
     // 接触光圈缩小相关变量
     private float contactTimer = 0f; // seconds
-    private float contactDisapperTime = 1.5f; // seconds, 接触光圈1.5s后消失
+    private float contactDisapperTime = 1.2f; // seconds, 接触光圈1.2s后消失
     private boolean contacting = false;
     private boolean markedForRemoval = false;
     private float initialHScale;
@@ -54,15 +55,6 @@ public class TitanSpawn extends Bullet{
             cycleTimerSec -= cycleDuration;
         }
 
-        // 总是瞄准玩家
-        Player player = Game.getPlayer();
-        if (player != null) {
-            float dx = player.getX() + player.getWidth() / 2.0f - (this.getX() + this.getWidth() / 2.0f);
-            float dy = player.getY() + player.getHeight() / 2.0f - (this.getY() + this.getHeight() / 2.0f);
-            float angleDeg = (float)Math.toDegrees(Math.atan2(dy, dx));
-            this.setSpeedAngle(angleDeg);
-        }
-
         // 速度包络:0~speedDuration秒为 maxSpeed * sin(pi * t / speedDuration), speedDuration~cycleDuration秒为0
         float t = cycleTimerSec;
         float speed;
@@ -78,6 +70,15 @@ public class TitanSpawn extends Bullet{
 
     @Override
     public void update(float deltaTime) {
+        // speed angle始终朝向player
+        Player player = Game.getPlayer();
+        if (player != null) {
+            float dx = player.getX() + player.getWidth() / 2.0f - (this.getX() + this.getWidth() / 2.0f);
+            float dy = player.getY() + player.getHeight() / 2.0f - (this.getY() + this.getHeight() / 2.0f);
+            float angleDeg = (float)Math.toDegrees(Math.atan2(dy, dx));
+            this.setSpeedAngle(angleDeg);
+        }
+
         // 在1秒内, alpha从0增加到1, scale从0增加到initialScale
         if (rgba[3] < 1.0f) {
             rgba[3] += GameUtilities.getChangeStep(0.0f, 1.0f, deltaTime, 1.0f).floatValue();
@@ -101,7 +102,6 @@ public class TitanSpawn extends Bullet{
         if (markedForRemoval) return;
 
         // 检测是否与player任意光圈环接触（renderLight绘制了多圈）
-        Player player = Game.getPlayer();
         if (player != null && player.isAlive()) {
             float px = player.getX() + player.getWidth() / 2.0f;
             float py = player.getY() + player.getHeight() / 2.0f;
@@ -214,5 +214,14 @@ public class TitanSpawn extends Bullet{
 
     public boolean isMarkedForRemoval() {
         return markedForRemoval;
+    }
+
+    @Override
+    public boolean checkCollisionWithPlayer(Player player) {
+        if (!player.isAlive() || !this.isColli) {
+            return false;
+        }
+        float padding = -Math.min(getWidth(), getHeight()) / 3.0f;
+        return CollisionDetector.checkCircleCollision(this, player, padding);
     }
 }

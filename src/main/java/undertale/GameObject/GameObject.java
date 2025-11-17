@@ -27,7 +27,7 @@ public abstract class GameObject {
         x += speedX * deltaTime;
         y += speedY * deltaTime;
         limitSpeed();
-        if(isNavi) {
+        if(isNavi && getSpeed() != 0.0f) {
             selfAngle = getSpeedAngle();
         }
     }

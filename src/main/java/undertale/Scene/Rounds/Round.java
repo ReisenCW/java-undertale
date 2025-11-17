@@ -8,6 +8,8 @@ public abstract class Round {
         this.roundDuration = duration;
         this.frameMoveTime = frameMoveTime;
     }
+    
+    public void onEnter() {}
 
     public abstract void updateRound(float deltaTime);
 

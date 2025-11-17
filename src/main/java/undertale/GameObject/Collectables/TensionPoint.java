@@ -11,23 +11,24 @@ public class TensionPoint extends Collectable{
     private Texture tpTexture;
     private float currentScale;
     private float initialScale;
-    private float targetScale = 0.7f;
+    private float targetScale;
     private float scaleSpeed;
     private float rotationSpeed = (Math.random() >= 0.5 ? -1 : 1) * (float) (580 + Math.random() * 20);
     private float shrinkDuration = 0.8f;
     
     // 移动相关
     private float initialSpeed = 120f;
-    private float maxSpeed = 150f;
+    private float maxSpeed = 240f;
     private float initialAngle = 0.0f;
 
-    public TensionPoint(float x, float y, float initialScale) {
+    public TensionPoint(float x, float y, float initialScale, int value) {
         super(x, y, () -> {
             // 玩家tp+1
-            Game.getPlayer().updateTensionPoints(1);
+            Game.getPlayer().updateTensionPoints(value);
         });
         this.currentScale = initialScale;
         this.initialScale = initialScale;
+        this.targetScale = initialScale / 2;
         this.scaleSpeed = (initialScale - targetScale) / shrinkDuration; // shrinkDuration秒内缩放到targetScale
         this.canCollect = false;
         this.isNavi = false;
@@ -35,6 +36,10 @@ public class TensionPoint extends Collectable{
         // 随机起始角度
         setSelfAngle((float)(Math.random() * 360));
         init();
+    }
+
+    public TensionPoint(float x, float y, float initialScale) {
+        this(x, y, initialScale, 1);
     }
 
     private void init() {
@@ -91,7 +96,7 @@ public class TensionPoint extends Collectable{
                 float moveAngle = (float) Math.atan2(dy, dx);
                 setSpeedAngle((float) Math.toDegrees(moveAngle));
                 // 加速朝向玩家，速度上限为maxSpeed
-                setSpeed(Math.min(maxSpeed, getSpeed() + maxSpeed * deltaTime * 1)); // 1秒内加速到maxSpeed
+                setSpeed(Math.min(maxSpeed, getSpeed() + maxSpeed * deltaTime * (1 / 1.4f))); // 1.4秒内加速到maxSpeed
             }
         }
         
@@ -142,7 +147,9 @@ public class TensionPoint extends Collectable{
     public void reset(float x, float y, float initialScale) {
         this.x = x;
         this.y = y;
+        this.initialScale = initialScale;
         this.currentScale = initialScale;
+        this.targetScale = initialScale / 2;
         this.canCollect = false;
         this.turn = false;
         this.setSpeed(initialSpeed); // 重置初始速度

@@ -17,9 +17,14 @@ import static org.lwjgl.opengl.GL20.*;
 public class TitanSnake extends Bullet {
     private static class SnakePart extends Bullet{
         Animation animation;
+        float initialScale;
+        float originalX, originalY;
+        boolean dying = false;
+        float shakeInterval = 0.1f;
 
         SnakePart(float x, float y, float scale, float angle, float maxSpeed, int damage, Animation animation) {
             super(x, y, angle, angle, 0, damage, animation);
+            this.initialScale = scale;
             this.setNavi(true);
             this.animation = new Animation(animation.getFrameDuration(), animation.isLoop(), animation.getFrames());
             setHScale(scale);
@@ -33,6 +38,11 @@ public class TitanSnake extends Bullet {
             animation.updateAnimation(deltaTime);
         }
 
+        public void setScale(float scale) {
+            setHScale(scale);
+            setVScale(scale);
+        }
+
         public void render() {
             animation.renderCurrentFrame(this.x, this.y, getHScale(), getVScale(), this.getSelfAngle(), rgba[0], rgba[1], rgba[2], rgba[3], "titan_spawn_shader", program -> {
                 int locScreenSize = glGetUniformLocation(program, "uScreenSize");
@@ -42,7 +52,7 @@ public class TitanSnake extends Bullet {
                 glUniform2i(locScreenSize, Game.getWindowWidth(), Game.getWindowHeight());
                 glUniform4f(locColor, rgba[0], rgba[1], rgba[2], rgba[3]);
                 glUniform1i(locTexture, 0);
-                glUniform1f(locScale, (getHScale() + getVScale()) / 2.0f);
+                glUniform1f(locScale, (getHScale() + getVScale()) / initialScale / 2.0f);
             });
         }
 
@@ -60,8 +70,8 @@ public class TitanSnake extends Bullet {
             return dist <= outer + amp + halfSize;
         }
 
-        private void giveTensionPoints() {
-            TensionPoint tp = new TensionPoint(this.x + this.getWidth() / 2.0f, this.y + this.getHeight() / 2.0f, 1.6f);
+        public void giveTensionPoints() {
+            TensionPoint tp = new TensionPoint(this.x + this.getWidth() / 2.0f, this.y + this.getHeight() / 2.0f, 2.4f, 2);
             Game.getObjectManager().addCollectable(tp);
         }
 
@@ -70,10 +80,28 @@ public class TitanSnake extends Bullet {
             if (!player.isAlive() || !this.isColli) {
                 return false;
             }
-            float padding = -Math.min(getWidth(), getHeight()) / 3.5f;
+            float padding = -Math.min(getWidth(), getHeight()) / 2.0f;
             return CollisionDetector.checkCircleCollision(this, player, padding);
         }
-        
+
+        public void startDying(float timer, float duration) {
+            if(!dying) {
+                dying = true;
+                originalX = this.x;
+                originalY = this.y;
+                setSpeed(0.0f);
+            }
+            if(timer < duration) {
+                if(timer % shakeInterval < shakeInterval) {
+                    // 在当前位置基础上抖动
+                    float shakeAmount = 2.0f;
+                    float offsetX = (float)(Math.random() * 2 - 1) * shakeAmount;
+                    float offsetY = (float)(Math.random() * 2 - 1) * shakeAmount;
+                    this.x = originalX + offsetX;
+                    this.y = originalY + offsetY;
+                }
+            }
+        }
     }
 
     private SnakePart head;
@@ -84,20 +112,24 @@ public class TitanSnake extends Bullet {
 
     private boolean contacting = false;
     private float contactTimer = 0.0f;
-    private float contactDisappearTime = 3.5f;
+    private float contactDisappearTime = 3.0f;
     private float initialScale = 1.5f;
     private float minScale = 0.35f;
 
     private float particleEmitTimer = 0.0f;
     private float particleEmitInterval = 0.5f;
 
-    private float initialHeadAcceleration = 250.0f;
-    private float maxSpeed = -1.0f;
+    private float initialHeadAcceleration = 400.0f;
+    private float maxSpeed = 400.0f;
+
+    private boolean dying = false;
+    private float dyingTimer = 0.0f;
+    private float dyingDuration = 0.6f;
 
     private boolean markedForRemoval = false;
 
     public TitanSnake(float x, float y, int bodyCount, int damage) {
-        super(x, y, 0, 0, 0, damage, (Animation) null); // 不使用super的animation
+        super(x, y, 0, 0, 80.0f, damage, (Animation) null); // 不使用super的animation
         this.rgba[3] = 0.0f; // 初始透明
         this.isColli = false;
         this.destroyableOnHit = false;
@@ -119,13 +151,14 @@ public class TitanSnake extends Bullet {
         float dirX = (float) Math.cos(Math.toRadians(angleToPlayer));
         float dirY = (float) Math.sin(Math.toRadians(angleToPlayer));
         bodies = new ArrayList<>();
+        float gap = 20.0f;
         for (int i = 0; i < bodyCount; i++) {
-            float offsetX = - (i + 1) * 50 * dirX;
-            float offsetY = - (i + 1) * 50 * dirY;
+            float offsetX = - (i + 1) * gap * dirX;
+            float offsetY = - (i + 1) * gap * dirY;
             bodies.add(new SnakePart(x + offsetX, y + offsetY, initialScale, angleToPlayer, maxSpeed, damage, bodyAnim));
         }
-        float tailOffsetX = - (bodyCount + 1) * 50 * dirX;
-        float tailOffsetY = - (bodyCount + 1) * 50 * dirY;
+        float tailOffsetX = - (bodyCount + 1) * gap * dirX;
+        float tailOffsetY = - (bodyCount + 1) * gap * dirY;
         tail = new SnakePart(x + tailOffsetX, y + tailOffsetY, initialScale, angleToPlayer, maxSpeed, damage, tailAnim);
         // 共享rgba以实现淡入效果
         head.rgba = this.rgba;
@@ -151,21 +184,6 @@ public class TitanSnake extends Bullet {
 
     @Override
     public void update(float deltaTime) {
-        // 更新head朝向player
-        Player player = Game.getPlayer();
-        if (player != null) {
-            float dx = player.getX() + player.getWidth() / 2.0f - head.getX();
-            float dy = player.getY() + player.getHeight() / 2.0f - head.getY();
-            float dist = (float) Math.sqrt(dx * dx + dy * dy);
-            float targetAngle = (float) Math.toDegrees(Math.atan2(dy, dx));
-
-            float acceleration = initialHeadAcceleration + dist; // 距离越远加速越大
-            float accelX = (float) Math.cos(Math.toRadians(targetAngle)) * acceleration;
-            float accelY = (float) Math.sin(Math.toRadians(targetAngle)) * acceleration;
-            head.setAccelerateX(accelX);
-            head.setAccelerateY(accelY);
-        }
-
         // 淡入
         if (rgba[3] < 1.0f) {
             rgba[3] += GameUtilities.getChangeStep(0.0f, 1.0f, deltaTime, fadeInDuration).floatValue();
@@ -179,17 +197,30 @@ public class TitanSnake extends Bullet {
                 tail.setColli(true);
             }
         }
+        if(!dying) {
+            Player player = Game.getPlayer();
+            if (player != null) {
+                float dx = player.getX() + player.getWidth() / 2.0f - head.getX();
+                float dy = player.getY() + player.getHeight() / 2.0f - head.getY();
+                float dist = (float) Math.sqrt(dx * dx + dy * dy);
+                float targetAngle = (float) Math.toDegrees(Math.atan2(dy, dx));
 
-        // 更新body跟随head
-        SnakePart prev = head;
-        for (SnakePart body : bodies) {
-            follow(prev, body, deltaTime);
-            prev = body;
-        }
-        // tail跟随最后一个body
-        follow(prev, tail, deltaTime);
+                float acceleration = initialHeadAcceleration + (150.0f / (0.5f + dist)); // 距离越近加速度越大
+                float accelX = (float) Math.cos(Math.toRadians(targetAngle)) * acceleration;
+                float accelY = (float) Math.sin(Math.toRadians(targetAngle)) * acceleration;
+                head.setAccelerateX(accelX);
+                head.setAccelerateY(accelY);
+            }
 
-        if (rgba[3] >= 1.0f) {
+            // 更新body跟随head
+            SnakePart prev = head;
+            for (SnakePart body : bodies) {
+                follow(prev, body, deltaTime);
+                prev = body;
+            }
+            // tail跟随最后一个body
+            follow(prev, tail, deltaTime);
+
             // 检查碰撞
             boolean anyContact = false;
             if (head.checkContactLight(player)) anyContact = true;
@@ -215,22 +246,32 @@ public class TitanSnake extends Bullet {
             if (contacting) {
                 float scale = initialScale - (initialScale - minScale) * (contactTimer / contactDisappearTime);
                 if (scale < minScale) scale = minScale;
-                head.setHScale(scale);
-                head.setVScale(scale);
+                head.setScale(scale);
                 for (SnakePart body : bodies) {
-                    body.setHScale(scale);
-                    body.setVScale(scale);
+                    body.setScale(scale);
                 }
-                tail.setHScale(scale);
-                tail.setVScale(scale);
-                if (contactTimer >= contactDisappearTime) {
-                    head.giveTensionPoints();
-                    for(SnakePart body : bodies) {
-                        body.giveTensionPoints();
-                    }
-                    tail.giveTensionPoints();
-                    markedForRemoval = true;
+                tail.setScale(scale);
+                if (contactTimer >= contactDisappearTime && !dying) {
+                    dying = true;
                 }
+            }
+        }
+
+        if(dying) {
+            head.startDying(dyingTimer, dyingDuration);
+            for (SnakePart body : bodies) {
+                body.startDying(dyingTimer, dyingDuration);
+            }
+            tail.startDying(dyingTimer, dyingDuration);
+            dyingTimer += deltaTime;
+            if (dyingTimer >= dyingDuration) {
+                // 生成tp
+                head.giveTensionPoints();
+                for (SnakePart body : bodies) {
+                    body.giveTensionPoints();
+                }
+                tail.giveTensionPoints();
+                markedForRemoval = true;
             }
         }
 
@@ -246,7 +287,7 @@ public class TitanSnake extends Bullet {
         float dx = leader.getX() - follower.getX();
         float dy = leader.getY() - follower.getY();
         float dist = (float) Math.sqrt(dx * dx + dy * dy);
-        float speed = dist * 8.0f;
+        float speed = dist * 12.0f;
         float targetSpeedX = (dx / dist) * speed;
         float targetSpeedY = (dy / dist) * speed;
         follower.setSpeedX(targetSpeedX);
