@@ -1,7 +1,5 @@
 package undertale.Scene.Rounds;
 
-import org.lwjgl.openvr.Texture;
-
 import undertale.GameMain.Game;
 import undertale.GameObject.ObjectManager;
 import undertale.GameObject.Bullets.TitanFingers;

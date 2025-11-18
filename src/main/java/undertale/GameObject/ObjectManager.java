@@ -338,6 +338,15 @@ public class ObjectManager {
         bulletPool.clear();
     }
 
+    public void clearRipples() {
+        rippleEffects.clear();
+    }
+
+    public void clearTitanSpawnParticles() {
+        titanSpawnParticles.clear();
+    }
+
+
     public void clearCollectables() {
         collectables.clear();
         collectablePool.clear();

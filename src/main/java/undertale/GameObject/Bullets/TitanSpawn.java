@@ -102,7 +102,7 @@ public class TitanSpawn extends Bullet{
         if (markedForRemoval) return;
 
         // 检测是否与player任意光圈环接触（renderLight绘制了多圈）
-        if (player != null && player.isAlive()) {
+        if (player != null && player.isAlive() && this.isColli) {
             float px = player.getX() + player.getWidth() / 2.0f;
             float py = player.getY() + player.getHeight() / 2.0f;
             float dx = px - (this.x + this.getWidth() / 2.0f);

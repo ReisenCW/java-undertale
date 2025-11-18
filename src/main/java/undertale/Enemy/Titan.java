@@ -143,7 +143,7 @@ public class Titan extends Enemy {
             weakenTurns--;
             if (weakenTurns <= 0) {
                 // 恢复防御
-                setDefenseRate(1.0f);
+                setDefenseRate(initialDefenseRate);
                 weakened = false;
                 // star淡入显示
                 setAnimationAlpha("star", 1.0f, 0.5f); // 0.5秒内淡入

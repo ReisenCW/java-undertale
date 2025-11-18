@@ -260,6 +260,7 @@ public class TitanSnake extends Bullet {
         }
 
         if(dying) {
+            this.setColli(false);
             head.startDying(dyingTimer, dyingDuration);
             for (SnakePart body : bodies) {
                 body.startDying(dyingTimer, dyingDuration);
