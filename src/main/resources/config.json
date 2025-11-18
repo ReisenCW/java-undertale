@@ -150,7 +150,10 @@
     {"key": "heart_explode", "path": "se/se_heart_explode.wav"},
     {"key": "text_print", "path": "se/se_text_print.wav"},
     {"key": "spawn_attack", "path": "se/se_spawn_attack.wav"},
-    {"key": "titan_weakened", "path": "se/se_titan_weakened.wav"}
+    {"key": "titan_weakened", "path": "se/se_titan_weakened.wav"},
+    {"key": "collect", "path": "se/se_collect.wav"},
+    {"key": "snake_die", "path": "se/se_snake_die.wav"},
+    {"key": "explode", "path": "se/se_explode.wav"}
   ],
   "music": [
     {"key": "gameover", "path": "music/mus_gameover.wav"},

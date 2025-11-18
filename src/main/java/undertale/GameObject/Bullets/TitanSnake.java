@@ -11,6 +11,7 @@ import undertale.GameObject.Player;
 import undertale.GameObject.Collectables.TensionPoint;
 import undertale.Utils.GameUtilities;
 import undertale.GameObject.Effects.TitanSpawnParticle;
+import undertale.Sound.SoundManager;
 
 import static org.lwjgl.opengl.GL20.*;
 
@@ -254,6 +255,7 @@ public class TitanSnake extends Bullet {
                 }
                 tail.setScale(scale);
                 if (contactTimer >= contactDisappearTime && !dying) {
+                    SoundManager.getInstance().playSE("snake_die");
                     dying = true;
                 }
             }

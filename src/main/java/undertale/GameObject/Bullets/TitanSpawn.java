@@ -16,14 +16,14 @@ public class TitanSpawn extends Bullet{
     private float cycleTimerSec = 0f;
     // 接触光圈缩小相关变量
     private float contactTimer = 0f; // seconds
-    private float contactDisapperTime = 1.2f; // seconds, 接触光圈1.2s后消失
+    private float contactDisapperTime; // seconds
     private boolean contacting = false;
     private boolean markedForRemoval = false;
     private float initialHScale;
     private float initialVScale;
 
-    private float cycleDuration = 3.5f; // 每个周期持续时间
-    private float speedDuration = 3.0f; // 速度变化持续时间
+    private float cycleDuration = 2.5f; // 每个周期持续时间
+    private float speedDuration = 2.0f; // 速度变化持续时间
     
     private final float MIN_VISIBLE_SCALE = 0.35f;
 
@@ -31,11 +31,12 @@ public class TitanSpawn extends Bullet{
     private float particleSpawnTimer = 0.0f;
     private float particleSpawnInterval = 0.3f;
 
-    public TitanSpawn(float x, float y, float maxSpeed, int damage, Animation animation) {
+    public TitanSpawn(float x, float y, float maxSpeed, float contactDisapperTime, int damage, Animation animation) {
         super(x, y, 0, 0, 0, damage, animation);
         setNavi(false);
         this.destroyableOnHit = false;
         this.maxSpeed = maxSpeed;
+        this.contactDisapperTime = contactDisapperTime;
         // 创建动画副本，避免多个实例共享同一个动画状态
         this.animation = new Animation(animation.getFrameDuration(), animation.isLoop(), animation.getFrames());
 
@@ -47,6 +48,9 @@ public class TitanSpawn extends Bullet{
         setVScale(0.0f);
     }
 
+    public TitanSpawn(float x, float y, float maxSpeed, int damage, Animation animation) {
+        this(x, y, maxSpeed, 1.0f, damage, animation);
+    }
     private void updateCurrentSpeed(float deltaTime) {
         // 每cycleDuration秒: 周期开始瞄准玩家
         // 前speedDuration秒速度按 sin 包络上升再下降, 之后速度为0

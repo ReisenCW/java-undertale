@@ -8,6 +8,7 @@ import undertale.GameMain.Game;
 import undertale.GameObject.Player;
 import undertale.GameObject.Collectables.TensionPoint;
 import undertale.GameObject.Effects.TitanSpawnParticle;
+import undertale.Sound.SoundManager;
 import undertale.Texture.Texture;
 import undertale.Texture.TextureManager;
 
@@ -36,6 +37,8 @@ public class TitanFingers extends Bullet{
 
         @Override
         public void update(float deltaTime) {
+            if(markedForRemoval) return;
+            
             updatePosition(deltaTime);
             if(state == State.MOVING_OUT) {
                 animation.updateAnimation(deltaTime);
@@ -58,6 +61,7 @@ public class TitanFingers extends Bullet{
 
                     if (contactTimer > contactDisappearTime) {
                         markedForRemoval = true;
+                        SoundManager.getInstance().playSE("explode");
                         generateTP();
                     }
                 }

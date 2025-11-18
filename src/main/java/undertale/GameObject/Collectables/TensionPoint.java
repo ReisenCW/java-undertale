@@ -4,6 +4,7 @@ import static org.lwjgl.opengl.GL20.*;
 
 import undertale.GameMain.Game;
 import undertale.GameObject.Player;
+import undertale.Sound.SoundManager;
 import undertale.Texture.Texture;
 
 public class TensionPoint extends Collectable{
@@ -18,7 +19,7 @@ public class TensionPoint extends Collectable{
     
     // 移动相关
     private float initialSpeed = 120f;
-    private float maxSpeed = 240f;
+    private float maxSpeed = 600f;
     private float initialAngle = 0.0f;
 
     public TensionPoint(float x, float y, float initialScale, int value) {
@@ -96,13 +97,14 @@ public class TensionPoint extends Collectable{
                 float moveAngle = (float) Math.atan2(dy, dx);
                 setSpeedAngle((float) Math.toDegrees(moveAngle));
                 // 加速朝向玩家，速度上限为maxSpeed
-                setSpeed(Math.min(maxSpeed, getSpeed() + maxSpeed * deltaTime * (1 / 1.4f))); // 1.4秒内加速到maxSpeed
+                setSpeed(Math.min(maxSpeed, getSpeed() + maxSpeed * deltaTime)); // 1秒内加速到maxSpeed
             }
         }
         
         if(canCollect && !isCollected && checkCollisionWithPlayer(Game.getPlayer())) {
             isCollected = true;
             onCollect.run();
+            SoundManager.getInstance().playSE("collect");
         }
         updatePosition(deltaTime);
     }

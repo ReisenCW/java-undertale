@@ -77,7 +77,7 @@ public class RoundSnake extends Round{
         float spawnX = player.getX() + player.getWidth() / 2.0f + (float)(Math.cos(baseAngle) * radius);
         float spawnY = player.getY() + player.getHeight() / 2.0f + (float)(Math.sin(baseAngle) * radius);
         // 创建TitanSpawn
-        TitanSpawn spawn = new TitanSpawn(spawnX, spawnY, 80f, 5, titanSpawnAnimation);
+        TitanSpawn spawn = new TitanSpawn(spawnX, spawnY, 110f, 0.6f, 5, titanSpawnAnimation);
         spawn.setNavi(true);
 
         // 将spawn添加到objectManager的bullets列表中
