@@ -26,6 +26,7 @@ public class TitanFingers extends Bullet{
         private boolean generatedTP = false;
         public float resetStartX;
         private float pauseBaseX, pauseBaseY;
+        private float initialSelfAngle;
         TitanSingleFinger(float x, float y, int direction, int intensity, int damage, float scale) {
             super(x, y, 180.0f + direction * 180.0f, 180.0f + direction * 180.0f, 0, damage, AnimationManager.getInstance().getAnimation("titan_finger"));
             setNavi(false);
@@ -37,6 +38,7 @@ public class TitanFingers extends Bullet{
             this.animation.setInterval(0.1f + (4 -intensity) * 0.02f);
             this.isColli = false;
             this.bound = false;
+            this.initialSelfAngle = 180.0f + direction * 180.0f;
         }
 
         @Override
@@ -249,6 +251,7 @@ public class TitanFingers extends Bullet{
 
     private float currentTheta = 0.0f;
     private float pauseBaseX, pauseBaseY;
+    private float initialSelfAngle;
 
 
     /**
@@ -331,6 +334,13 @@ public class TitanFingers extends Bullet{
                     // 移动 fingers
                     for (int i = 0; i < fingers.length; i++) {
                         fingers[i].setY(baseFingerY[i] + sinValue);
+                    }
+                    // 添加角度变化
+                    float angleAmp = 1.0f;
+                    float angleOffset = (float) Math.sin(currentTheta + moveTimer * 2 * Math.PI / cycleTime) * angleAmp;
+                    this.selfAngle = initialSelfAngle + angleOffset;
+                    for (TitanSingleFinger finger : fingers) {
+                        finger.setSelfAngle(finger.initialSelfAngle + angleOffset);
                     }
                 } else {
                     currentTheta = (currentTheta + (float)(moveTimer * 2 * Math.PI / cycleTime)) % (2 * (float)Math.PI);
