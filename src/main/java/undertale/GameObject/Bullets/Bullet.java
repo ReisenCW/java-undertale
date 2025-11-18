@@ -7,11 +7,11 @@ import undertale.GameObject.Player;
 import undertale.Texture.Texture;
 
 public class Bullet extends GameObject{
-    private static int nextId = 0;
-    private int id;
-    private int damage;
-    private float hScale;
-    private float vScale;
+    protected static int nextId = 0;
+    protected int id;
+    protected int damage;
+    protected float hScale;
+    protected float vScale;
     protected float[] rgba;
     public boolean bound;
     public boolean destroyableOnHit;
@@ -77,9 +77,10 @@ public class Bullet extends GameObject{
         Texture currentTexture = getCurrentTexture();
         if (currentTexture != null) {
             Texture.drawTexture(currentTexture.getId(),
-                                this.x, this.y,
-                                hScale * currentTexture.getWidth(), vScale * currentTexture.getHeight(),
-                                getSelfAngle(), rgba[0], rgba[1], rgba[2], rgba[3]);
+                this.x, this.y,
+                hScale * currentTexture.getWidth(), vScale * currentTexture.getHeight(),
+                getSelfAngle(), rgba[0], rgba[1], rgba[2], rgba[3]
+            );
         }
     }
 

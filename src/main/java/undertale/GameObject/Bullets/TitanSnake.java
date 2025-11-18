@@ -27,6 +27,7 @@ public class TitanSnake extends Bullet {
             this.initialScale = scale;
             this.setNavi(true);
             this.animation = new Animation(animation.getFrameDuration(), animation.isLoop(), animation.getFrames());
+            this.bound = false;
             setHScale(scale);
             setVScale(scale);
             setMaxSpeed(maxSpeed);
@@ -133,6 +134,7 @@ public class TitanSnake extends Bullet {
         this.rgba[3] = 0.0f; // 初始透明
         this.isColli = false;
         this.destroyableOnHit = false;
+        this.bound = false;
 
         // 获取动画
         Animation headAnim = AnimationManager.getInstance().getAnimation("titan_snake_head");

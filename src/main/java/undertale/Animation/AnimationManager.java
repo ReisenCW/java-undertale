@@ -109,6 +109,20 @@ public class AnimationManager {
             animations.put("titan_snake_tail", titan_snake_tail);
         }
         {
+            Animation titan_finger = new Animation(0.3f, false, 
+                textureManager.getTexture("titan_finger_0"),
+                textureManager.getTexture("titan_finger_1"),
+                textureManager.getTexture("titan_finger_2"),
+                textureManager.getTexture("titan_finger_3"),
+                textureManager.getTexture("titan_finger_4"),
+                textureManager.getTexture("titan_finger_5"),
+                textureManager.getTexture("titan_finger_6"),
+                textureManager.getTexture("titan_finger_7"),
+                textureManager.getTexture("titan_finger_8")
+            );
+            animations.put("titan_finger", titan_finger);
+        }
+        {
             // main menu
             Animation main_menu_animation = new Animation(0.4f, true); 
             for (int i = 0; i <= 4; i++) {

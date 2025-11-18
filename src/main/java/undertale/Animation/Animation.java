@@ -149,4 +149,24 @@ public class Animation {
         this.elapsedTime = 0.0f;
         this.isEnd = false;
     }
+
+    public void setHorizontalReverse(boolean horizontalReverse) {
+        this.horizontalReverse = horizontalReverse;
+    }
+
+    public void setVerticalReverse(boolean verticalReverse) {
+        this.verticalReverse = verticalReverse;
+    }
+
+    public void setInterval(float interval) {
+        this.frameDuration = interval;
+    } 
+
+    public int getFrameCount() {
+        return frameCount;
+    }
+
+    public float getTotalDuration() {
+        return frameDuration * frameCount;
+    }
 }

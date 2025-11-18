@@ -101,6 +101,7 @@
     {"key": "titan_finger_5", "path": "titan_hands/spr_titan_battle_finger_5.png"},
     {"key": "titan_finger_6", "path": "titan_hands/spr_titan_battle_finger_6.png"},
     {"key": "titan_finger_7", "path": "titan_hands/spr_titan_battle_finger_7.png"},
+    {"key": "titan_finger_8", "path": "titan_hands/spr_titan_battle_finger_0.png"},
     {"key": "titan_laser_0", "path": "titan_laser/spr_tower_titanbeam_start_0.png"},
     {"key": "titan_laser_1", "path": "titan_laser/spr_tower_titanbeam_start_1.png"},
     {"key": "titan_laser_2", "path": "titan_laser/spr_tower_titanbeam_start_2.png"},

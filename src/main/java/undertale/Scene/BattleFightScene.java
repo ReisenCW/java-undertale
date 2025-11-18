@@ -25,13 +25,14 @@ public class BattleFightScene extends Scene {
     @Override
     public void init() {
         phase = 0;
-        phaseRound = -1;
+        // phaseRound = -1;
+        phaseRound = 1; //test
         rounds = new ArrayList<>();
         // 4个阶段, 前三个阶段每个阶段3个round
         for(int p = 0; p < 3; p++) {
             rounds.add(new RoundSwarm(p + 1, 12000, 1500));
             rounds.add(new RoundSnake(p + 1, 17000, 1500));
-            // rounds.add(new RoundFinger(p + 1, 12000, 1500));
+            rounds.add(new RoundFinger(p + 1, 28000, 1500));
         }
         roundTime = 0;
     }
