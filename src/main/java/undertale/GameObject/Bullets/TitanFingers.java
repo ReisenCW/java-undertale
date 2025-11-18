@@ -25,6 +25,7 @@ public class TitanFingers extends Bullet{
         private float particleSpawnInterval = 0.3f;
         private boolean generatedTP = false;
         public float resetStartX;
+        private float pauseBaseX, pauseBaseY;
         TitanSingleFinger(float x, float y, int direction, int intensity, int damage, float scale) {
             super(x, y, 180.0f + direction * 180.0f, 180.0f + direction * 180.0f, 0, damage, AnimationManager.getInstance().getAnimation("titan_finger"));
             setNavi(false);
@@ -43,7 +44,7 @@ public class TitanFingers extends Bullet{
             if(markedForRemoval) return;
 
             updatePosition(deltaTime);
-            if(state == State.MOVING_OUT) {
+            if(state == State.MOVING_OUT || state == State.MOVING_UP_DOWN) {
                 animation.updateAnimation(deltaTime);
             }
 
@@ -201,6 +202,7 @@ public class TitanFingers extends Bullet{
     private enum State { 
         MOVING_UP_DOWN, 
         MOVING_OUT, 
+        MOVING_OUT_PAUSE,
         STABBING_IN,
         STAB_PAUSE,
         RESETTING,
@@ -246,6 +248,7 @@ public class TitanFingers extends Bullet{
     private float pauseTimer = 0;
 
     private float currentTheta = 0.0f;
+    private float pauseBaseX, pauseBaseY;
 
 
     /**
@@ -335,6 +338,9 @@ public class TitanFingers extends Bullet{
                     state = State.MOVING_OUT;
                     outMoveTimer = 0;
                     animationStarted = false;
+                    for (TitanSingleFinger finger : fingers) {
+                        finger.animation.reset();
+                    }
                 }
             }
         } else if (state == State.MOVING_OUT) {
@@ -368,6 +374,29 @@ public class TitanFingers extends Bullet{
                 }
             }
             if (allFinished) {
+                state = State.MOVING_OUT_PAUSE;
+                pauseTimer = 0;
+                pauseBaseX = this.x;
+                pauseBaseY = this.y;
+                for (TitanSingleFinger finger : fingers) {
+                    finger.pauseBaseX = finger.getX();
+                    finger.pauseBaseY = finger.getY();
+                }
+            }
+        } else if (state == State.MOVING_OUT_PAUSE) {
+            pauseTimer += deltaTime;
+            if (pauseTimer < 0.5f) {
+                // 抖动
+                float shakeAmp = 5.0f;
+                float shakeX = (float) ((Math.random() - 0.5) * 2 * shakeAmp);
+                float shakeY = (float) ((Math.random() - 0.5) * 2 * shakeAmp);
+                this.x = pauseBaseX + shakeX;
+                this.y = pauseBaseY + shakeY;
+                for (TitanSingleFinger finger : fingers) {
+                    finger.setX(finger.pauseBaseX + shakeX);
+                    finger.setY(finger.pauseBaseY + shakeY);
+                }
+            } else {
                 state = State.STABBING_IN;
                 stabMoveTimer = 0;
                 SoundManager.getInstance().playSE("finger_charge");
