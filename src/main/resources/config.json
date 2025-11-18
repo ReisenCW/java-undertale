@@ -153,7 +153,8 @@
     {"key": "titan_weakened", "path": "se/se_titan_weakened.wav"},
     {"key": "collect", "path": "se/se_collect.wav"},
     {"key": "snake_die", "path": "se/se_snake_die.wav"},
-    {"key": "explode", "path": "se/se_explode.wav"}
+    {"key": "explode", "path": "se/se_explode.wav"},
+    {"key": "finger_charge", "path": "se/se_charge.wav"}
   ],
   "music": [
     {"key": "gameover", "path": "music/mus_gameover.wav"},

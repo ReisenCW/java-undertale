@@ -2,6 +2,9 @@ package undertale.GameObject.Bullets;
 
 import static org.lwjgl.opengl.GL20.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import undertale.Animation.Animation;
 import undertale.Animation.AnimationManager;
 import undertale.GameMain.Game;
@@ -38,7 +41,7 @@ public class TitanFingers extends Bullet{
         @Override
         public void update(float deltaTime) {
             if(markedForRemoval) return;
-            
+
             updatePosition(deltaTime);
             if(state == State.MOVING_OUT) {
                 animation.updateAnimation(deltaTime);
@@ -200,10 +203,25 @@ public class TitanFingers extends Bullet{
         MOVING_OUT, 
         STABBING_IN,
         STAB_PAUSE,
-        RESETTING
+        RESETTING,
+        RESET_ANIMATION
+    }
+
+    private class PalmTrail {
+        float x, y, alpha;
+        PalmTrail(float x, float y, float alpha) {
+            this.x = x;
+            this.y = y;
+            this.alpha = alpha;
+        }
     }
 
     private State state = State.MOVING_UP_DOWN;
+
+    private List<PalmTrail> palmTrails = new ArrayList<>();
+    private float trailSpawnTimer = 0;
+    private float trailSpawnInterval = 0.05f;
+    private float trailFadeSpeed = 2.0f;
 
     private TitanSingleFinger[] fingers = new TitanSingleFinger[4];
     private int direction;
@@ -352,6 +370,7 @@ public class TitanFingers extends Bullet{
             if (allFinished) {
                 state = State.STABBING_IN;
                 stabMoveTimer = 0;
+                SoundManager.getInstance().playSE("finger_charge");
                 // 开启判定
                 this.isColli = true;
                 for (TitanSingleFinger finger : fingers) {
@@ -372,6 +391,12 @@ public class TitanFingers extends Bullet{
                 for (TitanSingleFinger finger : fingers) {
                     finger.setX(finger.getX() - stabSpeed * deltaTime);
                 }
+            }
+            // 添加残影
+            trailSpawnTimer += deltaTime;
+            if (trailSpawnTimer >= trailSpawnInterval) {
+                trailSpawnTimer -= trailSpawnInterval;
+                palmTrails.add(new PalmTrail(this.x, this.y, 1.0f));
             }
             // 突刺后停顿
             if (stabMoveTimer > stabDuration) {
@@ -419,12 +444,27 @@ public class TitanFingers extends Bullet{
             finger.update(deltaTime);
         }
         super.update(deltaTime);
+
+        // 更新残影
+        for (PalmTrail trail : palmTrails) {
+            trail.alpha -= trailFadeSpeed * deltaTime;
+        }
+        palmTrails.removeIf(trail -> trail.alpha <= 0);
     }
 
     @Override 
     public void render() {
         Texture currentTexture = getCurrentTexture();
         if (currentTexture != null) {
+            // 绘制残影
+            for (PalmTrail trail : palmTrails) {
+                Texture.drawTexture(currentTexture.getId(),
+                    trail.x, trail.y,
+                    hScale * currentTexture.getWidth(), vScale * currentTexture.getHeight(),
+                    getSelfAngle(), rgba[0], rgba[1], rgba[2], trail.alpha, direction != 1, false
+                );
+            }
+            // 绘制当前 palm
             Texture.drawTexture(currentTexture.getId(),
                 this.x, this.y,
                 hScale * currentTexture.getWidth(), vScale * currentTexture.getHeight(),
