@@ -103,14 +103,6 @@ public class AnimationManager {
             }
             animations.put("spawn_mouse_animation", spawn_mouse_animation);
         }
-        // spawn_red_eye_animation
-        {
-            Animation spawn_red_eye_animation = new Animation(0.15f, true);
-            for (int i = 0; i <= 5; i++) {
-                spawn_red_eye_animation.addFrame(textureManager.getTexture("spawn_red_eye_" + i));
-            }
-            animations.put("spawn_red_eye_animation", spawn_red_eye_animation);
-        }
         // titan_snake_animation
         {
             Animation titan_snake_head = new Animation(0.2f, true,
