@@ -12,6 +12,7 @@ import undertale.GameObject.Collectables.TensionPoint;
 import undertale.Utils.GameUtilities;
 import undertale.GameObject.Effects.TitanSpawnParticle;
 import undertale.Sound.SoundManager;
+import undertale.Texture.TextureManager;
 
 import static org.lwjgl.opengl.GL20.*;
 

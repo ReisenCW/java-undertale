@@ -199,6 +199,23 @@ public class TitanFingers extends Bullet{
                 }
             }
         }
+
+        public void generateBallSmall() {
+            if(markedForRemoval) return;
+            float width = getWidth();
+            float height = getHeight();
+            float tipX = (direction == 1) ? x + width : x;
+            float spreadLength = width / 4 * 3;
+            for (int i = 0; i < 2; i++) {
+                float t = (i + 0.5f) / 2;
+                float offset = t * spreadLength;
+                float tx = (direction == 1) ? tipX - offset : tipX + offset;
+                float ty = y + height / 2;
+                float speedAngle = (float) (Math.random() * 360);
+                BallSmall ball = new BallSmall(tx, ty, speedAngle, 1.0f, 60.0f, 3.0f, 0.9f, 1.1f, 0.2f, damage);
+                Game.getObjectManager().addBullet(ball);
+            }
+        }
     }
 
     private enum State { 
@@ -242,7 +259,7 @@ public class TitanFingers extends Bullet{
     private float outMoveTimer = 0;
     private float stabMoveTimer = 0;
     private float fingerAnimationDuration;
-    private float stabDuration = 0.5f;
+    private float stabDuration = 0.4f;
     private float resetDuration = 1.0f;
     private float pauseDuration = 1.0f;
     private boolean animationStarted = false;
@@ -319,10 +336,10 @@ public class TitanFingers extends Bullet{
 
         // 状态机
         if (state == State.MOVING_UP_DOWN) {
-            float baseTime = 3.8f;
+            float baseTime = 1.9f;
             float totalTime = baseTime + randomTime;
             float amp = 60.0f;
-            float cycleTime = 2.8f;
+            float cycleTime = 1.4f;
             // 上下移动
             if (moving) {
                 moveTimer += deltaTime;
@@ -419,7 +436,7 @@ public class TitanFingers extends Bullet{
         } else if (state == State.STABBING_IN) {
             stabMoveTimer += deltaTime;
             // 高速突刺
-            float stabSpeed = 860.0f;
+            float stabSpeed = 1100.0f;
             if (direction == 1) {
                 this.x += stabSpeed * deltaTime;
                 for (TitanSingleFinger finger : fingers) {
@@ -441,6 +458,10 @@ public class TitanFingers extends Bullet{
             if (stabMoveTimer > stabDuration) {
                 state = State.STAB_PAUSE;
                 pauseTimer = 0;
+                // 生成small ball
+                for (TitanSingleFinger finger : fingers) {
+                    finger.generateBallSmall();
+                }
             }
         } else if (state == State.STAB_PAUSE) {
             pauseTimer += deltaTime;

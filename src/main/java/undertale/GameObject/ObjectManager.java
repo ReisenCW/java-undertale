@@ -21,6 +21,7 @@ import undertale.Texture.Texture;
 public class ObjectManager {
     private Player player;
     private ArrayList<Bullet> bullets;
+    private ArrayList<Bullet> pendingBullets;
     // 对象池复用子弹, 避免频繁创建和销毁子弹, 减少gc压力和内存分配开销
     private ArrayList<Bullet> bulletPool;
     // 声明为成员变量避免频繁创建临时列表
@@ -49,6 +50,7 @@ public class ObjectManager {
     private void init(Player player){
         this.player = player;
         bullets = new ArrayList<>();
+        pendingBullets = new ArrayList<>();
         bulletPool = new ArrayList<>();
         toRemove = new ArrayList<>();
         collectables = new ArrayList<>();
@@ -127,7 +129,7 @@ public class ObjectManager {
 
     public void addBullet(Bullet bullet) {
         if (bullet != null) {
-            bullets.add(bullet);
+            pendingBullets.add(bullet);
         }
     }
 
@@ -151,6 +153,10 @@ public class ObjectManager {
     }
 
     public void updateFightScene(float deltaTime){
+        // 先添加 pending bullets
+        bullets.addAll(pendingBullets);
+        pendingBullets.clear();
+
         // enemy
         enemyManager.update(deltaTime);
         // player
