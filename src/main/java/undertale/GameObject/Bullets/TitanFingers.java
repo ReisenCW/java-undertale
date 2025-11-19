@@ -200,19 +200,19 @@ public class TitanFingers extends Bullet{
             }
         }
 
-        public void generateBallSmall() {
+        public void generateBallSmall(int num) {
             if(markedForRemoval) return;
             float width = getWidth();
             float height = getHeight();
             float tipX = (direction == 1) ? x + width : x;
             float spreadLength = width / 4 * 3;
-            for (int i = 0; i < 2; i++) {
-                float t = (i + 0.5f) / 2;
+            for (int i = 0; i < num; i++) {
+                float t = (i + 0.5f) / num;
                 float offset = t * spreadLength;
                 float tx = (direction == 1) ? tipX - offset : tipX + offset;
                 float ty = y + height / 2;
                 float speedAngle = (float) (Math.random() * 360);
-                BallSmall ball = new BallSmall(tx, ty, speedAngle, 1.0f, 60.0f, 3.0f, 0.9f, 1.1f, 0.2f, damage);
+                BallSmall ball = new BallSmall(tx, ty, speedAngle, 1.0f, 70.0f, 3.0f, 0.9f, 1.1f, 0.2f, damage);
                 Game.getObjectManager().addBullet(ball);
             }
         }
@@ -256,6 +256,7 @@ public class TitanFingers extends Bullet{
     private float initialX;
     private float[] initialFingerX = new float[4];
 
+    private int smallBallNum = 2;
     private float outMoveTimer = 0;
     private float stabMoveTimer = 0;
     private float fingerAnimationDuration;
@@ -314,6 +315,29 @@ public class TitanFingers extends Bullet{
         animationStarted = false;
         resetTimer = 0;
         fingerAnimationDuration = fingers[0].getAnimation().getTotalDuration();
+
+        switch(intensity) {
+            case 1:
+                smallBallNum = 1;
+                resetDuration = 1.0f;
+                pauseDuration = 1.0f;
+                break;
+            case 2:
+                smallBallNum = 2;
+                resetDuration = 0.8f;
+                pauseDuration = 0.8f;
+                break;
+            case 3:
+                smallBallNum = 3;
+                resetDuration = 0.5f;
+                pauseDuration = 0.5f;
+                break;
+            default:
+                smallBallNum = 2;
+                resetDuration = 1.0f;
+                pauseDuration = 1.0f;
+                break;
+        }
     }
 
     @Override
@@ -460,7 +484,7 @@ public class TitanFingers extends Bullet{
                 pauseTimer = 0;
                 // 生成small ball
                 for (TitanSingleFinger finger : fingers) {
-                    finger.generateBallSmall();
+                    finger.generateBallSmall(this.smallBallNum);
                 }
             }
         } else if (state == State.STAB_PAUSE) {

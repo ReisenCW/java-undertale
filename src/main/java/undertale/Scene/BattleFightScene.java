@@ -25,14 +25,15 @@ public class BattleFightScene extends Scene {
     @Override
     public void init() {
         phase = 0;
-        // phaseRound = -1;
-        phaseRound = 1; //test
+        phaseRound = -1;
+        // phaseRound = 1; //test
         rounds = new ArrayList<>();
         // 4个阶段, 前三个阶段每个阶段3个round
+        // 0-2, 3-5, 6-8
         for(int p = 0; p < 3; p++) {
             rounds.add(new RoundSwarm(p + 1, 12000, 1500));
             rounds.add(new RoundSnake(p + 1, 17000, 1500));
-            rounds.add(new RoundFinger(p + 1, 24000, 1500));
+            rounds.add(new RoundFinger(p + 1, 22000, 1500));
         }
         roundTime = 0;
     }
@@ -43,9 +44,6 @@ public class BattleFightScene extends Scene {
         phaseRound++;
         if (phase < 3 && phaseRound > 2) {
             phaseRound = 0;
-            phase = (phase + 1) % 4;
-        } else if (phase >= 3){
-            phaseRound = 0;
         }
         int roundIndex = phase * 3 + phaseRound;
         rounds.get(roundIndex).onEnter();
@@ -53,6 +51,7 @@ public class BattleFightScene extends Scene {
         objectManager.initPlayerPosition();
         objectManager.startPlayerLightExpansion();
         objectManager.allowPlayerMovement(true);
+        System.out.println("current phase: " + phase + ", round: " + phaseRound);
     }
 
     /**
@@ -63,10 +62,11 @@ public class BattleFightScene extends Scene {
     }
 
     public void afterUnleash() {
+        System.out.println("AFTER UNLEASH");
         // 进入下一个阶段
         phase = phase + 1;
         if(phase > 3) phase = 3;
-        phaseRound = 0;
+        phaseRound = -1;
     }
 
     @Override

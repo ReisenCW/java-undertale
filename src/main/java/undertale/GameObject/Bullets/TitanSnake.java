@@ -12,7 +12,6 @@ import undertale.GameObject.Collectables.TensionPoint;
 import undertale.Utils.GameUtilities;
 import undertale.GameObject.Effects.TitanSpawnParticle;
 import undertale.Sound.SoundManager;
-import undertale.Texture.TextureManager;
 
 import static org.lwjgl.opengl.GL20.*;
 
@@ -120,7 +119,7 @@ public class TitanSnake extends Bullet {
     private float minScale = 0.35f;
 
     private float particleEmitTimer = 0.0f;
-    private float particleEmitInterval = 0.5f;
+    private float particleEmitInterval = 0.4f;
 
     private float initialHeadAcceleration = 400.0f;
     private float maxSpeed = 400.0f;
@@ -151,19 +150,20 @@ public class TitanSnake extends Bullet {
             float dy = player.getY() + player.getHeight() / 2.0f - y;
             angleToPlayer = (float) Math.toDegrees(Math.atan2(dy, dx));
         }
-        head = new SnakePart(x, y, initialScale, angleToPlayer, maxSpeed, damage, headAnim);
-        float dirX = (float) Math.cos(Math.toRadians(angleToPlayer));
-        float dirY = (float) Math.sin(Math.toRadians(angleToPlayer));
+        int rDir = Math.random() < 0.5 ? -1 : 1;
+        head = new SnakePart(x, y, initialScale, angleToPlayer + 90 * rDir, maxSpeed, damage, headAnim);
+        float dirX = (float) Math.cos(Math.toRadians(angleToPlayer + 90 * rDir));
+        float dirY = (float) Math.sin(Math.toRadians(angleToPlayer + 90 * rDir));
         bodies = new ArrayList<>();
         float gap = 20.0f;
         for (int i = 0; i < bodyCount; i++) {
             float offsetX = - (i + 1) * gap * dirX;
             float offsetY = - (i + 1) * gap * dirY;
-            bodies.add(new SnakePart(x + offsetX, y + offsetY, initialScale, angleToPlayer, maxSpeed, damage, bodyAnim));
+            bodies.add(new SnakePart(x + offsetX, y + offsetY, initialScale, angleToPlayer + 90 * rDir, maxSpeed, damage, bodyAnim));
         }
         float tailOffsetX = - (bodyCount + 1) * gap * dirX;
         float tailOffsetY = - (bodyCount + 1) * gap * dirY;
-        tail = new SnakePart(x + tailOffsetX, y + tailOffsetY, initialScale, angleToPlayer, maxSpeed, damage, tailAnim);
+        tail = new SnakePart(x + tailOffsetX, y + tailOffsetY, initialScale, angleToPlayer + 90 * rDir, maxSpeed, damage, tailAnim);
         // 共享rgba以实现淡入效果
         head.rgba = this.rgba;
         for (SnakePart body : bodies) {

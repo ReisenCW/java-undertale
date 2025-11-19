@@ -55,4 +55,8 @@ public class SceneManager {
             scene.init();
         }
     }
+
+    public Scene getSceneByType(SceneEnum type) {
+        return scenes.get(type);
+    }
 }
