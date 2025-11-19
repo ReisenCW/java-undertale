@@ -87,6 +87,30 @@ public class AnimationManager {
             }
             animations.put("titan_spawn_animation", titan_spawn_animation);
         }
+        // spawn_evolver_animation
+        {
+            Animation spawn_evolver_animation = new Animation(0.15f, true);
+            for (int i = 0; i <= 2; i++) {
+                spawn_evolver_animation.addFrame(textureManager.getTexture("spawn_evolver_" + i));
+            }
+            animations.put("spawn_evolver_animation", spawn_evolver_animation);
+        }
+        // spawn_mouse_animation
+        {
+            Animation spawn_mouse_animation = new Animation(0.2f, true);
+            for (int i = 0; i <= 6; i++) {
+                spawn_mouse_animation.addFrame(textureManager.getTexture("spawn_mouse_" + i));
+            }
+            animations.put("spawn_mouse_animation", spawn_mouse_animation);
+        }
+        // spawn_red_eye_animation
+        {
+            Animation spawn_red_eye_animation = new Animation(0.15f, true);
+            for (int i = 0; i <= 5; i++) {
+                spawn_red_eye_animation.addFrame(textureManager.getTexture("spawn_red_eye_" + i));
+            }
+            animations.put("spawn_red_eye_animation", spawn_red_eye_animation);
+        }
         // titan_snake_animation
         {
             Animation titan_snake_head = new Animation(0.2f, true,

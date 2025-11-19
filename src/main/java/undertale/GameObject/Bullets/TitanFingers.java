@@ -224,7 +224,7 @@ public class TitanFingers extends Bullet{
 
     private List<PalmTrail> palmTrails = new ArrayList<>();
     private float trailSpawnTimer = 0;
-    private float trailSpawnInterval = 0.05f;
+    private float trailSpawnInterval = 0.1f;
     private float trailFadeSpeed = 2.0f;
 
     private TitanSingleFinger[] fingers = new TitanSingleFinger[4];
