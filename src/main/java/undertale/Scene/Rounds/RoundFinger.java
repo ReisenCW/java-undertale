@@ -1,14 +1,10 @@
 package undertale.Scene.Rounds;
 
 import undertale.GameMain.Game;
-import undertale.GameObject.ObjectManager;
 import undertale.GameObject.Bullets.TitanFingers;
 import undertale.Texture.TextureManager;
-import undertale.UI.UIManager;
 
 public class RoundFinger extends Round {
-    private ObjectManager objectManager;
-    private UIManager uiManager;
     private int intensity;
     private boolean spawnedFinger = false;
     private final float edge;
@@ -19,8 +15,6 @@ public class RoundFinger extends Round {
 
     public RoundFinger(int intensity, long duration, long frameMoveTime) {
         super(duration, frameMoveTime);
-        this.objectManager = Game.getObjectManager();
-        this.uiManager = UIManager.getInstance();
         this.intensity = intensity;
         this.edge = 400.0f;
         this.centerX = Game.getWindowWidth() / 2.0f;

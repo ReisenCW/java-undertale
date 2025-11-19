@@ -4,6 +4,8 @@ import undertale.GameMain.Game;
 import undertale.GameObject.Player;
 import undertale.Texture.Texture;
 import undertale.Texture.TextureManager;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TitanSwarmRed extends Bullet{
     private Texture redEye;
@@ -14,6 +16,21 @@ public class TitanSwarmRed extends Bullet{
     private float appearTimer = 0.0f;
     private float homingTime = 1.0f;
     private float targetScale = 1.5f;
+
+    private float trailSpawnTimer = 0;
+    private float trailSpawnInterval = 0.2f;
+    private float trailFadeSpeed = 4.0f;
+
+    private class Trail {
+        float x, y, angle, alpha;
+        Trail(float x, float y, float angle, float alpha) {
+            this.x = x;
+            this.y = y;
+            this.angle = angle;
+            this.alpha = alpha;
+        }
+    }
+    private List<Trail> trails = new ArrayList<>();
 
     public TitanSwarmRed(float x, float y, int damage) {
         super(x, y, 360 * (float)Math.random(), 0, 0, damage, TextureManager.getInstance().getTexture("spawn_red"));
@@ -78,10 +95,39 @@ public class TitanSwarmRed extends Bullet{
         // 旋转角度
         this.setSelfAngle(this.getSelfAngle() + rotateDir * rotationSpeed * deltaTime);
 
+        // 添加残影
+        trailSpawnTimer += deltaTime;
+        if (trailSpawnTimer >= trailSpawnInterval) {
+            trailSpawnTimer -= trailSpawnInterval;
+            trails.add(new Trail(this.x, this.y, this.getSelfAngle(), 1.0f));
+        }
+        for (Trail t : trails) {
+            t.alpha -= deltaTime * trailFadeSpeed;
+        }
+        trails.removeIf(trail -> trail.alpha <= 0);
+
     }
 
     @Override
     public void render() {
+        // render trails
+        for (Trail t : trails) {
+            // render body trail
+            Texture.drawTexture(getTexture().getId(),
+                t.x, t.y,
+                getHScale() * getTexture().getWidth(), getVScale() * getTexture().getHeight(),
+                t.angle, rgba[0], rgba[1], rgba[2], t.alpha);
+
+            // render eye trail
+            float eyeScale = 1.5f;
+            float eyeX = t.x + this.getWidth() / 2 - redEye.getWidth() / 2 * eyeScale * targetScale;
+            float eyeY = t.y + this.getHeight() / 2 - redEye.getHeight() / 2 * eyeScale * targetScale;
+            Texture.drawTexture(redEye.getId(),
+                eyeX, eyeY,
+                targetScale * eyeScale * redEye.getWidth(), targetScale * eyeScale * redEye.getHeight(),
+                0, 1, 0, 0, t.alpha);
+        }
+
         // render body
         super.render();
 

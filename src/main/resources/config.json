@@ -33,6 +33,7 @@
     {"key": "titan_body", "path": "enemy_titan/img_titan_body.png"},
     {"key": "titan_star", "path": "enemy_titan/img_titan_star.png"},
     {"key": "titan_blast", "path": "titan_blast.png"},
+    {"key": "titan_blast_black", "path": "titan_blast_black.png"},
     {"key": "ball_small", "path": "titan_small_ball.png"},
     {"key": "titan_backwing_0_0", "path": "enemy_titan/img_titan_backwing_0/spr_titan_backwing_0.png"},
     {"key": "titan_backwing_0_1", "path": "enemy_titan/img_titan_backwing_0/spr_titan_backwing_1.png"},
