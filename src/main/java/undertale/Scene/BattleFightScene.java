@@ -34,7 +34,7 @@ public class BattleFightScene extends Scene {
         // 0-2, 4-6, 8-10
         // 3,7,11为special round, 只有使用了unleash之后才会进入该round
         for(int p = 0; p < 3; p++) {
-            rounds.add(new RoundSwarm(p + 1, 12000, 1500));
+            rounds.add(new RoundSwarm(p + 1, 16000, 1500));
             rounds.add(new RoundSnake(p + 1, 17000, 1500));
             rounds.add(new RoundFinger(p + 1, 22000, 1500));
             rounds.add(new RoundSpecial(p + 1, 17000, 1500));

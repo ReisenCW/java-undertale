@@ -149,8 +149,8 @@ public class TitanFingers extends Bullet{
             float dist = (float) Math.sqrt(dx * dx + dy * dy);
             float outer = player.getCurrentLightRadius();
             float amp = player.getLightOscAmplitude();
-            float semiHalfSize = Math.max(this.getHeight(), this.getWidth()) / 4.0f;
-            if (dist <= outer + amp + semiHalfSize) {
+            float paddingSize = Math.max(this.getHeight(), this.getWidth()) / 5.0f;
+            if (dist <= outer + amp + paddingSize) {
                 return true;
             }
             return false;
