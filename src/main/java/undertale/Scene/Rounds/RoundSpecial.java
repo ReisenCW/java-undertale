@@ -31,11 +31,11 @@ public class RoundSpecial extends Round {
 
     private boolean isCharging = false;
     private float chargeTimer = 0.0f;
-    private float chargeDuration = 1.6f;
+    private float chargeDuration = 1.8f;
     private float lineSpawnTimer = 0.0f;
     private ArrayList<ChargeLine> chargeLines = new ArrayList<>();
             
-    private float blastSpeed = 800.0f;
+    private float blastSpeed = 750.0f;
     private float blastBaseScale = 1.5f;
     private float scaleChangeInterval = 0.1f;
     private float amp = 0.08f;

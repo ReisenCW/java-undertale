@@ -5,6 +5,9 @@ import undertale.GameObject.Player;
 import undertale.Texture.Texture;
 import undertale.Texture.TextureManager;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BallBlast extends Bullet {
     private float scaleChangeInterval;
     private float baseScale;
@@ -14,6 +17,20 @@ public class BallBlast extends Bullet {
     private float scaleTimer = 0f;
 
     private Texture whiteEdgeTexture;
+
+    private static class BallTrail {
+        float x, y, alpha;
+        BallTrail(float x, float y, float alpha) {
+            this.x = x;
+            this.y = y;
+            this.alpha = alpha;
+        }
+    }
+
+    private List<BallTrail> ballTrails = new ArrayList<>();
+    private float trailSpawnTimer = 0;
+    private float trailSpawnInterval = 0.15f;
+    private float trailFadeSpeed = 6.0f;
 
     public BallBlast(float x, float y, float speed, float speedAngle, float baseScale, float scaleChangeInterval, float amp, int damage) {
         super(x, y, speedAngle, speedAngle, speed, damage, TextureManager.getInstance().getTexture("titan_blast_black"));
@@ -38,6 +55,18 @@ public class BallBlast extends Bullet {
             scaleTimer -= scaleChangeInterval;
             changeScale();
         }
+
+        // 添加残影
+        trailSpawnTimer += deltaTime;
+        if (trailSpawnTimer >= trailSpawnInterval) {
+            trailSpawnTimer -= trailSpawnInterval;
+            ballTrails.add(new BallTrail(this.x, this.y, 1.0f));
+        }
+        // 更新残影
+        for (BallTrail trail : ballTrails) {
+            trail.alpha -= trailFadeSpeed * deltaTime;
+        }
+        ballTrails.removeIf(trail -> trail.alpha <= 0);
     }
 
     enum ScaleState {
@@ -68,6 +97,16 @@ public class BallBlast extends Bullet {
 
     @Override
     public void render() {
+        // 绘制残影
+        for (BallTrail trail : ballTrails) {
+            float trailWhiteX = trail.x + this.getWidth() / 2 - whiteEdgeTexture.getWidth() / 2 * whiteScale;
+            float trailWhiteY = trail.y + this.getHeight() / 2 - whiteEdgeTexture.getHeight() / 2 * whiteScale;
+            // 白色边缘
+            Texture.drawTexture(whiteEdgeTexture.getId(), trailWhiteX, trailWhiteY, whiteEdgeTexture.getWidth() * whiteScale, whiteEdgeTexture.getHeight() * whiteScale, this.getSelfAngle(), 1.0f, 1.0f, 1.0f, trail.alpha);
+            // 黑色主体
+            Texture.drawTexture(getTexture().getId(), trail.x, trail.y, this.getWidth(), this.getHeight(), this.getSelfAngle(), 0.0f, 0.0f, 0.0f, trail.alpha);
+        }
+        // 绘制当前
         float whiteX = this.x + this.getWidth() / 2 - whiteEdgeTexture.getWidth() / 2 * whiteScale;
         float whiteY = this.y + this.getHeight() / 2 - whiteEdgeTexture.getHeight() / 2 * whiteScale;
         // 先渲染白色边缘
