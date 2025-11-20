@@ -19,6 +19,7 @@ public class TitanSpawn extends Bullet{
     private float contactDisapperTime; // seconds
     private boolean contacting = false;
     private boolean markedForRemoval = false;
+    private boolean noTP = false;
     private float initialHScale;
     private float initialVScale;
 
@@ -37,6 +38,7 @@ public class TitanSpawn extends Bullet{
         this.destroyableOnHit = false;
         this.maxSpeed = maxSpeed;
         this.contactDisapperTime = contactDisapperTime;
+        this.bound = false;
         // 创建动画副本，避免多个实例共享同一个动画状态
         this.animation = new Animation(animation.getFrameDuration(), animation.isLoop(), animation.getFrames());
 
@@ -185,8 +187,10 @@ public class TitanSpawn extends Bullet{
             this.isColli = false;
             markedForRemoval = true;
             // 创建一个tension point
-            TensionPoint tp = new TensionPoint(this.x + this.getWidth() / 2.0f, this.y + this.getHeight() / 2.0f, 1.6f);
-            Game.getObjectManager().addCollectable(tp);
+            if (!noTP) {
+                TensionPoint tp = new TensionPoint(this.x + this.getWidth() / 2.0f, this.y + this.getHeight() / 2.0f, 1.6f);
+                Game.getObjectManager().addCollectable(tp);
+            }
         }
     }
     
@@ -218,6 +222,11 @@ public class TitanSpawn extends Bullet{
 
     public boolean isMarkedForRemoval() {
         return markedForRemoval;
+    }
+
+    public void markForRemovalWithoutTP() {
+        markedForRemoval = true;
+        noTP = true;
     }
 
     @Override

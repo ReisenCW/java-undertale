@@ -148,4 +148,8 @@ public class RoundSnake extends Round{
         spawnTimer = 0f;
         snakeSpawnedCount = 0;
     }
+
+    
+    @Override
+    public void render() {}
 }

@@ -90,8 +90,8 @@ public class Player extends GameObject {
         
         this.rgba = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
         
-        this.x = Game.getWindowWidth() / 2 - heartTexture.getWidth() / 2;
-        this.y = Game.getWindowHeight() / 2 - heartTexture.getHeight() / 2;
+        this.x = Game.getWindowWidth() / 2 - (hScale * heartTexture.getWidth()) / 2;
+        this.y = Game.getWindowHeight() / 2 - (vScale * heartTexture.getHeight()) / 2;
 
         items = new Item[8];
         items[0] = new Item("Pie", "* Tasty.", 99);
@@ -473,8 +473,8 @@ public class Player extends GameObject {
         this.isHurt = false;
         this.isMovable = true;
         this.tensionPoints = 80;
-        this.x = Game.getWindowWidth() / 2 - heartTexture.getWidth() / 2;
-        this.y = Game.getWindowHeight() / 2 - heartTexture.getHeight() / 2;
+        this.x = Game.getWindowWidth() / 2 - (hScale * heartTexture.getWidth()) / 2;
+        this.y = Game.getWindowHeight() / 2 - (vScale * heartTexture.getHeight()) / 2;
         this.setCurrentLightRadius(LightLevel.NORMAL);
         this.setTargetLightRadius(LightLevel.NORMAL);
     }

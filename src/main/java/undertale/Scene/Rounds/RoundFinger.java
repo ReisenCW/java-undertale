@@ -47,4 +47,7 @@ public class RoundFinger extends Round {
     public void moveBattleFrame(float deltaTime) {
         uiManager.moveBattleFrame(deltaTime, frameMoveTime, edge, edge, centerX - edge / 2, centerY + edge / 2);
     }
+
+    @Override
+    public void render() {}
 }

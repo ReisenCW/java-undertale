@@ -8,6 +8,7 @@ import undertale.Animation.Animation;
 import undertale.Enemy.EnemyManager;
 import undertale.GameMain.Game;
 import undertale.GameObject.Bullets.Bullet;
+import undertale.GameObject.Bullets.BallBlast;
 import undertale.GameObject.Bullets.TitanSpawn;
 import undertale.GameObject.Bullets.TitanSnake;
 import undertale.GameObject.Collectables.Collectable;
@@ -182,6 +183,19 @@ public class ObjectManager {
                 if (ts.isMarkedForRemoval()) {
                     toRemove.add(bullet);
                     continue;
+                }
+            }
+
+            // 检查TitanSpawn与BallBlast的碰撞
+            if (bullet instanceof TitanSpawn && bullet.isColli) {
+                for (Bullet other : bullets) {
+                    if (other instanceof BallBlast && other != bullet) {
+                        if (CollisionDetector.checkCircleCollision(bullet, other)) {
+                            ((TitanSpawn) bullet).markForRemovalWithoutTP();
+                            toRemove.add(bullet);
+                            break;
+                        }
+                    }
                 }
             }
 

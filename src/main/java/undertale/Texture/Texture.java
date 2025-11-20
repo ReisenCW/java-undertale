@@ -28,7 +28,7 @@ public class Texture {
     // Shared rendering resources for textured quads (lazy init)
     private static int quadVao = 0;
     private static int quadVbo = 0;
-    private static int whiteTextureId = 0; // 1x1 white texture for color-only draws
+    public static int whiteTextureId = 0; // 1x1 white texture for color-only draws
     private static boolean glInitialized = false;
     private static int screenWidth = Game.getWindowWidth();
     private static int screenHeight = Game.getWindowHeight();

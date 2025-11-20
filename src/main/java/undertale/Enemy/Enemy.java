@@ -20,6 +20,7 @@ public class Enemy {
     protected boolean isDying = false;
     protected float deathAlpha = 1.0f;
     protected float deathAlphaSpeed = -2.0f; // 0.5秒内消失
+    protected float shakeOffset = 0.0f;
 
     public boolean isYellow;
 
@@ -151,7 +152,7 @@ public class Enemy {
         Collections.sort(animationEntries, Comparator.comparingInt(e -> e.priority));
         for (AnimationEntry entry : animationEntries) {
             entry.animation.renderCurrentFrame(
-                entry.left,
+                entry.left + shakeOffset,
                 entry.bottom - entry.animation.getFrameHeight() * entry.scaler,
                 entry.scaler, entry.scaler, 0.0f, 1.0f, 1.0f, 1.0f, entry.alpha * deathAlpha);
         }
@@ -281,6 +282,10 @@ public class Enemy {
 
     public void setAllowRender(boolean allow) {
         this.allowRender = allow;
+    }
+
+    public void setShakeOffset(float offset) {
+        this.shakeOffset = offset;
     }
 
     public boolean isAllowRender() {

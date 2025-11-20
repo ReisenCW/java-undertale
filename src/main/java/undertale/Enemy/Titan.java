@@ -17,6 +17,11 @@ public class Titan extends Enemy {
     private int roundsPerWeaken;
     private float initialDefenseRate = 0.8f;
 
+    private static float windowWidth;
+    private static float windowCenterX;
+    private static float bodyBottom;
+    private static float starBottom;
+
     public Titan() {
         super("Titan", 10000, 10000, 114514, 19198);
         this.weakened = false;
@@ -80,10 +85,10 @@ public class Titan extends Enemy {
     }
 
     private void initAnimations(ConfigManager configManager, AnimationManager animationManager) {
-        float windowWidth = Game.getWindowWidth();
-        float windowCenterX = windowWidth / 2;
-        float bodyBottom = configManager.MENU_FRAME_BOTTOM - configManager.MENU_FRAME_HEIGHT;
-        float starBottom = bodyBottom - 45;
+        windowWidth = Game.getWindowWidth();
+        windowCenterX = windowWidth / 2;
+        bodyBottom = configManager.MENU_FRAME_BOTTOM - configManager.MENU_FRAME_HEIGHT;
+        starBottom = bodyBottom - 45;
 
         Animation bodyAnimation = animationManager.getAnimation("titan_body");
         Animation starAnimation = animationManager.getAnimation("titan_star");
@@ -168,5 +173,12 @@ public class Titan extends Enemy {
         this.defenseRate = initialDefenseRate;
         // star显示
         setAnimationAlpha("star", 1.0f, 0.0f);
+    }
+
+    public static float[] getCentralPosition() {
+        // star的中心x,y
+        float centerX = windowCenterX;
+        float centerY = starBottom - AnimationManager.getInstance().getAnimation("titan_star").getFrameHeight() / 2;
+        return new float[]{centerX, centerY};
     }
 }

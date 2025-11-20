@@ -21,6 +21,8 @@ public abstract class Round {
 
     public abstract void updateRound(float deltaTime);
 
+    public abstract void render();
+
     public long getRoundDuration() {
         return roundDuration;
     }

@@ -16,6 +16,7 @@ public class BattleFightScene extends Scene {
     private int phaseRound = 0; // 0-2
     private ArrayList<Round> rounds;
     private long roundTime;
+    private boolean isSpecial = false;
 
     public BattleFightScene(ObjectManager objectManager, InputManager inputManager) {
         super(objectManager, inputManager);
@@ -24,49 +25,63 @@ public class BattleFightScene extends Scene {
 
     @Override
     public void init() {
-        phase = 0;
-        phaseRound = -1;
-        // phaseRound = 1; //test
+        // phase = 0;
+        // phaseRound = -1;
+        phase = 1; // test
+        phaseRound = 1; //test
         rounds = new ArrayList<>();
         // 4个阶段, 前三个阶段每个阶段3个round
-        // 0-2, 3-5, 6-8
+        // 0-2, 4-6, 8-10
+        // 3,7,11为special round, 只有使用了unleash之后才会进入该round
         for(int p = 0; p < 3; p++) {
             rounds.add(new RoundSwarm(p + 1, 12000, 1500));
             rounds.add(new RoundSnake(p + 1, 17000, 1500));
             rounds.add(new RoundFinger(p + 1, 22000, 1500));
+            rounds.add(new RoundSpecial(p + 1, 17000, 1500));
         }
+        rounds.add(new RoundSpecial(3, 17000, 1500)); // 循环最后一个攻击
         roundTime = 0;
     }
 
     @Override
     public void onEnter() {
         roundTime = 0;
-        phaseRound++;
-        if (phase < 3 && phaseRound > 2) {
-            phaseRound = 0;
+        if(isSpecial) {
+            System.out.println("special round");
+            phaseRound = -1;
+            isSpecial = false;
+        } else {
+            phaseRound++;
+            System.out.println("nromal round " + phaseRound);
+            if (phase >= 3 || phaseRound > 2) {
+                System.out.println("reset phase round to 0");
+                phaseRound = 0;
+            }
         }
-        int roundIndex = phase * 3 + phaseRound;
+        int roundIndex = phase * 4 + phaseRound;
         rounds.get(roundIndex).onEnter();
         uiManager.setSelected(-1);
         objectManager.initPlayerPosition();
         objectManager.startPlayerLightExpansion();
         objectManager.allowPlayerMovement(true);
-        System.out.println("current phase: " + phase + ", round: " + phaseRound);
+        System.out.println("current phase: " + phase + ", round: " + phaseRound + ", roundIndex: " + roundIndex);
     }
 
     /**
-     * 返回当前回合编号（1-based）。如果尚未进入回合则返回 0。
+     * 返回当前回合编号（0-based）
      */
     public int getRoundNumber() {
-        return phase * 3 + phaseRound;
+        return phase * 4 + phaseRound;
     }
 
     public void afterUnleash() {
-        System.out.println("AFTER UNLEASH");
         // 进入下一个阶段
         phase = phase + 1;
-        if(phase > 3) phase = 3;
-        phaseRound = -1;
+        if(phase > 3) {
+            phase = 3;
+        } else {
+            isSpecial = true;
+        }
     }
 
     @Override
@@ -87,7 +102,7 @@ public class BattleFightScene extends Scene {
             return;
         }
         roundTime += deltaTime * 1000;
-        int roundIndex = phase * 3 + phaseRound;
+        int roundIndex = phase * 4 + phaseRound;
         Round currentRound = rounds.get(roundIndex);
 
         currentRound.moveBattleFrame(deltaTime);
@@ -117,6 +132,9 @@ public class BattleFightScene extends Scene {
         enemyManager.render();
         uiManager.renderBattleUI();
         objectManager.renderFightScene();
+        int roundIndex = phase * 4 + phaseRound;
+        Round currentRound = rounds.get(roundIndex);
+        currentRound.render();
     }
 
     @Override

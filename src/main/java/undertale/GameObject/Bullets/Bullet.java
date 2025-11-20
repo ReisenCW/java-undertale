@@ -175,7 +175,7 @@ public class Bullet extends GameObject{
         if (!player.isAlive() || !this.isColli) {
             return false;
         }
-        float padding = - Math.max(this.getWidth(), this.getHeight()) / 3.0f;
+        float padding = - Math.max(this.getWidth(), this.getHeight()) / 4.0f;
         return CollisionDetector.checkCircleCollision(this, player, padding);
     }
 
