@@ -8,6 +8,7 @@ import undertale.Enemy.Titan;
 import undertale.GameMain.Game;
 import undertale.GameObject.Player;
 import undertale.GameObject.Bullets.TitanSpawn;
+import undertale.Sound.SoundManager;
 import undertale.GameObject.Bullets.BallBlast;
 import undertale.Texture.Texture;
 import undertale.Texture.TextureManager;
@@ -97,6 +98,7 @@ public class RoundSpecial extends Round {
             isCharging = true;
             chargeTimer = 0.0f;
             lineSpawnTimer = 0.0f;
+            SoundManager.getInstance().playSE("blast_charge");
         }
         if (isCharging) {
             chargeTimer += deltaTime;
@@ -146,6 +148,7 @@ public class RoundSpecial extends Round {
             // 发射 ballblast
             if (shootTimer >= SHOOT_INTERVAL) {
                 shootTimer -= SHOOT_INTERVAL;
+                SoundManager.getInstance().playSE("shot");
                 BallBlast blast = new BallBlast(
                     ballX,
                     ballY,

@@ -169,7 +169,8 @@
     {"key": "collect", "path": "se/se_collect.wav"},
     {"key": "snake_die", "path": "se/se_snake_die.wav"},
     {"key": "explode", "path": "se/se_explode.wav"},
-    {"key": "finger_charge", "path": "se/se_charge.wav"}
+    {"key": "shot", "path": "se/se_shot.wav"},
+    {"key": "blast_charge", "path": "se/se_blast_charge.wav"}
   ],
   "music": [
     {"key": "gameover", "path": "music/mus_gameover.wav"},

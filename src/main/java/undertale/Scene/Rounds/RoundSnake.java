@@ -147,6 +147,7 @@ public class RoundSnake extends Round{
         // 重置计时器和状态
         spawnTimer = 0f;
         snakeSpawnedCount = 0;
+        snakeSpawnTimer = 0f;
     }
 
     

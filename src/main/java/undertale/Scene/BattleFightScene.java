@@ -25,10 +25,10 @@ public class BattleFightScene extends Scene {
 
     @Override
     public void init() {
-        // phase = 0;
-        // phaseRound = -1;
-        phase = 1; // test
-        phaseRound = 1; //test
+        phase = 0;
+        phaseRound = -1;
+        // phase = 1; // test
+        // phaseRound = 1; //test
         rounds = new ArrayList<>();
         // 4个阶段, 前三个阶段每个阶段3个round
         // 0-2, 4-6, 8-10
@@ -140,5 +140,9 @@ public class BattleFightScene extends Scene {
     @Override
     public SceneEnum getCurrentScene() {
         return SceneEnum.BATTLE_FIGHT;
+    }
+
+    public int getPhase() {
+        return phase;
     }
 }

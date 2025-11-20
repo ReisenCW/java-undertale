@@ -169,10 +169,16 @@ public class SoundManager {
             setClipVolume(clip, volume);
 
             if (clip.isRunning()) {
-                clip.stop();
+                // 如果正在播放，创建新clip允许同时播放
+                Clip newClip = loadClip(path);
+                if (newClip != null) {
+                    setClipVolume(newClip, volume);
+                    newClip.start();
+                }
+            } else {
+                clip.setFramePosition(0);
+                clip.start();
             }
-            clip.setFramePosition(0);
-            clip.start();
         } catch (Exception e) {
             System.err.println("Error playing SE: " + soundFile);
             e.printStackTrace();

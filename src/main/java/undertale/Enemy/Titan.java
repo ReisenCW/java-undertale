@@ -60,12 +60,15 @@ public class Titan extends Enemy {
             () -> (player.getTensionPoints() >= 80 && !weakened),
             () -> {
                 player.updateTensionPoints(-80);
-                defenseWeaken(roundsPerWeaken); // 2回合
                 // 执行特殊攻击，进入下一个阶段
                 Scene fightScene = SceneManager.getInstance().getSceneByType(Scene.SceneEnum.BATTLE_FIGHT);
                 if (fightScene instanceof BattleFightScene) {
                     ((BattleFightScene) fightScene).afterUnleash();
+                    if(((BattleFightScene) fightScene).getPhase() >= 3) {
+                        roundsPerWeaken = -1; // 永远防御下降
+                    }
                 }
+                defenseWeaken(roundsPerWeaken);
             }
         );
         addAct(

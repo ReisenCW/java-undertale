@@ -450,7 +450,7 @@ public class TitanFingers extends Bullet{
             } else {
                 state = State.STABBING_IN;
                 stabMoveTimer = 0;
-                SoundManager.getInstance().playSE("finger_charge");
+                SoundManager.getInstance().playSE("shot");
                 // 开启判定
                 this.isColli = true;
                 for (TitanSingleFinger finger : fingers) {
