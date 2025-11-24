@@ -335,10 +335,61 @@ public class ShaderManager {
 Bullet 作为所有子弹的基类，已定义统一接口（update()、render() 等），而 TitanSpawn、TitanSnake 等子类可视为「叶子节点」，若未来需要实现组合型子弹（如包含多个子子弹的集群攻击），可通过组合模式将其设计为「容器节点」，统一由 ObjectManager 管理。
 UI 系统中，UIBase 作为抽象基类，UIManager、BeginMenuManager 等作为具体实现，可扩展为组合结构（如菜单包含子按钮、子面板），通过统一接口简化渲染和事件处理逻辑。
 优势：客户端无需区分单个对象和组合对象，统一调用接口（如 ObjectManager 对所有 Bullet 统一更新），增强代码灵活性和可扩展性。
+
 2. 享元模式（Flyweight Pattern）
 适用场景：项目中存在大量重复创建的对象（如纹理、字体、子弹等），且这些对象可共享部分状态（内在状态）。现有代码基础：
 纹理管理：TextureManager 和 ConfigManager 已通过 textures 映射缓存纹理路径，可进一步通过享元模式复用纹理实例，避免重复加载相同资源（如 titan_laser 系列纹理）。
 子弹对象池：ObjectManager 中已实现 bulletPool 和 collectablePool，通过复用子弹和可收集物减少 GC 开销，本质上是享元模式的应用 —— 共享对象实例，仅修改外在状态（位置、速度等）。
 优势：大幅减少内存占用，提升系统性能，尤其适合频繁创建和销毁的对象（如战斗场景中的大量子弹）。
+
+3. 装饰器模式（Decorator Pattern）
+适用场景：动态为对象添加功能，如为子弹或敌人添加特效、状态效果，而不改变原有类。
+**重构建议**：
+定义装饰器基类：
+```java
+public abstract class GameObjectDecorator extends GameObject {
+    protected GameObject decoratedObject;
+    
+    public GameObjectDecorator(GameObject decoratedObject) {
+        this.decoratedObject = decoratedObject;
+    }
+    
+    @Override
+    public void update(float deltaTime) {
+        decoratedObject.update(deltaTime);
+    }
+    
+    @Override
+    public void render() {
+        decoratedObject.render();
+    }
+}
+```
+实现具体装饰器：
+```java
+public class EffectDecorator extends GameObjectDecorator {
+    private String effect;
+    
+    public EffectDecorator(GameObject decoratedObject, String effect) {
+        super(decoratedObject);
+        this.effect = effect;
+    }
+    
+    @Override
+    public void render() {
+        super.render();
+        // 添加特效渲染
+        renderEffect(effect);
+    }
+}
+```
+使用：
+```java
+Bullet bullet = new Bullet();
+GameObject decoratedBullet = new EffectDecorator(bullet, "glow");
+```
+优势：灵活添加功能，符合开闭原则。
+
+
 额外补充：适配器模式（Adapter Pattern）
 若未来需要集成第三方库（如不同的输入处理框架、音效引擎），可通过适配器模式封装差异接口，使现有代码（如 InputManager、SoundManager）无需修改即可兼容新依赖，保持系统稳定性。
