@@ -4,11 +4,14 @@
 
 ## 1.1. 设计模式类型速通
 - [柏码知识库 | 设计模式（二）创建型](https://www.itbaima.cn/zh-CN/document/8ftkb38wfn6ox0ug)
+
+- [柏码知识库 | 设计模式（三）结构型](https://www.itbaima.cn/zh-CN/document/i1msql1k8y70etey)
+
 - [柏码知识库 | 设计模式（四）行为型](https://www.itbaima.cn/zh-CN/document/5434a3cyyjvwhs8s)
 
 
 
-## 1.2. 工厂模式（Factory）
+## 1.2. 创建型-工厂模式（Factory）
 **现状**：场景创建直接在`Game`类中硬编码（如`new BeginMenuScene(...)`），新增场景需修改`Game`类，违反**开闭原则**。
 
 **重构建议**：
@@ -45,40 +48,14 @@
    sceneManager.registerScene(SceneEnum.START_MENU, sceneFactory.createScene(SceneEnum.START_MENU));
    ```
    这样`Game`中场景的创建只与`SceneEnum`有关，对已有场景做修改（如重命名）时无需对`Game`进行修改
+   同时原本`Scene`的构造函数依赖`ObjectManager`和`InputManager`，但通过`Game`类直接传递，高层模块（`Game`）依赖低层模块（具体`Scene`），耦合紧密。通过工厂模式统一注入依赖可以降低耦合
 
-## 1.3. 依赖注入（Dependency Injection）的优化
-**现状**：`Scene`的构造函数依赖`ObjectManager`和`InputManager`，但通过`Game`类直接传递，高层模块（`Game`）依赖低层模块（具体`Scene`），耦合紧密。
 
-**重构建议**：
-1. **使用构造函数注入**：通过工厂模式（如前文的`SceneFactory`）统一注入依赖，而非在`Game`中硬编码：
-   ```java
-   // SceneFactory 负责注入依赖，Scene 只依赖抽象
-   public class SceneFactory {
-       private final ObjectManager objectManager;
-       private final InputManager inputManager;
-       
-       // 工厂的依赖通过构造函数注入
-       public SceneFactory(ObjectManager objectManager, InputManager inputManager) {
-           this.objectManager = objectManager;
-           this.inputManager = inputManager;
-       }
-       
-       public Scene createScene(SceneEnum type) {
-           // 所有场景的依赖由工厂统一传递
-           return switch (type) {
-               case START_MENU -> new BeginMenuScene(objectManager, inputManager);
-               case BATTLE_MENU -> new BattleMenuScene(objectManager, inputManager);
-               // ...
-           };
-       }
-   }
-   ```
-
-## 1.4. 单例模式规范
+## 1.3. 创建型-单例模式（改动很小）
 configManager应改为单例
 为避免现有单例实现的不一致，建议遵循以下规范：
 
-### 1.4.1. 枚举单例（推荐，适合无复杂初始化逻辑的类）
+### 1.3.1. 枚举单例（推荐，适合无复杂初始化逻辑的类）
 如SceneManager：
 ```java
 public enum SceneManager {
@@ -99,7 +76,7 @@ public enum SceneManager {
 ```
 枚举单例天然线程安全，且防止反射和序列化破坏单例。
 
-### 1.4.2. 双重校验锁单例（适合需要延迟初始化或复杂构造的类）
+### 1.3.2. 双重校验锁单例（适合需要延迟初始化或复杂构造的类）
 如ShaderManager（需要加载配置后初始化）：
 ```java
 public class ShaderManager {
@@ -124,7 +101,7 @@ public class ShaderManager {
 }
 ```
 
-## 1.5. 观察者模式（Observer）
+## 1.4. 行为型-观察者模式（Observer）
 **现状**：输入事件（如按键）处理与场景逻辑耦合（如`InputManager`直接操作`Player`），场景切换时输入响应逻辑难以维护。
 
 **重构建议**：
@@ -181,7 +158,7 @@ public class ShaderManager {
    }
    ```
 
-## 1.6. 状态模式（State）的应用
+## 1.5. 行为型-状态模式（State）
 **现状**：`UIManager`中通过`MenuState`枚举和大量`switch-case`处理菜单状态（如`renderFrameContents`方法），新增状态需修改多个`case`分支，维护成本高。
 
 **重构建议**：
@@ -241,10 +218,10 @@ public class ShaderManager {
    ```
    新增状态只需添加新的`MenuState`实现类，无需修改现有逻辑。
 
-## 1.7. Builder Pattern
+## 1.6. 创建型-Builder Pattern
 对于那些包含大量参数或存在众多重载方法的类与方法（例如Bullet类、drawTexture方法等），适合采用 Builder Pattern 进行优化。类似StringBuilder的设计思想，通过链式调用的方式分步设置所需参数，未显式设置的参数则自动沿用预设的默认值，既能避免冗长的构造函数或重载方法带来的维护成本，又能让参数配置过程更清晰直观，大幅提升代码的可读性与扩展性。
 
-## 1.8. 模板方法模式（Template Method）的应用
+## 1.7. 行为型-模板方法模式（Template Method）
 **现状**：不同`Scene`（如`BattleFightScene`、`GameOverScene`）的生命周期（初始化、更新、渲染）流程相似，但具体实现不同，存在重复代码。
 
 **重构建议**：
@@ -296,7 +273,7 @@ public class ShaderManager {
 
 2. **减少静态依赖**：`Game`类中大量使用`static`方法（如`Game.getPlayer()`），导致类之间强耦合。可改为通过依赖注入传递实例，而非直接调用静态方法。
 
-## 1.9. 命令模式（Command）的应用
+## 1.8. 行为型-命令模式（Command）
 **现状**：输入事件与具体操作（如菜单选择、战斗动作）直接绑定（如`InputManager`中处理按键后直接调用`player`方法），难以扩展（如添加撤销功能）。
 
 **重构建议**：
@@ -352,12 +329,16 @@ public class ShaderManager {
    ```
    新增操作只需添加`Command`实现，无需修改输入处理逻辑。
 
-
-
-## 1.10. 总结
-重构优先级建议：
-1. 先用**工厂模式**解耦场景创建，解决新增场景需修改多处代码的问题。
-2. 再用**状态模式**重构`UIManager`的菜单状态，消除冗长的`switch-case`。
-3. 最后通过**观察者模式**和**命令模式**优化输入处理，降低模块间耦合。
-
-这些重构将提高代码的可扩展性、可读性和可维护性，符合设计模式的**开闭原则**和**单一职责原则**。
+## 1.9. 结构型
+1. 组合模式（Composite Pattern）
+适用场景：项目中存在大量「整体 - 部分」关系的对象，例如子弹系统（Bullet 及其子类）、UI 组件（UIBase 及其派生管理器）等。现有代码基础：
+Bullet 作为所有子弹的基类，已定义统一接口（update()、render() 等），而 TitanSpawn、TitanSnake 等子类可视为「叶子节点」，若未来需要实现组合型子弹（如包含多个子子弹的集群攻击），可通过组合模式将其设计为「容器节点」，统一由 ObjectManager 管理。
+UI 系统中，UIBase 作为抽象基类，UIManager、BeginMenuManager 等作为具体实现，可扩展为组合结构（如菜单包含子按钮、子面板），通过统一接口简化渲染和事件处理逻辑。
+优势：客户端无需区分单个对象和组合对象，统一调用接口（如 ObjectManager 对所有 Bullet 统一更新），增强代码灵活性和可扩展性。
+2. 享元模式（Flyweight Pattern）
+适用场景：项目中存在大量重复创建的对象（如纹理、字体、子弹等），且这些对象可共享部分状态（内在状态）。现有代码基础：
+纹理管理：TextureManager 和 ConfigManager 已通过 textures 映射缓存纹理路径，可进一步通过享元模式复用纹理实例，避免重复加载相同资源（如 titan_laser 系列纹理）。
+子弹对象池：ObjectManager 中已实现 bulletPool 和 collectablePool，通过复用子弹和可收集物减少 GC 开销，本质上是享元模式的应用 —— 共享对象实例，仅修改外在状态（位置、速度等）。
+优势：大幅减少内存占用，提升系统性能，尤其适合频繁创建和销毁的对象（如战斗场景中的大量子弹）。
+额外补充：适配器模式（Adapter Pattern）
+若未来需要集成第三方库（如不同的输入处理框架、音效引擎），可通过适配器模式封装差异接口，使现有代码（如 InputManager、SoundManager）无需修改即可兼容新依赖，保持系统稳定性。
