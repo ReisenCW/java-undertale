@@ -6,7 +6,6 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
 
-import undertale.GameMain.Game;
 import undertale.Utils.ConfigManager;
 
 import java.io.BufferedInputStream;
@@ -20,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 // 声音管理器，负责加载和播放音效与音乐
 // 支持格式: WAV, AIFF, AU (JDK 内置支持)
 public class SoundManager {
-    private static final SoundManager instance;
+    private static SoundManager instance;
     private HashMap<String, String> soundEffects;
     private HashMap<String, String> musicTracks;
 
@@ -56,6 +55,13 @@ public class SoundManager {
     }
 
     public static SoundManager getInstance() {
+        if(instance == null) {
+            synchronized(SoundManager.class) {
+                if(instance == null) {
+                    instance = new SoundManager();
+                }
+            }
+        }
         return instance;
     }
 

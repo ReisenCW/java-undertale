@@ -5,12 +5,12 @@ import java.util.Iterator;
 
 public class EnemyManager {
 	private ArrayList<Enemy> enemies;
-    private static EnemyManager enemyManager;
+    private static EnemyManager instance;
 
     private Enemy currentEnemy = null;
 
     static {
-        enemyManager = new EnemyManager();
+        instance = new EnemyManager();
     }
 
 	private EnemyManager() {
@@ -19,7 +19,14 @@ public class EnemyManager {
     }
 
     public static EnemyManager getInstance() {
-        return enemyManager;
+        if(instance == null) {
+            synchronized(EnemyManager.class) {
+                if(instance == null) {
+                    instance = new EnemyManager();
+                }
+            }
+        }
+        return instance;
     }
 
     private void init() {

@@ -149,6 +149,13 @@ public class AnimationManager {
     }
 
     public static AnimationManager getInstance() {
+        if(instance == null) {
+            synchronized(AnimationManager.class) {
+                if(instance == null) {
+                    instance = new AnimationManager();
+                }
+            }
+        }
         return instance;
     }
 

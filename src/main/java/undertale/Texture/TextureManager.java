@@ -27,6 +27,13 @@ public class TextureManager {
     } 
     
     public static TextureManager getInstance() {
+        if(instance == null) {
+            synchronized (TextureManager.class) {
+                if (instance == null) {
+                    instance = new TextureManager();
+                }
+            }
+        }
         return instance;
     }
 

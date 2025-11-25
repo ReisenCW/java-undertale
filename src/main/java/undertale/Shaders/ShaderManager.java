@@ -6,7 +6,6 @@ import java.io.BufferedReader;
 import java.util.HashMap;
 import java.util.Map;
 
-import undertale.GameMain.Game;
 import undertale.Utils.ConfigManager;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -148,7 +147,8 @@ public class ShaderManager {
     public static ShaderManager getInstance() {
         if (instance == null) {
             synchronized (ShaderManager.class) {
-                if (instance == null) instance = new ShaderManager();
+                if (instance == null) 
+                    instance = new ShaderManager();
             }
         }
         return instance;

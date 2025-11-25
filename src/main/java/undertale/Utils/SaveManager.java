@@ -23,6 +23,13 @@ public class SaveManager {
     }
 
     public static SaveManager getInstance() {
+        if(instance == null) {
+            synchronized(SaveManager.class) {
+                if(instance == null) {
+                    instance = new SaveManager();
+                }
+            }
+        }
         return instance;
     }
 

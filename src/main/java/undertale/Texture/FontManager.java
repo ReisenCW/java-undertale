@@ -48,6 +48,13 @@ public class FontManager {
     }
 
     public static FontManager getInstance() {
+        if(instance == null) {
+            synchronized (FontManager.class) {
+                if (instance == null) {
+                    instance = new FontManager();
+                }
+            }
+        }
         return instance;
     }
 

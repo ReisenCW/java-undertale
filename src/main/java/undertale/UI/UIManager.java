@@ -73,6 +73,13 @@ public class UIManager extends UIBase {
     }
 
     public static UIManager getInstance() {
+        if(instance == null) {
+            synchronized(UIManager.class) {
+                if(instance == null) {
+                    instance = new UIManager();
+                }
+            }
+        }
         return instance;
     }
 

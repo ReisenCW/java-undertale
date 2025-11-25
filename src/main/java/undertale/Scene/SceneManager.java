@@ -18,6 +18,13 @@ public class SceneManager {
     private SceneManager() {}
 
     public static SceneManager getInstance() {
+        if(instance == null) {
+            synchronized(SceneManager.class) {
+                if(instance == null) {
+                    instance = new SceneManager();
+                }
+            }
+        }
         return instance;
     }
 
