@@ -8,6 +8,7 @@ import undertale.GameMain.Game;
 import undertale.Item.Item;
 import undertale.Sound.SoundManager;
 import undertale.Texture.Texture;
+import undertale.Texture.TextureBuilder;
 import undertale.Utils.ConfigManager;
 import undertale.Utils.SaveManager;
 
@@ -200,24 +201,30 @@ public class Player extends GameObject {
         for (int ox = -2; ox <= 2; ox++) {
             for (int oy = -2; oy <= 2; oy++) {
                 if (ox == 0 && oy == 0) continue;
-                Texture.drawTexture(heartTexture.getId(),
-                    this.x + ox * thickness, this.y + oy * thickness,
-                    w, h,
-                    0, 0f, 0f, 0f, outlineAlpha);
+                float px = this.x + ox * thickness;
+                float py = this.y + oy * thickness;
+                new TextureBuilder().textureId(heartTexture.getId())
+                    .position(px, py)
+                    .size(w, h)
+                    .rgba(0.0f, 0.0f, 0.0f, outlineAlpha)
+                    .draw();
             }
         }
 
         // 主贴图（保留受伤闪烁色调）
         if(isHurt && ((System.currentTimeMillis() - hurtStartTime) / flashTime) % 2 == 0) {
-            Texture.drawTexture(heartTexture.getId(),
-                    this.x, this.y,
-                    w, h,
-                    0, rgba[0]/3, rgba[1]/3, rgba[2]/3, rgba[3]);
+            
+            new TextureBuilder().textureId(heartTexture.getId())
+                    .position(this.x, this.y)
+                    .size(w, h)
+                    .rgba(rgba[0]/3, rgba[1]/3, rgba[2]/3, rgba[3])
+                    .draw();
         } else{
-            Texture.drawTexture(heartTexture.getId(),
-                    this.x, this.y,
-                    w, h,
-                    0, rgba[0], rgba[1], rgba[2], rgba[3]);
+            new TextureBuilder().textureId(heartTexture.getId())
+                    .position(this.x, this.y)
+                    .size(w, h)
+                    .rgba(rgba[0], rgba[1], rgba[2], rgba[3])
+                    .draw();
         }
     }
 

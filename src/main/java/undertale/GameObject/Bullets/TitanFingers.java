@@ -13,6 +13,7 @@ import undertale.GameObject.Collectables.TensionPoint;
 import undertale.GameObject.Effects.TitanSpawnParticle;
 import undertale.Sound.SoundManager;
 import undertale.Texture.Texture;
+import undertale.Texture.TextureBuilder;
 import undertale.Texture.TextureManager;
 
 public class TitanFingers extends Bullet{
@@ -542,18 +543,25 @@ public class TitanFingers extends Bullet{
         if (currentTexture != null) {
             // 绘制残影
             for (PalmTrail trail : palmTrails) {
-                Texture.drawTexture(currentTexture.getId(),
-                    trail.x, trail.y,
-                    hScale * currentTexture.getWidth(), vScale * currentTexture.getHeight(),
-                    getSelfAngle(), rgba[0], rgba[1], rgba[2], trail.alpha, direction != 1, false
-                );
+                float trailWidth = hScale * currentTexture.getWidth();
+                float trailHeight = vScale * currentTexture.getHeight();
+                new TextureBuilder().textureId(currentTexture.getId())
+                    .position(trail.x, trail.y)
+                    .size(trailWidth, trailHeight)
+                    .rotation(getSelfAngle())
+                    .rgba(rgba[0], rgba[1], rgba[2], trail.alpha)
+                    .draw();
             }
             // 绘制当前 palm
-            Texture.drawTexture(currentTexture.getId(),
-                this.x, this.y,
-                hScale * currentTexture.getWidth(), vScale * currentTexture.getHeight(),
-                getSelfAngle(), rgba[0], rgba[1], rgba[2], rgba[3], direction != 1, false
-            );
+            float currentWidth = hScale * currentTexture.getWidth();
+            float currentHeight = vScale * currentTexture.getHeight();
+            
+            new TextureBuilder().textureId(currentTexture.getId())
+                .position(this.x, this.y)
+                .size(currentWidth, currentHeight)
+                .rotation(getSelfAngle())
+                .rgba(rgba[0], rgba[1], rgba[2], rgba[3])
+                .draw();
         }
         for (TitanSingleFinger finger : fingers) {
             if (!finger.markedForRemoval) {

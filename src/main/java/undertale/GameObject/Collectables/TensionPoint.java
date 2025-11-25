@@ -6,6 +6,7 @@ import undertale.GameMain.Game;
 import undertale.GameObject.Player;
 import undertale.Sound.SoundManager;
 import undertale.Texture.Texture;
+import undertale.Texture.TextureBuilder;
 
 public class TensionPoint extends Collectable{
     private boolean turn = false;
@@ -112,17 +113,23 @@ public class TensionPoint extends Collectable{
     @Override
     public void render() {
         if (tpTexture != null && currentScale > 0) {
-            // 金黄色: RGB(1.0, 1.0, 0.0)
-            Texture.drawTexture(tpTexture.getId(), x, y, currentScale * tpTexture.getWidth(), currentScale * tpTexture.getHeight(), getSelfAngle(), 1.0f, 1.0f, 0.0f, 1.0f, false, false, "tp_shader", program -> {
-                int locScreenSize = glGetUniformLocation(program, "uScreenSize");
-                int locColor = glGetUniformLocation(program, "uColor");
-                int locTexture = glGetUniformLocation(program, "uTexture");
-                int locWhiteStrength = glGetUniformLocation(program, "uWhiteStrength");
-                glUniform2i(locScreenSize, Game.getWindowWidth(), Game.getWindowHeight());
-                glUniform4f(locColor, 1.0f , 1.0f, 0.0f, 1.0f);
-                glUniform1i(locTexture, 0);
-                glUniform1f(locWhiteStrength, (currentScale - targetScale) / (initialScale - targetScale));
-            });
+            new TextureBuilder().textureId(tpTexture.getId())
+                .position(x, y)
+                .size(currentScale * tpTexture.getWidth(), currentScale * tpTexture.getHeight())
+                .rotation(getSelfAngle())
+                .rgba(1.0f, 1.0f, 0.0f, 1.0f)
+                .shaderName("tp_shader")
+                .uniformSetter(program -> {
+                    int locScreenSize = glGetUniformLocation(program, "uScreenSize");
+                    int locColor = glGetUniformLocation(program, "uColor");
+                    int locTexture = glGetUniformLocation(program, "uTexture");
+                    int locWhiteStrength = glGetUniformLocation(program, "uWhiteStrength");
+                    glUniform2i(locScreenSize, Game.getWindowWidth(), Game.getWindowHeight());
+                    glUniform4f(locColor, 1.0f , 1.0f, 0.0f, 1.0f);
+                    glUniform1i(locTexture, 0);
+                    glUniform1f(locWhiteStrength, (currentScale - targetScale) / (initialScale - targetScale));
+                })
+                .draw();
         }
     }
 

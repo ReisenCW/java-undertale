@@ -6,10 +6,10 @@ import undertale.Texture.Texture;
 public class BattleFrameManager extends UIBase{
     Player player;
     
-    public float battle_frame_width;
-    public float battle_frame_height;
-    public float battle_frame_left;
-    public float battle_frame_bottom;
+    public float batelFrameWidth;
+    public float batelFrameHeight;
+    public float batelFrameLeft;
+    public float batelFrameBottom;
 
     // battle frame moving
     private boolean bfMoving = false;
@@ -24,39 +24,43 @@ public class BattleFrameManager extends UIBase{
     public BattleFrameManager(Player player) {
         super();
         this.player = player;
+        batelFrameLeft = (LEFT_MARGIN + RIGHT_MARGIN) / 2.0f;
+        batelFrameBottom = BOTTOM_MARGIN - MENU_FRAME_HEIGHT;
+        batelFrameWidth = 0;
+        batelFrameHeight = 0;
     }
 
     public void renderBattleFrame() {
-        Texture.drawRect(battle_frame_left, battle_frame_bottom - battle_frame_height, battle_frame_width, battle_frame_height, 0.0f, 0.0f, 0.0f, 1.0f);
-        Texture.drawHollowRect(battle_frame_left, battle_frame_bottom - battle_frame_height, battle_frame_width, battle_frame_height, 1.0f, 1.0f, 1.0f, 1.0f, BATTLE_FRAME_LINE_WIDTH);
+        Texture.drawRect(batelFrameLeft, batelFrameBottom - batelFrameHeight, batelFrameWidth, batelFrameHeight, 0.0f, 0.0f, 0.0f, 1.0f);
+        Texture.drawHollowRect(batelFrameLeft, batelFrameBottom - batelFrameHeight, batelFrameWidth, batelFrameHeight, 1.0f, 1.0f, 1.0f, 1.0f, BATTLE_FRAME_LINE_WIDTH);
     }
 
     public void makePlayerInFrame() {
-        player.handlePlayerOutBound(battle_frame_left + BATTLE_FRAME_LINE_WIDTH,
-                battle_frame_left + battle_frame_width - BATTLE_FRAME_LINE_WIDTH,
-                battle_frame_bottom - battle_frame_height + BATTLE_FRAME_LINE_WIDTH,
-                battle_frame_bottom - BATTLE_FRAME_LINE_WIDTH);
+        player.handlePlayerOutBound(batelFrameLeft + BATTLE_FRAME_LINE_WIDTH,
+                batelFrameLeft + batelFrameWidth - BATTLE_FRAME_LINE_WIDTH,
+                batelFrameBottom - batelFrameHeight + BATTLE_FRAME_LINE_WIDTH,
+                batelFrameBottom - BATTLE_FRAME_LINE_WIDTH);
     }
 
     public void moveBattleFrame(float deltaTime, float duration, float targetWidth, float targetHeight, float targetLeft, float targetBottom) {
         if (duration <= 0) {
-            battle_frame_width = targetWidth;
-            battle_frame_height = targetHeight;
-            battle_frame_left = targetLeft;
-            battle_frame_bottom = targetBottom;
+            batelFrameWidth = targetWidth;
+            batelFrameHeight = targetHeight;
+            batelFrameLeft = targetLeft;
+            batelFrameBottom = targetBottom;
             bfMoving = false;
             return;
         }
 
         // 如果已经在目标位置，直接设置结束
-        if (Math.abs(battle_frame_width - targetWidth) < EPS
-                && Math.abs(battle_frame_height - targetHeight) < EPS
-                && Math.abs(battle_frame_left - targetLeft) < EPS
-                && Math.abs(battle_frame_bottom - targetBottom) < EPS) {
-            battle_frame_width = targetWidth;
-            battle_frame_height = targetHeight;
-            battle_frame_left = targetLeft;
-            battle_frame_bottom = targetBottom;
+        if (Math.abs(batelFrameWidth - targetWidth) < EPS
+                && Math.abs(batelFrameHeight - targetHeight) < EPS
+                && Math.abs(batelFrameLeft - targetLeft) < EPS
+                && Math.abs(batelFrameBottom - targetBottom) < EPS) {
+            batelFrameWidth = targetWidth;
+            batelFrameHeight = targetHeight;
+            batelFrameLeft = targetLeft;
+            batelFrameBottom = targetBottom;
             bfMoving = false;
             return;
         }
@@ -65,10 +69,10 @@ public class BattleFrameManager extends UIBase{
             bfMoving = true;
             bfMoveElapsedMs = 0f;
             bfMoveDurationMs = duration;
-            bfStartW = battle_frame_width;
-            bfStartH = battle_frame_height;
-            bfStartL = battle_frame_left;
-            bfStartB = battle_frame_bottom;
+            bfStartW = batelFrameWidth;
+            bfStartH = batelFrameHeight;
+            bfStartL = batelFrameLeft;
+            bfStartB = batelFrameBottom;
             bfTargetW = targetWidth;
             bfTargetH = targetHeight;
             bfTargetL = targetLeft;
@@ -79,28 +83,28 @@ public class BattleFrameManager extends UIBase{
         float t = Math.min(1.0f, bfMoveElapsedMs / bfMoveDurationMs);
         float smoothT = (float)(0.5f - 0.5f * Math.cos(Math.PI * t));
 
-        battle_frame_width = bfStartW + (bfTargetW - bfStartW) * smoothT;
-        battle_frame_height = bfStartH + (bfTargetH - bfStartH) * smoothT;
-        battle_frame_left = bfStartL + (bfTargetL - bfStartL) * smoothT;
-        battle_frame_bottom = bfStartB + (bfTargetB - bfStartB) * smoothT;
+        batelFrameWidth = bfStartW + (bfTargetW - bfStartW) * smoothT;
+        batelFrameHeight = bfStartH + (bfTargetH - bfStartH) * smoothT;
+        batelFrameLeft = bfStartL + (bfTargetL - bfStartL) * smoothT;
+        batelFrameBottom = bfStartB + (bfTargetB - bfStartB) * smoothT;
 
         if (t >= 1.0f) bfMoving = false;
     }
 
     public float getFrameLeft() {
-        return battle_frame_left;
+        return batelFrameLeft;
     }
 
     public float getFrameBottom() {
-        return battle_frame_bottom;
+        return batelFrameBottom;
     }
 
     public float getFrameWidth() {
-        return battle_frame_width;
+        return batelFrameWidth;
     }
 
     public float getFrameHeight() {
-        return battle_frame_height;
+        return batelFrameHeight;
     }
 
     public boolean isFrameMoving() {

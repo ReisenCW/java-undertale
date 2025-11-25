@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.function.Consumer;
 
 import undertale.Texture.Texture;
+import undertale.Texture.TextureBuilder;
 
 public class Animation {
     private int frameCount;
@@ -106,7 +107,21 @@ public class Animation {
         if(isEnd && disappearAfterEnds) return;
         Texture currentTexture = getCurrentFrame();
         if (currentTexture != null) {
-            Texture.drawTexture(currentTexture.getId(), x, y, scaleX * currentTexture.getWidth(), scaleY * currentTexture.getHeight(), angle, r, g, b, a, horizontalReverse, verticalReverse, shaderName, uniformSetter);
+            float currentWidth = scaleX * currentTexture.getWidth();
+            float currentHeight = scaleY * currentTexture.getHeight();
+            float u0 = horizontalReverse ? 1.0f : 0.0f;
+            float v0 = verticalReverse ? 0.0f : 1.0f;
+
+            TextureBuilder builder = new TextureBuilder().textureId(currentTexture.getId())
+                .position(x, y)
+                .size(currentWidth, currentHeight)
+                .rotation(angle)
+                .rgba(r, g, b, a)
+                .uv(u0, 1 - u0, v0, 1 - v0);
+            if(shaderName != null) {
+                builder.shaderName(shaderName).uniformSetter(uniformSetter);
+            }
+            builder.draw();
             if (!loop && currentFrame == frameCount - 1) {
                 isEnd = true;
             } else {
@@ -116,16 +131,7 @@ public class Animation {
     }
 
     public void renderCurrentFrame(float x, float y, float scaleX, float scaleY, float angle, float r, float g, float b, float a) {
-        if(isEnd && disappearAfterEnds) return;
-        Texture currentTexture = getCurrentFrame();
-        if (currentTexture != null) {
-            Texture.drawTexture(currentTexture.getId(), x, y, scaleX * currentTexture.getWidth(), scaleY * currentTexture.getHeight(), angle, r, g, b, a, horizontalReverse, verticalReverse);
-            if (!loop && currentFrame == frameCount - 1) {
-                isEnd = true;
-            } else {
-                isEnd = false;
-            }
-        }
+        renderCurrentFrame(x, y, scaleX, scaleY, angle, r, g, b, a, null, null);
     }
 
     public boolean isFinished() {

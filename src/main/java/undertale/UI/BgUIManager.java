@@ -4,6 +4,7 @@ import undertale.GameMain.Game;
 import undertale.GameObject.Player;
 import undertale.Texture.FontManager;
 import undertale.Texture.Texture;
+import undertale.Texture.TextureBuilder;
 
 public class BgUIManager extends UIBase {
     private FontManager fontManager;
@@ -53,9 +54,13 @@ public class BgUIManager extends UIBase {
 
     public void renderButtons(int selectedAction, boolean allowFocus){
         for (int i = 0; i < 4; i++) {
-            Texture.drawTexture(buttons[i + (i == selectedAction ? 4 : 0)].getId(),
-                LEFT_MARGIN + BTN_MARGIN + i * (BTN_WIDTH + BTN_MARGIN), BOTTOM_MARGIN - BTN_HEIGHT - BOTTOM_OFFSET,
-                BTN_WIDTH, BTN_HEIGHT);
+            int txId = buttons[i + (i == selectedAction ? 4 : 0)].getId();
+            float btnX = LEFT_MARGIN + BTN_MARGIN + i * (BTN_WIDTH + BTN_MARGIN);
+            float btnY = BOTTOM_MARGIN - BTN_HEIGHT - BOTTOM_OFFSET;
+            new TextureBuilder().textureId(txId)
+                .position(btnX, btnY)
+                .size(BTN_WIDTH, BTN_HEIGHT)
+                .draw();
         }
     }
 
@@ -65,21 +70,23 @@ public class BgUIManager extends UIBase {
         // 先绘制tensionBar背景
         float barx = LEFT_MARGIN + 35;
         float bary = TOP_MARGIN + 120;
-        Texture.drawTexture(tensionBar.getId(), barx, bary, tensionBar.getWidth() * scale, tensionBar.getHeight() * scale);
+        
+        new TextureBuilder().textureId(tensionBar.getId())
+            .position(barx, bary)
+            .size(tensionBar.getWidth() * scale, tensionBar.getHeight() * scale)
+            .draw();
 
         // 再根据tp绘制填充部分(从底部往上竖向填充)
         float tpPercent = tp / 100.0f;
         float fillHeight = tensionBarFill.getHeight() * scale * tpPercent;
         float fillY = bary + tensionBar.getHeight() * scale - fillHeight;
-        Texture.drawTexture(tensionBarFill.getId(), 
-            barx + 2 * scale,
-            fillY,
-            tensionBarFill.getWidth() * scale,
-            fillHeight,
-            0, 0, 64.0f / 255.0f, 192.0f / 255.0f, 1.0f,
-            0.0f, 1.0f,
-            1.0f, 1.0f - tpPercent
-        );
+        
+        new TextureBuilder().textureId(tensionBarFill.getId())
+            .position(barx + 2 * scale, fillY)
+            .size(tensionBarFill.getWidth() * scale, fillHeight)
+            .rgba(0.0f, 64.0f / 255.0f, 192.0f / 255.0f, 1.0f)
+            .uv(0.0f, 1.0f, 1.0f, 1.0f - tpPercent)
+            .draw();
         
         // 在tp bar顶部上方绘制TP 数字%
         float margin = 30;
@@ -110,7 +117,11 @@ public class BgUIManager extends UIBase {
         // 绘制HP
         float hpLeft = OFFSET + BTN_WIDTH * 3 / 2 + BTN_MARGIN - hpText.getWidth();
         float hpTop = HEIGHT - hpText.getHeight() * 2;
-        Texture.drawTexture(hpText.getId(), hpLeft, hpTop, hpText.getWidth() * 2, hpText.getHeight() * 2);
+        
+        new TextureBuilder().textureId(hpText.getId())
+            .position(hpLeft, hpTop)
+            .size(hpText.getWidth() * 2, hpText.getHeight() * 2)
+            .draw();
         // 绘制HP条，用红色绘制maxHealth长度，再用黄色覆盖currentHealth长度
         float HP_BAR_WIDTH = player.getMaxHealth() * 3;
         float HP_BAR_CURRENT_WIDTH = player.getCurrentHealth() * 3;

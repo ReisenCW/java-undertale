@@ -12,6 +12,7 @@ import undertale.Scene.SceneManager;
 import undertale.Sound.SoundManager;
 import undertale.Texture.FontManager;
 import undertale.Texture.Texture;
+import undertale.Texture.TextureBuilder;
 
 import java.util.Random;
 
@@ -22,10 +23,10 @@ public class AttackAnimManager extends UIBase {
     private EnemyManager enemyManager;
     private Player player;
 
-    private Texture attack_panel;
-    private Texture attack_bar[];
-    private Texture miss_text;
-    private Animation attack_animation;
+    private Texture attackPanel;
+    private Texture attackBar[];
+    private Texture missText;
+    private Animation attackAnimation;
 
     // Attack bar 动画相关变量
     private boolean attackBarStopped = false;
@@ -40,9 +41,9 @@ public class AttackAnimManager extends UIBase {
     private boolean showMiss = false;
     private final long MISS_DISPLAY_DURATION = 1500; // ms
     // attackBar位置
-    private float attack_bar_offset; // 从左到右
-    private int attack_bar_index; // 0白色 1黑色
-    private int attack_bar_duration; // 持续时间，单位ms
+    private float attackBarOffset; // 从左到右
+    private int attackBarIndex; // 0白色 1黑色
+    private int attackBarDuration; // 持续时间，单位ms
 
     // 伤害倍率
     private float attackRate = 1.0f;
@@ -60,29 +61,29 @@ public class AttackAnimManager extends UIBase {
         this.enemyManager = EnemyManager.getInstance();
         this.player = player;
         animationManager = AnimationManager.getInstance();
-        attack_bar_offset = 0.0f;
-        attack_bar_index = 0;
-        attack_bar_duration = 2100;
+        attackBarOffset = 0.0f;
+        attackBarIndex = 0;
+        attackBarDuration = 2100;
         loadResources();
     }
 
     private void loadResources() {
-        attack_panel = Game.getTexture("attack_panel");
-        attack_bar = new Texture[2];
-        attack_bar[0] = Game.getTexture("attack_bar_white");
-        attack_bar[1] = Game.getTexture("attack_bar_black");
+        attackPanel = Game.getTexture("attack_panel");
+        attackBar = new Texture[2];
+        attackBar[0] = Game.getTexture("attack_bar_white");
+        attackBar[1] = Game.getTexture("attack_bar_black");
 
-        miss_text = Game.getTexture("miss");
+        missText = Game.getTexture("miss");
 
-        attack_animation = animationManager.getAnimation("attack_animation");
-        attack_animation.disappearAfterEnds = true;
+        attackAnimation = animationManager.getAnimation("attack_animation");
+        attackAnimation.disappearAfterEnds = true;
     }
 
     public void resetStates() {
-        attack_animation.setCurrentFrame(0);
+        attackAnimation.setCurrentFrame(0);
 
-        attack_bar_offset = 0.0f;
-        attack_bar_index = 0;
+        attackBarOffset = 0.0f;
+        attackBarIndex = 0;
         attackRate = 1.0f;
 
         showDamage = false;
@@ -99,10 +100,15 @@ public class AttackAnimManager extends UIBase {
 
     public void renderFightPanel(Enemy enemy) {
         if (!showMiss){
-            Texture.drawTexture(attack_panel.getId(),
-                                MENU_FRAME_LEFT + BATTLE_FRAME_LINE_WIDTH, 
-                                MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + BATTLE_FRAME_LINE_WIDTH,
-                                MENU_FRAME_WIDTH, MENU_FRAME_HEIGHT);
+            TextureBuilder builder = new TextureBuilder();
+            float tx = MENU_FRAME_LEFT + BATTLE_FRAME_LINE_WIDTH;
+            float ty = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + BATTLE_FRAME_LINE_WIDTH;
+            float tw = MENU_FRAME_WIDTH;
+            float th = MENU_FRAME_HEIGHT;
+            builder.textureId(attackPanel.getId())
+                .position(tx, ty)
+                .size(tw, th)
+                .draw();
             renderAttackBar();
             if(attackBarStopped) {
                 renderSlice(enemy);
@@ -115,19 +121,25 @@ public class AttackAnimManager extends UIBase {
 
     private void renderAttackBar() {
         float scaler = 1.7f;
-        float bar_x = MENU_FRAME_LEFT + BATTLE_FRAME_LINE_WIDTH + attack_bar_offset;
-        float bar_y = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT / 2 - scaler * attack_bar[attack_bar_index].getHeight() / 2 + BATTLE_FRAME_LINE_WIDTH;
-        Texture.drawTexture(attack_bar[attack_bar_index].getId(), bar_x, bar_y, scaler * attack_bar[attack_bar_index].getWidth(), scaler * attack_bar[attack_bar_index].getHeight());
+        float barX = MENU_FRAME_LEFT + BATTLE_FRAME_LINE_WIDTH + attackBarOffset;
+        float barY = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT / 2 - scaler * attackBar[attackBarIndex].getHeight() / 2 + BATTLE_FRAME_LINE_WIDTH;
+        float barWidth = scaler * attackBar[attackBarIndex].getWidth();
+        float barHeight = scaler * attackBar[attackBarIndex].getHeight();
+        TextureBuilder builder = new TextureBuilder();
+        builder.textureId(attackBar[attackBarIndex].getId())
+            .position(barX, barY)
+            .size(barWidth, barHeight)
+            .draw();
     }
 
     private void renderSlice(Enemy enemy) {
         // 在选中的敌人上绘制slice动画
         if (enemy == null) return;
         float scaler = 2.0f;
-        float x = enemy.getEntryLeft("body") + enemy.getWidth("body") / 2 - scaler * attack_animation.getFrameWidth() / 2 - 50;
-        float y = enemy.getEntryBottom("body") - enemy.getHeight("body") / 2 - scaler * attack_animation.getFrameHeight() / 2;
+        float x = enemy.getEntryLeft("body") + enemy.getWidth("body") / 2 - scaler * attackAnimation.getFrameWidth() / 2 - 50;
+        float y = enemy.getEntryBottom("body") - enemy.getHeight("body") / 2 - scaler * attackAnimation.getFrameHeight() / 2;
 
-        attack_animation.renderCurrentFrame(x, y, scaler, scaler, 0, 1, 1, 1, 1);
+        attackAnimation.renderCurrentFrame(x, y, scaler, scaler, 0, 1, 1, 1, 1);
         renderDamage(enemy, realDamage);
     }
 
@@ -135,13 +147,19 @@ public class AttackAnimManager extends UIBase {
         float missScaler = 0.6f;
         if (enemy == null) return;
         if (showMiss) {
-            float missX = (RIGHT_MARGIN + LEFT_MARGIN) / 2 - miss_text.getWidth() / 2 * missScaler;
-            float baseMissY = enemy.getEntryBottom("body") - enemy.getHeight("body") / 2 - miss_text.getHeight() / 2 * missScaler + 50;
+            float missX = (RIGHT_MARGIN + LEFT_MARGIN) / 2 - missText.getWidth() / 2 * missScaler;
+            float baseMissY = enemy.getEntryBottom("body") - enemy.getHeight("body") / 2 - missText.getHeight() / 2 * missScaler + 50;
             // sin从0到pi变化，振幅50
             float moveTotalTime = MISS_DISPLAY_DURATION / 2; // 上升和下降共1/2时间
             float theta = (float)(Math.PI * missDisplayElapsed / moveTotalTime);
             float missY = baseMissY - 50 * Math.max(0, (float)Math.sin(theta));
-            Texture.drawTexture(miss_text.getId(), missX, missY, miss_text.getWidth() * missScaler, miss_text.getHeight() * missScaler);
+            float missWidth = missText.getWidth() * missScaler;
+            float missHeight = missText.getHeight() * missScaler;
+            TextureBuilder builder = new TextureBuilder();
+            builder.textureId(missText.getId())
+                .position(missX, missY)
+                .size(missWidth, missHeight)
+                .draw();
 
             if (missDisplayElapsed >= MISS_DISPLAY_DURATION) {
                 showMiss = false;
@@ -194,7 +212,7 @@ public class AttackAnimManager extends UIBase {
     }
 
     private void updateSliceHpDisplay(float deltaTime, Enemy enemy) {
-        if (attack_animation.isFinished() && !showDamage) {
+        if (attackAnimation.isFinished() && !showDamage) {
             soundManager.playSE("enemy_hurt");
             // 计算伤害
             int damage = caculateDamage(enemy);
@@ -228,23 +246,23 @@ public class AttackAnimManager extends UIBase {
     }
 
     public void updateAttackBarPosition(float deltaTime) {
-        // 在attack_bar_duration内attack_bar_offset从0线性变到MENU_FRAME_WIDTH
+        // 在attackBarDuration内attackBarOffset从0线性变到MENU_FRAME_WIDTH
         // 需在FIGHT状态下每帧调用
-        if (attack_bar_duration <= 0) return;
+        if (attackBarDuration <= 0) return;
         attackBarElapsed += deltaTime * 1000f;
-        float t = Math.min(1.0f, (float)attackBarElapsed / attack_bar_duration);
-        attack_bar_offset = t * MENU_FRAME_WIDTH;
+        float t = Math.min(1.0f, (float)attackBarElapsed / attackBarDuration);
+        attackBarOffset = t * MENU_FRAME_WIDTH;
         // 计算attackRate为开口向上的二次函数，最中间为1，两边为0
         float norm = t; // 0~1
         float center = 0.5f;
         attackRate = 1.0f - 4.0f * (norm - center) * (norm - center); // 抛物线
         if (attackRate < 0.0f) attackRate = 0.0f;
         if (t >= 1.0f) {
-            attack_bar_offset = MENU_FRAME_WIDTH;
+            attackBarOffset = MENU_FRAME_WIDTH;
         }
 
         // 检查attackBar是否到最右且未按Z
-        if (attack_bar_offset >= MENU_FRAME_WIDTH && !attackBarStopped && !showMiss) {
+        if (attackBarOffset >= MENU_FRAME_WIDTH && !attackBarStopped && !showMiss) {
             showMiss = true;
             missDisplayElapsed = 0f;
             // attackBar和attackPanel消失
@@ -258,15 +276,15 @@ public class AttackAnimManager extends UIBase {
         attackBarBlinkElapsed += deltaTime * 1000f;
         int period = 300; // ms
         int phase = (int)((attackBarBlinkElapsed / period) % 2);
-        attack_bar_index = phase;
+        attackBarIndex = phase;
     }
 
     public void resetSliceAnimation() {
         // Attack bar停止 — 开始攻击时重置相关动画以保证slice动画每次都能播放
         if (!attackBarStopped) {
             attackBarStopped = true;
-            if (attack_animation != null) {
-                attack_animation.reset();
+            if (attackAnimation != null) {
+                attackAnimation.reset();
             }
         }
     }
@@ -283,12 +301,12 @@ public class AttackAnimManager extends UIBase {
         } else {
             updateSliceHpDisplay(deltaTime, enemy);
             updateAttackBarIndex(deltaTime);
-            attack_animation.updateAnimation(deltaTime);
+            attackAnimation.updateAnimation(deltaTime);
         }
     }
 
     public boolean isAttackAnimFinished() {
-        return attack_animation.isFinished();
+        return attackAnimation.isFinished();
     }
 
     public boolean isDamageDisplayFinished() {

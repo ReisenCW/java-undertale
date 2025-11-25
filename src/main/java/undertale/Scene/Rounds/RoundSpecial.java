@@ -11,6 +11,7 @@ import undertale.GameObject.Bullets.TitanSpawn;
 import undertale.Sound.SoundManager;
 import undertale.GameObject.Bullets.BallBlast;
 import undertale.Texture.Texture;
+import undertale.Texture.TextureBuilder;
 import undertale.Texture.TextureManager;
 import undertale.Enemy.EnemyManager;
 
@@ -212,7 +213,12 @@ public class RoundSpecial extends Round {
             // 计算角度
             float angle = (float) Math.toDegrees(Math.atan2(dy, dx));
             // 绘制, 越接近发射时间, 透明度越低
-            Texture.drawTexture(Texture.whiteTextureId, px, py, lineLength, 3, angle, 1, 1, 1, (chargeDuration - chargeTimer) / chargeDuration);
+            new TextureBuilder().textureId(Texture.whiteTextureId)
+                .position(px, py)
+                .size(lineLength, 3)
+                .rotation(angle)
+                .rgba(1, 1, 1, (chargeDuration - chargeTimer) / chargeDuration)
+                .draw();
         }
     }
 }

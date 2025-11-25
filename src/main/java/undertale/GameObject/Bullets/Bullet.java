@@ -5,6 +5,7 @@ import undertale.GameObject.CollisionDetector;
 import undertale.GameObject.GameObject;
 import undertale.GameObject.Player;
 import undertale.Texture.Texture;
+import undertale.Texture.TextureBuilder;
 
 public class Bullet extends GameObject{
     protected static int nextId = 0;
@@ -76,11 +77,12 @@ public class Bullet extends GameObject{
     public void render(){
         Texture currentTexture = getCurrentTexture();
         if (currentTexture != null) {
-            Texture.drawTexture(currentTexture.getId(),
-                this.x, this.y,
-                hScale * currentTexture.getWidth(), vScale * currentTexture.getHeight(),
-                getSelfAngle(), rgba[0], rgba[1], rgba[2], rgba[3]
-            );
+            new TextureBuilder().textureId(currentTexture.getId())
+                .position(this.x, this.y)
+                .size(hScale * currentTexture.getWidth(), vScale * currentTexture.getHeight())
+                .rotation(getSelfAngle())
+                .rgba(rgba[0], rgba[1], rgba[2], rgba[3])
+                .draw();
         }
     }
 

@@ -7,6 +7,7 @@ import undertale.GameMain.Game;
 import undertale.Sound.SoundManager;
 import undertale.GameObject.Player;
 import undertale.Texture.Texture;
+import undertale.Texture.TextureBuilder;
 
 public class GameOverUIManager extends UIBase{
     private TypeWriter typeWriter;
@@ -121,31 +122,29 @@ public class GameOverUIManager extends UIBase{
     private void renderHeartBreakAnimation() {
         // 静止阶段
         if (gameOverTimeElapsed < heartStaticTime) {
-            Texture.drawTexture(
-                heartTexture.getId(),
-                player.getX(),
-                player.getY(),
-                player.getWidth(),
-                player.getHeight()
-            );
+            new TextureBuilder().textureId(heartTexture.getId())
+                .position(player.getX(), player.getY())
+                .size(player.getWidth(), player.getHeight())
+                .draw();
             return;
         }
         // 碎裂静止阶段
         float scaler = player.getHeight() / brokenHeartTexture.getHeight();
         float bhx = player.getX() + (player.getWidth() - brokenHeartTexture.getWidth() * scaler) / 2;
+        float bhy = player.getY();
         if(gameOverTimeElapsed < heartStaticTime + heartBreakStaticTime) {
             // 心碎刚发生，播放一次 heart_break 音效
             if (!playedHeartBreakSE) {
                 if (soundManager != null) soundManager.playSE("heart_break");
                 playedHeartBreakSE = true;
             }
-            Texture.drawTexture(
-                brokenHeartTexture.getId(),
-                bhx,
-                player.getY(),
-                scaler * brokenHeartTexture.getWidth(),
-                scaler * brokenHeartTexture.getHeight()
-            );
+            float bhw = scaler * brokenHeartTexture.getWidth();
+            float bhh = scaler * brokenHeartTexture.getHeight();
+
+            new TextureBuilder().textureId(brokenHeartTexture.getId())
+                .position(bhx, bhy)
+                .size(bhw, bhh)
+                .draw();
             return;
         }
         // 碎裂动画阶段（物理运动 + 3D 旋转/缩放效果）
@@ -183,9 +182,6 @@ public class GameOverUIManager extends UIBase{
             final float GRAVITY = 900.0f;
 
             // 计算碎片初始绘制中心（以 broken heart 的左上为基准）
-            // 重用前面已计算的 scaler 和 bhx（避免重复声明），只计算宽高与基准 y
-            float bhy = player.getY();
-
             for (int i = 0; i < heartShardTextures.size(); i++) {
                 Texture shardTexture = heartShardTextures.get(i);
                 float angleRad = (float)Math.toRadians(shardAngleDeg[i]);
@@ -207,14 +203,11 @@ public class GameOverUIManager extends UIBase{
                 float drawW = shardTexture.getWidth() * scale;
                 float drawH = shardTexture.getHeight() * scale;
 
-                Texture.drawTexture(
-                    shardTexture.getId(),
-                    bhx + xOffset,
-                    bhy + yOffset,
-                    drawW,
-                    drawH,
-                    rotation
-                );
+                new TextureBuilder().textureId(shardTexture.getId())
+                    .position(bhx + xOffset, bhy + yOffset)
+                    .size(drawW, drawH)
+                    .rotation(rotation)
+                    .draw();
             }
             return;
         }
@@ -222,15 +215,15 @@ public class GameOverUIManager extends UIBase{
     }
 
     private void renderGameOverBackground() {
-        Texture.drawTexture(
-            gameOverBgTexture.getId(),
-            TEXT_LEFT,
-            20,
-            LINE_WIDTH,
-            BOTTOM_MARGIN / 2 - 20,
-            0.0f,
-            1.0f,1.0f,1.0f, gameOverBgAlpha
-        );
+        float x = TEXT_LEFT;
+        float y = 20.0f;
+        float w = LINE_WIDTH;
+        float h = BOTTOM_MARGIN / 2 - 20;
+        new TextureBuilder().textureId(gameOverBgTexture.getId())
+            .position(x, y)
+            .size(w, h)
+            .rgba(1.0f,1.0f,1.0f, gameOverBgAlpha)
+            .draw();
     }
 
     private void renderGameOverMessage() {

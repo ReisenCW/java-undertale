@@ -3,6 +3,7 @@ package undertale.GameObject.Bullets;
 import undertale.GameObject.CollisionDetector;
 import undertale.GameObject.Player;
 import undertale.Texture.Texture;
+import undertale.Texture.TextureBuilder;
 import undertale.Texture.TextureManager;
 
 import java.util.ArrayList;
@@ -102,15 +103,29 @@ public class BallBlast extends Bullet {
             float trailWhiteX = trail.x + this.getWidth() / 2 - whiteEdgeTexture.getWidth() / 2 * whiteScale;
             float trailWhiteY = trail.y + this.getHeight() / 2 - whiteEdgeTexture.getHeight() / 2 * whiteScale;
             // 白色边缘
-            Texture.drawTexture(whiteEdgeTexture.getId(), trailWhiteX, trailWhiteY, whiteEdgeTexture.getWidth() * whiteScale, whiteEdgeTexture.getHeight() * whiteScale, this.getSelfAngle(), 1.0f, 1.0f, 1.0f, trail.alpha);
+            new TextureBuilder().textureId(whiteEdgeTexture.getId())
+                .position(trailWhiteX, trailWhiteY)
+                .size(whiteEdgeTexture.getWidth() * whiteScale, whiteEdgeTexture.getHeight() * whiteScale)
+                .rotation(this.getSelfAngle())
+                .rgba(1.0f, 1.0f, 1.0f, trail.alpha)
+                .draw();
             // 黑色主体
-            Texture.drawTexture(getTexture().getId(), trail.x, trail.y, this.getWidth(), this.getHeight(), this.getSelfAngle(), 0.0f, 0.0f, 0.0f, trail.alpha);
+            new TextureBuilder().textureId(getTexture().getId())
+                .position(trail.x, trail.y)
+                .size(this.getWidth(), this.getHeight())
+                .rotation(this.getSelfAngle())
+                .rgba(0.0f, 0.0f, 0.0f, trail.alpha)
+                .draw();
         }
         // 绘制当前
         float whiteX = this.x + this.getWidth() / 2 - whiteEdgeTexture.getWidth() / 2 * whiteScale;
         float whiteY = this.y + this.getHeight() / 2 - whiteEdgeTexture.getHeight() / 2 * whiteScale;
         // 先渲染白色边缘
-        Texture.drawTexture(whiteEdgeTexture.getId(), whiteX, whiteY, whiteEdgeTexture.getWidth() * whiteScale, whiteEdgeTexture.getHeight() * whiteScale, this.getSelfAngle(), 1.0f, 1.0f, 1.0f, 1.0f);
+        new TextureBuilder().textureId(whiteEdgeTexture.getId())
+            .position(whiteX, whiteY)
+            .size(whiteEdgeTexture.getWidth() * whiteScale, whiteEdgeTexture.getHeight() * whiteScale)
+            .rotation(this.getSelfAngle())
+            .draw();
         // 再渲染黑色主体
         super.render();
     }

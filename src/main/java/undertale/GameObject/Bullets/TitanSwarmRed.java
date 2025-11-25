@@ -3,6 +3,7 @@ package undertale.GameObject.Bullets;
 import undertale.GameMain.Game;
 import undertale.GameObject.Player;
 import undertale.Texture.Texture;
+import undertale.Texture.TextureBuilder;
 import undertale.Texture.TextureManager;
 import java.util.ArrayList;
 import java.util.List;
@@ -112,20 +113,27 @@ public class TitanSwarmRed extends Bullet{
     public void render() {
         // render trails
         for (Trail t : trails) {
+            float bodyWidth = getHScale() * getTexture().getWidth();
+            float bodyHeight = getVScale() * getTexture().getHeight();
             // render body trail
-            Texture.drawTexture(getTexture().getId(),
-                t.x, t.y,
-                getHScale() * getTexture().getWidth(), getVScale() * getTexture().getHeight(),
-                t.angle, rgba[0], rgba[1], rgba[2], t.alpha);
+            new TextureBuilder().textureId(getTexture().getId())
+                .position(t.x, t.y)
+                .size(bodyWidth, bodyHeight)
+                .rotation(t.angle)
+                .rgba(1.0f, 1.0f, 1.0f, t.alpha)
+                .draw();
 
             // render eye trail
             float eyeScale = 1.5f;
             float eyeX = t.x + this.getWidth() / 2 - redEye.getWidth() / 2 * eyeScale * targetScale;
             float eyeY = t.y + this.getHeight() / 2 - redEye.getHeight() / 2 * eyeScale * targetScale;
-            Texture.drawTexture(redEye.getId(),
-                eyeX, eyeY,
-                targetScale * eyeScale * redEye.getWidth(), targetScale * eyeScale * redEye.getHeight(),
-                0, 1, 0, 0, t.alpha);
+            float eyeWidth = targetScale * eyeScale * redEye.getWidth();
+            float eyeHeight = targetScale * eyeScale * redEye.getHeight();
+            new TextureBuilder().textureId(redEye.getId())
+                .position(eyeX, eyeY)
+                .size(eyeWidth, eyeHeight)
+                .rgba(1, 0, 0, t.alpha)
+                .draw();
         }
 
         // render body
@@ -135,10 +143,12 @@ public class TitanSwarmRed extends Bullet{
         float eyeScale = 1.5f;
         float eyeX = this.x + this.getWidth() / 2 - redEye.getWidth() / 2 * eyeScale * targetScale;
         float eyeY = this.y + this.getHeight() / 2 - redEye.getHeight() / 2 * eyeScale * targetScale;
-        Texture.drawTexture(redEye.getId(),
-            eyeX, eyeY,
-            targetScale * eyeScale * redEye.getWidth(), targetScale * eyeScale * redEye.getHeight(),
-            0, 1, 0, 0, rgba[3]
-        );
+        float eyeWidth = targetScale * eyeScale * redEye.getWidth();
+        float eyeHeight = targetScale * eyeScale * redEye.getHeight();
+        new TextureBuilder().textureId(redEye.getId())
+            .position(eyeX, eyeY)
+            .size(eyeWidth, eyeHeight)
+            .rgba(1, 0, 0, rgba[3])
+            .draw();
     }
 }

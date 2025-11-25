@@ -6,6 +6,7 @@ import undertale.GameMain.Game;
 import undertale.Scene.SceneManager;
 import undertale.Texture.FontManager;
 import undertale.Texture.Texture;
+import undertale.Texture.TextureBuilder;
 import undertale.Utils.SaveManager;
 
 public class BeginMenuManager extends UIBase {
@@ -68,8 +69,10 @@ public class BeginMenuManager extends UIBase {
         float bgScaler = (float)BOTTOM_MARGIN / menuBackgroundTexture.getHeight();
         float BG_WIDTH = menuBackgroundTexture.getWidth() * bgScaler;
         float BG_LEFT = (RIGHT_MARGIN - BG_WIDTH) / 2;
-        Texture.drawTexture(menuBackgroundTexture.getId(),
-            BG_LEFT, 0, BG_WIDTH, BOTTOM_MARGIN);
+        new TextureBuilder().textureId(menuBackgroundTexture.getId())
+            .position(BG_LEFT, 0)
+            .size(BG_WIDTH, BOTTOM_MARGIN)
+            .draw();
         // 绘制底部动画部分
         mainMenuAnimation.renderCurrentFrame(
             BG_LEFT, BOTTOM_MARGIN - mainMenuAnimation.getCurrentFrame().getHeight() * bgScaler, bgScaler, bgScaler,
@@ -98,8 +101,11 @@ public class BeginMenuManager extends UIBase {
         float heartY = options[choiceIndex].positionY - heartTexture.getHeight() * heartScaler / 2 - 5;
         float heartWidth = heartTexture.getWidth() * heartScaler;
         float heartHeight = heartTexture.getHeight() * heartScaler;
-        Texture.drawTexture(heartTexture.getId(),
-            heartX, heartY, heartWidth, heartHeight);
+        
+        new TextureBuilder().textureId(heartTexture.getId())
+            .position(heartX, heartY)
+            .size(heartWidth, heartHeight)
+            .draw();
     }
 
     public void selectUp() {

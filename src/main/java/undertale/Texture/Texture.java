@@ -97,6 +97,19 @@ public class Texture {
      */
     public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation, float r, float g, float b, float a, float u0, float v0, float u1, float v1, String shaderName, Consumer<Integer> uniformSetter) {
         ensureGLInitialized();
+        if(shaderName == null) {
+            shaderName = "texture_shader";
+        }
+        if(uniformSetter == null) {
+            uniformSetter = program -> {
+                int locScreenSize = glGetUniformLocation(program, "uScreenSize");
+                int locColor = glGetUniformLocation(program, "uColor");
+                int locTexture = glGetUniformLocation(program, "uTexture");
+                glUniform2i(locScreenSize, screenWidth, screenHeight);
+                glUniform4f(locColor, r, g, b, a);
+                glUniform1i(locTexture, 0);
+            };
+        }
 
         // 中心点坐标
         float cx = x + width / 2.0f;
@@ -140,57 +153,15 @@ public class Texture {
         renderBuffer(buf, 1, textureId, r, g, b, a, shaderName, uniformSetter);
     }
 
-    /**
-     * 绘制纹理
-     * 颜色为相乘模式
-     */
-    public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation, float r, float g, float b, float a, boolean horizontalReverse, boolean verticalReverse, String shaderName, Consumer<Integer> uniformSetter) {
-       drawTexture(textureId, x, y, width, height, rotation, r, g, b, a,
-           horizontalReverse ? 1.0f : 0.0f,
-           verticalReverse ? 0.0f : 1.0f,
-           horizontalReverse ? 0.0f : 1.0f,
-           verticalReverse ? 1.0f : 0.0f,
-           shaderName,
-           uniformSetter
-        );
-    }
-
-    public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation, float r, float g, float b, float a, boolean horizontalReverse, boolean verticalReverse) {
-        drawTexture(textureId, x, y, width, height, rotation, r, g, b, a, horizontalReverse, verticalReverse, "texture_shader", program -> {
-            int locScreenSize = glGetUniformLocation(program, "uScreenSize");
-            int locColor = glGetUniformLocation(program, "uColor");
-            int locTexture = glGetUniformLocation(program, "uTexture");
-            glUniform2i(locScreenSize, screenWidth, screenHeight);
-            glUniform4f(locColor, r, g, b, a);
-            glUniform1i(locTexture, 0);
-        });
-    }
-
-    public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation, float r, float g, float b, float a, float u0, float v0, float u1, float v1) {
-        drawTexture(textureId, x, y, width, height, rotation, r, g, b, a, u0, v0, u1, v1, "texture_shader", program -> {
-            int locScreenSize = glGetUniformLocation(program, "uScreenSize");
-            int locColor = glGetUniformLocation(program, "uColor");
-            int locTexture = glGetUniformLocation(program, "uTexture");
-            glUniform2i(locScreenSize, screenWidth, screenHeight);
-            glUniform4f(locColor, r, g, b, a);
-            glUniform1i(locTexture, 0);
-        });
-    }
-
     public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation, float r, float g, float b, float a){
-        drawTexture(textureId, x, y, width, height, rotation, r, g, b, a, false, false);
-    }
-
-    public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation, boolean horizontalReverse, boolean verticalReverse) {
-        drawTexture(textureId, x, y, width, height, rotation, 1.0f, 1.0f, 1.0f, 1.0f, horizontalReverse, verticalReverse);
-    }
-
-    public static void drawTexture(int textureId, float x, float y, float width, float height, float rotation) { 
-        drawTexture(textureId, x, y, width, height, rotation, false, false);
-    }
-
-    public static void drawTexture(int textureId, float x, float y, float width, float height) {
-        drawTexture(textureId, x, y, width, height, 0);
+        drawTexture(textureId, x, y, width, height, rotation, r, g, b, a, 0f, 1f, 1f, 0f, "texture_shader", program -> {
+            int locScreenSize = glGetUniformLocation(program, "uScreenSize");
+            int locColor = glGetUniformLocation(program, "uColor");
+            int locTexture = glGetUniformLocation(program, "uTexture");
+            glUniform2i(locScreenSize, screenWidth, screenHeight);
+            glUniform4f(locColor, r, g, b, a);
+            glUniform1i(locTexture, 0);
+        });
     }
 
     public static void drawHollowRect(float x, float y, float width, float height, float r, float g, float b, float a, float lineWidth) {

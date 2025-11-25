@@ -4,6 +4,7 @@ import static org.lwjgl.opengl.GL20.*;
 
 import undertale.GameMain.Game;
 import undertale.Texture.Texture;
+import undertale.Texture.TextureBuilder;
 
 public class TitanSpawnParticle {
     private float x;
@@ -60,16 +61,23 @@ public class TitanSpawnParticle {
     public void render() {
         if (tpTexture != null && currentScale > 0) {
             // 黄白色: RGB(1.0, 1.0, 0.7)
-            Texture.drawTexture(tpTexture.getId(), x, y, currentScale * tpTexture.getWidth(), currentScale * tpTexture.getHeight(), selfAngle, 1.0f, 1.0f, 0.7f, 1.0f, false, false, "tp_shader", program -> {
-                int locScreenSize = glGetUniformLocation(program, "uScreenSize");
-                int locColor = glGetUniformLocation(program, "uColor");
-                int locTexture = glGetUniformLocation(program, "uTexture");
-                int locWhiteStrength = glGetUniformLocation(program, "uWhiteStrength");
-                glUniform2i(locScreenSize, Game.getWindowWidth(), Game.getWindowHeight());
-                glUniform4f(locColor, 1.0f, 1.0f, 0.7f, 1.0f);
-                glUniform1i(locTexture, 0);
-                glUniform1f(locWhiteStrength, (currentScale - targetScale) / (initialScale - targetScale));
-            });
+            new TextureBuilder().textureId(tpTexture.getId())
+                .position(x, y)
+                .size(currentScale * tpTexture.getWidth(), currentScale * tpTexture.getHeight())
+                .rotation(selfAngle)
+                .rgba(1.0f, 1.0f, 0.7f, 1.0f)
+                .shaderName("tp_shader")
+                .uniformSetter(program -> {
+                    int locScreenSize = glGetUniformLocation(program, "uScreenSize");
+                    int locColor = glGetUniformLocation(program, "uColor");
+                    int locTexture = glGetUniformLocation(program, "uTexture");
+                    int locWhiteStrength = glGetUniformLocation(program, "uWhiteStrength");
+                    glUniform2i(locScreenSize, Game.getWindowWidth(), Game.getWindowHeight());
+                    glUniform4f(locColor, 1.0f, 1.0f, 0.7f, 1.0f);
+                    glUniform1i(locTexture, 0);
+                    glUniform1f(locWhiteStrength, (currentScale - targetScale) / (initialScale - targetScale));
+                })
+                .draw();
         }
     }
 
