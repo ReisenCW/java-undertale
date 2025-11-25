@@ -2,7 +2,6 @@ package undertale.UI;
 
 import undertale.GameObject.Player;
 import undertale.Texture.Texture;
-import undertale.Utils.ConfigManager;
 
 public class BattleFrameManager extends UIBase{
     Player player;
@@ -22,13 +21,9 @@ public class BattleFrameManager extends UIBase{
     private final float EPS = 0.1f;
 
 
-    public BattleFrameManager(ConfigManager configManager, Player player) {
-        super(configManager);
+    public BattleFrameManager(Player player) {
+        super();
         this.player = player;
-        battle_frame_width = configManager.MENU_FRAME_WIDTH;
-        battle_frame_height = configManager.MENU_FRAME_HEIGHT;
-        battle_frame_left = configManager.MENU_FRAME_LEFT;
-        battle_frame_bottom = configManager.MENU_FRAME_BOTTOM;
     }
 
     public void renderBattleFrame() {

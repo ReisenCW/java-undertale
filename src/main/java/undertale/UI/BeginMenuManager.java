@@ -6,7 +6,6 @@ import undertale.GameMain.Game;
 import undertale.Scene.SceneManager;
 import undertale.Texture.FontManager;
 import undertale.Texture.Texture;
-import undertale.Utils.ConfigManager;
 import undertale.Utils.SaveManager;
 
 public class BeginMenuManager extends UIBase {
@@ -36,8 +35,8 @@ public class BeginMenuManager extends UIBase {
         new Option("Exit", optionPositionX, 400)
     };
 
-    public BeginMenuManager(ConfigManager configManager, FontManager fontManager) {
-        super(configManager);
+    public BeginMenuManager(FontManager fontManager) {
+        super();
         this.fontManager = fontManager;
         loadResources();
     }

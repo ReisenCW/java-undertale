@@ -29,7 +29,6 @@ public class Titan extends Enemy {
     }
 
     private void init() {
-        ConfigManager configManager = Game.getConfigManager();
         AnimationManager animationManager = AnimationManager.getInstance();
         soundManager = SoundManager.getInstance();
         Player player = Game.getPlayer();
@@ -84,12 +83,13 @@ public class Titan extends Enemy {
         );
 
         // 初始化动画
-        initAnimations(configManager, animationManager);
+        initAnimations(animationManager);
     }
 
-    private void initAnimations(ConfigManager configManager, AnimationManager animationManager) {
+    private void initAnimations(AnimationManager animationManager) {
         windowWidth = Game.getWindowWidth();
         windowCenterX = windowWidth / 2;
+        ConfigManager configManager = ConfigManager.getInstance();
         bodyBottom = configManager.MENU_FRAME_BOTTOM - configManager.MENU_FRAME_HEIGHT;
         starBottom = bodyBottom - 45;
 

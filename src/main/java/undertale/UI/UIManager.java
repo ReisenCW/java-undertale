@@ -10,7 +10,6 @@ import undertale.Sound.SoundManager;
 import undertale.Scene.BattleFightScene;
 import undertale.Texture.FontManager;
 import undertale.Texture.Texture;
-import undertale.Utils.ConfigManager;
 
 public class UIManager extends UIBase {
     public enum MenuState {
@@ -60,16 +59,15 @@ public class UIManager extends UIBase {
     }
 
     private UIManager() {
-        super(Game.getConfigManager());
-        ConfigManager configManager = Game.getConfigManager();
+        super();
         fontManager = FontManager.getInstance();
         player = Game.getPlayer();
-        menuTypeWriter = new TypeWriter(configManager, fontManager);
-        bgUIManager = new BgUIManager(configManager, fontManager, player);
-        attackAnimManager = new AttackAnimManager(configManager, fontManager, player);
-        battleFrameManager = new BattleFrameManager(configManager, player);
-        gameOverUIManager = new GameOverUIManager(configManager, menuTypeWriter, player);
-        beginMenuManager = new BeginMenuManager(configManager, fontManager);
+        menuTypeWriter = new TypeWriter(fontManager);
+        bgUIManager = new BgUIManager(fontManager, player);
+        attackAnimManager = new AttackAnimManager(fontManager, player);
+        battleFrameManager = new BattleFrameManager(player);
+        gameOverUIManager = new GameOverUIManager(menuTypeWriter, player);
+        beginMenuManager = new BeginMenuManager(fontManager);
         enemyManager = EnemyManager.getInstance();
         soundManager = SoundManager.getInstance();
     }

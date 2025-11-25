@@ -23,7 +23,7 @@ public class ShaderManager {
     private Map<String, Integer> programs = new HashMap<>();
 
     private ShaderManager() {
-        ConfigManager configManager = Game.getConfigManager();
+        ConfigManager configManager = ConfigManager.getInstance();
        
         if (configManager != null) {
             Map<String, String> vertexShaderMap = configManager.vertexShaders;

@@ -2,7 +2,7 @@ package undertale.Texture;
 
 import java.util.HashMap;
 
-import undertale.GameMain.Game;
+import undertale.Utils.ConfigManager;
 
 public class TextureManager {
     private static TextureManager instance;
@@ -15,7 +15,7 @@ public class TextureManager {
 
     private TextureManager() {
         textures = new HashMap<>();
-        textureFileMap = Game.getConfigManager().textures;
+        textureFileMap = ConfigManager.getInstance().textures;
         initTextures();
     }
 

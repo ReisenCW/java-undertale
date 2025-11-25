@@ -12,7 +12,6 @@ import undertale.Scene.SceneManager;
 import undertale.Sound.SoundManager;
 import undertale.Texture.FontManager;
 import undertale.Texture.Texture;
-import undertale.Utils.ConfigManager;
 
 import java.util.Random;
 
@@ -54,8 +53,8 @@ public class AttackAnimManager extends UIBase {
     private float damageDisplayElapsed = 0f;
     private float missDisplayElapsed = 0f;
 
-    public AttackAnimManager(ConfigManager configManager, FontManager fontManager, Player player) {
-        super(configManager);
+    public AttackAnimManager(FontManager fontManager, Player player) {
+        super();
         this.fontManager = fontManager;
         this.soundManager = SoundManager.getInstance();
         this.enemyManager = EnemyManager.getInstance();

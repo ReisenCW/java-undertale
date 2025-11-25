@@ -48,7 +48,7 @@ public class SoundManager {
     }
 
     private SoundManager() {
-        ConfigManager configManager = Game.getConfigManager();
+        ConfigManager configManager = ConfigManager.getInstance();
         this.soundEffects = configManager.se;
         this.musicTracks = configManager.music;
         // 预加载所有音效与音乐，避免首次播放时卡顿

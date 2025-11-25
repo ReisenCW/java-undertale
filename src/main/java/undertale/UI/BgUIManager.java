@@ -4,7 +4,6 @@ import undertale.GameMain.Game;
 import undertale.GameObject.Player;
 import undertale.Texture.FontManager;
 import undertale.Texture.Texture;
-import undertale.Utils.ConfigManager;
 
 public class BgUIManager extends UIBase {
     private FontManager fontManager;
@@ -23,8 +22,8 @@ public class BgUIManager extends UIBase {
     private Texture tensionBarFill;
     private Texture[] buttons;
 
-    public BgUIManager(ConfigManager configManager, FontManager fontManager, Player player) {
-        super(configManager);
+    public BgUIManager(FontManager fontManager, Player player) {
+        super();
 
         this.fontManager = fontManager;
         this.player = player;

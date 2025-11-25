@@ -61,8 +61,7 @@ public class Player extends GameObject {
     private SoundManager soundManager;
     
     public Player(String name) {
-        ConfigManager configManager = Game.getConfigManager();
-        HashMap<String, String> playerMap = configManager.playerMap;
+        HashMap<String, String> playerMap = ConfigManager.getInstance().playerMap;
         heartTexture = Game.getTexture("heart");
         this.name = playerMap.getOrDefault("name", name);
         this.level = Integer.parseInt(playerMap.getOrDefault("level", "4"));

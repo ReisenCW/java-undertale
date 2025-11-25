@@ -3,7 +3,7 @@ package undertale.Texture;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTFontinfo;
 
-import undertale.GameMain.Game;
+import undertale.Utils.ConfigManager;
 
 import org.lwjgl.stb.STBTTBakedChar;
 import org.lwjgl.stb.STBTTAlignedQuad;
@@ -40,7 +40,7 @@ public class FontManager {
     private String currentFontKey = "determination";
 
     private FontManager() {
-        fonts = Game.configManager.fonts;
+        fonts = ConfigManager.getInstance().fonts;
         for (String key : fonts.keySet()) {
             loadFont(key);
         }

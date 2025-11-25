@@ -146,10 +146,6 @@ public class Game {
         return textureManager.getTexture(name);
     }
 
-    public static ConfigManager getConfigManager() {
-        return configManager;
-    }
-
     public static boolean isKeyPressed(int key) {
         return inputManager.isKeyPressed(key);
     }

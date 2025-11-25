@@ -7,7 +7,6 @@ import undertale.GameMain.Game;
 import undertale.Sound.SoundManager;
 import undertale.GameObject.Player;
 import undertale.Texture.Texture;
-import undertale.Utils.ConfigManager;
 
 public class GameOverUIManager extends UIBase{
     private TypeWriter typeWriter;
@@ -48,8 +47,8 @@ public class GameOverUIManager extends UIBase{
 
     private String[] gameOverMessages;
 
-    GameOverUIManager(ConfigManager configManager, TypeWriter typeWriter, Player player) {
-        super(configManager);
+    GameOverUIManager(TypeWriter typeWriter, Player player) {
+        super();
         this.typeWriter = typeWriter;
         this.player = player;
         this.soundManager = SoundManager.getInstance();

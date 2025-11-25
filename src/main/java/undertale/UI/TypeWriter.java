@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import undertale.Sound.SoundManager;
 import undertale.Texture.FontManager;
-import undertale.Utils.ConfigManager;
 
 public class TypeWriter extends UIBase {
     private FontManager fontManager;
@@ -22,8 +21,8 @@ public class TypeWriter extends UIBase {
     private final float LINE_PAUSE_DURATION = 0.25f; // 每行换行停顿时间（秒） 
 
 
-    public TypeWriter(ConfigManager configManager, FontManager fontManager) {
-        super(configManager);
+    public TypeWriter(FontManager fontManager) {
+        super();
         this.fontManager = fontManager;
         this.soundManager = SoundManager.getInstance();
         displayLines = new ArrayList<>();

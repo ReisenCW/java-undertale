@@ -21,7 +21,8 @@ public abstract class UIBase {
     public final float BTN_HEIGHT;
     public final float BTN_MARGIN;
 
-    public UIBase(ConfigManager configManager) {
+    public UIBase() {
+        ConfigManager configManager = ConfigManager.getInstance();
         BATTLE_FRAME_LINE_WIDTH = configManager.BATTLE_FRAME_LINE_WIDTH;
         MENU_FRAME_WIDTH = configManager.MENU_FRAME_WIDTH;
         MENU_FRAME_HEIGHT = configManager.MENU_FRAME_HEIGHT;
