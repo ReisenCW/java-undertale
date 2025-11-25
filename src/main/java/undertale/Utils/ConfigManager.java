@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 public class ConfigManager {
+    private static ConfigManager instance;
     // 通过读取JSON文件来初始化配置
     public final boolean debug;
     public final int WINDOW_WIDTH;
@@ -31,7 +32,7 @@ public class ConfigManager {
 
     private final String CONFIG_PATH = "config.json";
 
-    public ConfigManager() {
+    private ConfigManager() {
         boolean debugVal = false;
         int widthVal = 1280;
         int heightVal = 720;
@@ -108,6 +109,7 @@ public class ConfigManager {
                             }
                         }
                     }
+                    // vertex shaders
                     if(obj.has("vertexShaders")) {
                         for (JsonElement el : obj.getAsJsonArray("vertexShaders")) {
                             JsonObject vertexShader = el.getAsJsonObject();
@@ -116,6 +118,7 @@ public class ConfigManager {
                             }
                         }
                     }
+                    // fragment shaders
                     if(obj.has("fragmentShaders")) {
                         for (JsonElement el : obj.getAsJsonArray("fragmentShaders")) {
                             JsonObject fragmentShader = el.getAsJsonObject();
@@ -158,5 +161,25 @@ public class ConfigManager {
         this.MENU_FRAME_HEIGHT = WINDOW_HEIGHT / 3;
         this.MENU_FRAME_LEFT = BUTTON_MARGIN;
         this.MENU_FRAME_BOTTOM = WINDOW_HEIGHT - BOTTOM_OFFSET - BUTTON_HEIGHT - 80;
+    }
+
+    // 利用双重校验锁实现单例模式
+    public static ConfigManager getInstance() {
+        // 第一次检查：避免不必要的同步
+        if (instance == null) {
+            // 这里是临界区，需要同步保护
+            synchronized (ConfigManager.class) {
+                // 第二次检查：在锁内再次确认
+                if (instance == null) {
+                    // 只有当instance确实为null时, 才创建实例
+                    instance = new ConfigManager();
+                }
+            }
+        }
+        return instance;
+    }
+
+    static {
+        instance = new ConfigManager();
     }
 }

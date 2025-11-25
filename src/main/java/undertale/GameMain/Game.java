@@ -49,7 +49,7 @@ public class Game {
     }
 
 	private static void init() {
-        configManager = new ConfigManager();
+        configManager = ConfigManager.getInstance();
         gameWindow = new Window(configManager.WINDOW_WIDTH, configManager.WINDOW_HEIGHT, "Undertale");
         shaderManager = ShaderManager.getInstance();
         textureManager = TextureManager.getInstance();
