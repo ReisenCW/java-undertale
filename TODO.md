@@ -393,3 +393,58 @@ GameObject decoratedBullet = new EffectDecorator(bullet, "glow");
 
 额外补充：适配器模式（Adapter Pattern）
 若未来需要集成第三方库（如不同的输入处理框架、音效引擎），可通过适配器模式封装差异接口，使现有代码（如 InputManager、SoundManager）无需修改即可兼容新依赖，保持系统稳定性。
+
+
+## 1.10 课上无 - 行为型 - Visitor
+1. Visitor 模式的应用场景
+Visitor 模式适合用于对不同类型对象对象执行相似操作但具体实现不同的场景，尤其适合扩展新操作而不修改原有类结构的情况。
+
+2. 潜在应用点：
+碰撞检测逻辑扩展项目中CollisionDetector类包含多种多种碰撞检测方法（矩形 - 矩形、圆形 - 圆形、矩形 - 圆形），但如果需要新增碰撞类型（如多边形碰撞）或对不同类型GameObject（Player、Bullet、Collectable等）执行特定碰撞逻辑时，Visitor 可以引入 Visitor 模式：
+```java
+// 定义Visitor模式接口
+public interface CollisionVisitor {
+    boolean visit(Player player, Bullet bullet);
+    boolean visit(Player player, Collectable collectable);
+    boolean visit(Bullet bullet1, Bullet bullet2);
+    // 其他碰撞组合
+}
+
+// 具体Visitor实现（如默认碰撞检测）
+public class DefaultCollisionVisitor implements CollisionVisitor {
+    @Override
+    public boolean visit(Player player, Bullet bullet) {
+        return CollisionDetector.checkCircleCollision(player, bullet);
+    }
+    // 实现其他碰撞逻辑...
+}
+
+// 让GameObject接受Visitor
+public abstract class GameObject {
+    public abstract boolean accept(CollisionVisitor visitor, GameObject other);
+}
+
+public class Player extends GameObject {
+    @Override
+    public boolean accept(CollisionVisitor visitor, GameObject other) {
+        return other.accept(visitor, this); // 双分派
+    }
+}
+```
+这样新增碰撞类型时，只需扩展CollisionVisitor而无需修改GameObject子类。
+对象渲染逻辑项目中Player、Bullet、TensionPoint等都有render()方法，若需要为不同对象添加新的渲染模式（如 Debug 模式、特效渲染），可使用 Visitor 模式统一管理：
+```java
+public interface RenderVisitor {
+    void visit(Player player);
+    void visit(Bullet bullet);
+    void visit(TensionPoint tp);
+}
+
+public class DebugRenderVisitor implements RenderVisitor {
+    @Override
+    public void visit(Player player) {
+        // 绘制碰撞盒等调试信息
+    }
+    // 其他对象的调试渲染...
+}
+```
