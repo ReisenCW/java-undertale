@@ -113,7 +113,6 @@ public class Player extends GameObject implements InputObserver {
 
     @Override
     public void update(float deltaTime) {
-        handleSpeedMode();
         float dirLen = (float)Math.sqrt(direction[0]*direction[0] + direction[1]*direction[1]);
         if (dirLen > 0.0f && isMovable) {
             float normDirX = direction[0] / dirLen;
@@ -153,22 +152,6 @@ public class Player extends GameObject implements InputObserver {
         // 光圈震动
         lightOscTime += deltaTime;
     }
-
-    private void handleSpeedMode() {
-        // 按下shift时为低速模式
-        if(Game.isKeyPressed(GLFW_KEY_LEFT_SHIFT) || Game.isKeyPressed(GLFW_KEY_RIGHT_SHIFT)) {
-            if (isHighSpeed) {
-                isHighSpeed = false;
-                this.currentSpeed = lowSpeed;
-            }
-        } else {
-            if (!isHighSpeed) {
-                isHighSpeed = true;
-                this.currentSpeed = highSpeed;
-            }
-        }
-    }
-
 
     public void handlePlayerOutBound(float left, float right, float top, float bottom) {
         if (this.x < left) {
@@ -521,21 +504,35 @@ public class Player extends GameObject implements InputObserver {
 
     @Override
     public void processInput(boolean[] preKeyStates, boolean[] currKeyStates) {
+        // 通过箭头上下左右移动
         float dirX = 0.0f;
         float dirY = 0.0f;
-        if (currKeyStates[GLFW_KEY_W] || currKeyStates[GLFW_KEY_UP]) {
+        if (currKeyStates[GLFW_KEY_UP]) {
             dirY -= 1.0f;
         }
-        if (currKeyStates[GLFW_KEY_S] || currKeyStates[GLFW_KEY_DOWN]) {
+        if (currKeyStates[GLFW_KEY_DOWN]) {
             dirY += 1.0f;
         }
-        if (currKeyStates[GLFW_KEY_A] || currKeyStates[GLFW_KEY_LEFT]) {
+        if (currKeyStates[GLFW_KEY_LEFT]) {
             dirX -= 1.0f;
         }
-        if (currKeyStates[GLFW_KEY_D] || currKeyStates[GLFW_KEY_RIGHT]) {
+        if (currKeyStates[GLFW_KEY_RIGHT]) {
             dirX += 1.0f;
         }
         this.setDirectionX(dirX);
         this.setDirectionY(dirY);
+
+        // 按下shift时为低速模式
+        if(currKeyStates[GLFW_KEY_LEFT_SHIFT]) {
+            if (isHighSpeed) {
+                isHighSpeed = false;
+                this.currentSpeed = lowSpeed;
+            }
+        } else {
+            if (!isHighSpeed) {
+                isHighSpeed = true;
+                this.currentSpeed = highSpeed;
+            }
+        }
     }
 }

@@ -18,7 +18,7 @@ import undertale.Utils.Timer;
 import undertale.UI.ScreenFadeManager;
 
 public class Game {
-    public static boolean DEBUG = true;
+    private static boolean allowDebug = true;
 
     private static Window gameWindow;
 
@@ -57,7 +57,9 @@ public class Game {
 		player = new Player("Frisk");
         objectManager = new ObjectManager(player);
         EscapeInputObserver escapeObserver = new EscapeInputObserver(gameWindow);
-        inputManager = new InputManager(gameWindow, escapeObserver);
+        inputManager = new InputManager(gameWindow);
+        inputManager.addObserver(escapeObserver);
+        inputManager.addObserver(new DebugInputObserver(allowDebug));
         fontManager = FontManager.getInstance();
         screenFadeManager = ScreenFadeManager.getInstance();
 
@@ -145,10 +147,6 @@ public class Game {
 
     public static Texture getTexture(String name) {
         return textureManager.getTexture(name);
-    }
-
-    public static boolean isKeyPressed(int key) {
-        return inputManager.isKeyPressed(key);
     }
 
     public static float getFrameHeight() {

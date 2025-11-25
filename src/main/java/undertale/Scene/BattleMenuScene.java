@@ -4,6 +4,7 @@ import undertale.Enemy.EnemyManager;
 import undertale.GameMain.InputManager;
 import undertale.GameObject.ObjectManager;
 import undertale.UI.UIManager;
+import static org.lwjgl.glfw.GLFW.*;
 
 public class BattleMenuScene extends Scene {
     private EnemyManager enemyManager = EnemyManager.getInstance();
@@ -28,6 +29,7 @@ public class BattleMenuScene extends Scene {
 
     @Override
     public void onEnter() {
+        registerAsObserver();
         if(!soundManager.isMusicPlaying("titan_battle")) {
             soundManager.playMusic("titan_battle");
         }
@@ -39,6 +41,7 @@ public class BattleMenuScene extends Scene {
 
     @Override
     public void onExit() {
+        unregisterAsObserver();
         uiManager.menuState = UIManager.MenuState.MAIN;
         uiManager.setSelected(-1);
     }
@@ -78,5 +81,24 @@ public class BattleMenuScene extends Scene {
     }
 
     @Override
-    public void processInput(boolean[] preKeyStates, boolean[] currKeyStates) {}
+    public void processInput(boolean[] preKeyStates, boolean[] currKeyStates) {
+        if(currKeyStates[GLFW_KEY_RIGHT] && !preKeyStates[GLFW_KEY_RIGHT]) {
+            uiManager.selectMoveRight();
+        }
+        if(currKeyStates[GLFW_KEY_LEFT] && !preKeyStates[GLFW_KEY_LEFT]) {
+            uiManager.selectMoveLeft();
+        }
+        if(currKeyStates[GLFW_KEY_Z] && !preKeyStates[GLFW_KEY_Z]) {
+            uiManager.handleMenuSelect();
+        }
+        if(currKeyStates[GLFW_KEY_X] && !preKeyStates[GLFW_KEY_X]) {
+            uiManager.handleMenuCancel();
+        }
+        if(currKeyStates[GLFW_KEY_UP] && !preKeyStates[GLFW_KEY_UP]) {
+            uiManager.menuSelectUp();
+        }
+        if(currKeyStates[GLFW_KEY_DOWN] && !preKeyStates[GLFW_KEY_DOWN]) {
+            uiManager.menuSelectDown();
+        }
+    }
 }

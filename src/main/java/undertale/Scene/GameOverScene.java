@@ -4,6 +4,7 @@ import undertale.GameMain.Game;
 import undertale.GameMain.InputManager;
 import undertale.GameObject.ObjectManager;
 import undertale.UI.UIManager;
+import static org.lwjgl.glfw.GLFW.*;
 
 public class GameOverScene extends Scene {
     private boolean bgmStarted = false;
@@ -18,6 +19,7 @@ public class GameOverScene extends Scene {
 
     @Override
     public void onEnter() {
+        registerAsObserver();
         // 延后播放 BGM: 在心碎动画结束后播放 BGM
         bgmStarted = false;
         soundManager.stopMusic();
@@ -27,6 +29,7 @@ public class GameOverScene extends Scene {
 
     @Override
     public void onExit() {
+        unregisterAsObserver();
         // 重置全局游戏对象（玩家、敌人、子弹）
         Game.resetGame(UIManager.MenuState.MAIN);
         // 重新初始化战斗场景（回到第一轮等初始状态）
@@ -58,5 +61,14 @@ public class GameOverScene extends Scene {
     }
 
     @Override
-    public void processInput(boolean[] preKeyStates, boolean[] currKeyStates) {}
+    public void processInput(boolean[] preKeyStates, boolean[] currKeyStates) {
+        // 当文字输出完毕后按下Z键确认
+        if(currKeyStates[GLFW_KEY_Z] && !preKeyStates[GLFW_KEY_Z]) {
+            uiManager.handleGameOverConfirm();
+        }
+        // 按下X键全部显示
+        if(currKeyStates[GLFW_KEY_X] && !preKeyStates[GLFW_KEY_X]) {
+            uiManager.handleGameOverSkip();
+        }
+    }
 }
