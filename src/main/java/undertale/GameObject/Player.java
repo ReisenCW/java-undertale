@@ -5,6 +5,7 @@ import static org.lwjgl.opengl.GL11.*;
 import java.util.HashMap;
 
 import undertale.GameMain.Game;
+import undertale.Interfaces.InputObserver;
 import undertale.Item.Item;
 import undertale.Sound.SoundManager;
 import undertale.Texture.Texture;
@@ -12,7 +13,7 @@ import undertale.Texture.TextureBuilder;
 import undertale.Utils.ConfigManager;
 import undertale.Utils.SaveManager;
 
-public class Player extends GameObject {
+public class Player extends GameObject implements InputObserver {
     private String name;
     private int currentHealth;
     private int maxHealth;
@@ -516,5 +517,25 @@ public class Player extends GameObject {
 
     public void setDirectionY(float dirY) {
         this.direction[1] = dirY;
+    }
+
+    @Override
+    public void processInput(boolean[] preKeyStates, boolean[] currKeyStates) {
+        float dirX = 0.0f;
+        float dirY = 0.0f;
+        if (currKeyStates[GLFW_KEY_W] || currKeyStates[GLFW_KEY_UP]) {
+            dirY -= 1.0f;
+        }
+        if (currKeyStates[GLFW_KEY_S] || currKeyStates[GLFW_KEY_DOWN]) {
+            dirY += 1.0f;
+        }
+        if (currKeyStates[GLFW_KEY_A] || currKeyStates[GLFW_KEY_LEFT]) {
+            dirX -= 1.0f;
+        }
+        if (currKeyStates[GLFW_KEY_D] || currKeyStates[GLFW_KEY_RIGHT]) {
+            dirX += 1.0f;
+        }
+        this.setDirectionX(dirX);
+        this.setDirectionY(dirY);
     }
 }

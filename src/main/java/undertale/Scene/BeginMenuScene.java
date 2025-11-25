@@ -42,4 +42,7 @@ public class BeginMenuScene extends Scene {
     public SceneEnum getCurrentScene() {
         return SceneEnum.START_MENU;
     }
+
+    @Override
+    public void processInput(boolean[] preKeyStates, boolean[] currKeyStates) {}
 }

@@ -45,6 +45,7 @@ public class BattleFightScene extends Scene {
 
     @Override
     public void onEnter() {
+        registerAsObserver();
         roundTime = 0;
         if(isSpecial) {
             System.out.println("special round");
@@ -86,6 +87,7 @@ public class BattleFightScene extends Scene {
 
     @Override
     public void onExit() {
+        unregisterAsObserver();
         objectManager.resetPlayerLight();
         objectManager.allowPlayerMovement(false);
         uiManager.setSelected(0);
@@ -144,5 +146,18 @@ public class BattleFightScene extends Scene {
 
     public int getPhase() {
         return phase;
+    }
+
+    @Override
+    public void processInput(boolean[] preKeyStates, boolean[] currKeyStates) {}
+
+    @Override
+    protected void registerAsObserver() {
+        inputManager.addObserver(objectManager.getPlayer());
+    }
+
+    @Override
+    protected void unregisterAsObserver() {
+        inputManager.removeObserver(objectManager.getPlayer());
     }
 }

@@ -56,4 +56,7 @@ public class GameOverScene extends Scene {
     public SceneEnum getCurrentScene() {
         return SceneEnum.GAME_OVER;
     }
+
+    @Override
+    public void processInput(boolean[] preKeyStates, boolean[] currKeyStates) {}
 }

@@ -76,4 +76,7 @@ public class BattleMenuScene extends Scene {
     private void resetBattleFrame(float deltaTime) {
         uiManager.moveBattleFrame(deltaTime, battleFrameResetTime, uiManager.MENU_FRAME_WIDTH, uiManager.MENU_FRAME_HEIGHT, uiManager.MENU_FRAME_LEFT, uiManager.MENU_FRAME_BOTTOM);
     }
+
+    @Override
+    public void processInput(boolean[] preKeyStates, boolean[] currKeyStates) {}
 }

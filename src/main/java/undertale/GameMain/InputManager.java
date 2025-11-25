@@ -2,7 +2,11 @@ package undertale.GameMain;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import undertale.GameObject.Player;
+import undertale.Interfaces.InputObserver;
 import undertale.Scene.SceneManager;
 import undertale.UI.UIManager;
 import undertale.Utils.Timer;
@@ -11,6 +15,7 @@ public class InputManager {
     private Window window;
     private boolean[] keyStates = new boolean[GLFW_KEY_LAST + 1];
     private boolean[] wasKeyPressed = new boolean[GLFW_KEY_LAST + 1];
+    private List<InputObserver> observers = new ArrayList<>();
     
     // escape
     public final long ESCAPE_HOLD_TIME = 2000; // 按住2秒退出
@@ -31,6 +36,16 @@ public class InputManager {
         this.player = player;
         this.sceneManager = SceneManager.getInstance();
         this.uiManager = UIManager.getInstance();
+    }
+
+    public void addObserver(InputObserver observer) {
+        if (!observers.contains(observer)) {
+            observers.add(observer);
+        }
+    }
+
+    public void removeObserver(InputObserver observer) {
+        observers.remove(observer);
     }
 
     private void updateKeyState() {
@@ -75,24 +90,24 @@ public class InputManager {
     }
 
     private void handlePlayerMovement() {
-        if(!player.isMovable || !player.isAlive()) {
-            player.setDirectionX(0);
-            player.setDirectionY(0);
-            return;
-        }
-        // 通过上下左右箭头移动
-        if (isKeyPressed(GLFW_KEY_UP))
-            player.setDirectionY(-1);
-        else if (isKeyPressed(GLFW_KEY_DOWN))
-            player.setDirectionY(1);
-        else
-            player.setDirectionY(0);
-        if (isKeyPressed(GLFW_KEY_LEFT))
-            player.setDirectionX(-1);
-        else if (isKeyPressed(GLFW_KEY_RIGHT))
-            player.setDirectionX(1);
-        else
-            player.setDirectionX(0);
+        // if(!player.isMovable || !player.isAlive()) {
+        //     player.setDirectionX(0);
+        //     player.setDirectionY(0);
+        //     return;
+        // }
+        // // 通过上下左右箭头移动
+        // if (isKeyPressed(GLFW_KEY_UP))
+        //     player.setDirectionY(-1);
+        // else if (isKeyPressed(GLFW_KEY_DOWN))
+        //     player.setDirectionY(1);
+        // else
+        //     player.setDirectionY(0);
+        // if (isKeyPressed(GLFW_KEY_LEFT))
+        //     player.setDirectionX(-1);
+        // else if (isKeyPressed(GLFW_KEY_RIGHT))
+        //     player.setDirectionX(1);
+        // else
+        //     player.setDirectionX(0);
     }
 
     private void handleMenuChoose() {
@@ -144,6 +159,9 @@ public class InputManager {
         updateKeyState();
         handleEscaping();
         handleDebug();
+        for(InputObserver observer : observers) {
+            observer.processInput(wasKeyPressed, keyStates);
+        }
         switch(sceneManager.getCurrentScene().getCurrentScene()) {
             case BATTLE_FIGHT -> handlePlayerMovement();
             case BATTLE_MENU -> handleMenuChoose();

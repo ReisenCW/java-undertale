@@ -408,4 +408,8 @@ public class ObjectManager {
         bullets.clear();
         bulletPool.clear();
     }
+
+    public Player getPlayer() {
+        return player;
+    }
 }
