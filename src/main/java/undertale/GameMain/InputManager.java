@@ -5,7 +5,6 @@ import static org.lwjgl.glfw.GLFW.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import undertale.GameObject.Player;
 import undertale.Interfaces.InputObserver;
 import undertale.Scene.SceneManager;
 import undertale.UI.UIManager;
@@ -21,9 +20,6 @@ public class InputManager {
     public final long ESCAPE_HOLD_TIME = 2000; // 按住2秒退出
     private boolean isEscaping = false;
     private Timer escapeTimer = new Timer();
-    
-    // player
-    private Player player;
 
     // scene
     private SceneManager sceneManager;
@@ -31,9 +27,8 @@ public class InputManager {
     // UI
     private UIManager uiManager;
 
-    InputManager(Window window, Player player) {
+    InputManager(Window window) {
         this.window = window;
-        this.player = player;
         this.sceneManager = SceneManager.getInstance();
         this.uiManager = UIManager.getInstance();
     }
@@ -89,27 +84,6 @@ public class InputManager {
         }
     }
 
-    private void handlePlayerMovement() {
-        // if(!player.isMovable || !player.isAlive()) {
-        //     player.setDirectionX(0);
-        //     player.setDirectionY(0);
-        //     return;
-        // }
-        // // 通过上下左右箭头移动
-        // if (isKeyPressed(GLFW_KEY_UP))
-        //     player.setDirectionY(-1);
-        // else if (isKeyPressed(GLFW_KEY_DOWN))
-        //     player.setDirectionY(1);
-        // else
-        //     player.setDirectionY(0);
-        // if (isKeyPressed(GLFW_KEY_LEFT))
-        //     player.setDirectionX(-1);
-        // else if (isKeyPressed(GLFW_KEY_RIGHT))
-        //     player.setDirectionX(1);
-        // else
-        //     player.setDirectionX(0);
-    }
-
     private void handleMenuChoose() {
         if(isKeyTriggered(GLFW_KEY_RIGHT)) {
             uiManager.selectMoveRight();
@@ -163,7 +137,6 @@ public class InputManager {
             observer.processInput(wasKeyPressed, keyStates);
         }
         switch(sceneManager.getCurrentScene().getCurrentScene()) {
-            case BATTLE_FIGHT -> handlePlayerMovement();
             case BATTLE_MENU -> handleMenuChoose();
             case GAME_OVER -> processGameOverInput();
             case START_MENU -> processBeginMenuInput();

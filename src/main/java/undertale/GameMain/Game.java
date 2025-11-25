@@ -56,7 +56,7 @@ public class Game {
         sceneManager = SceneManager.getInstance();
 		player = new Player("Frisk");
         objectManager = new ObjectManager(player);
-        inputManager = new InputManager(gameWindow, player);
+        inputManager = new InputManager(gameWindow);
         fontManager = FontManager.getInstance();
         screenFadeManager = ScreenFadeManager.getInstance();
 
