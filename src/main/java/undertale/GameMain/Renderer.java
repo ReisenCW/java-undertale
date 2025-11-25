@@ -8,17 +8,17 @@ import undertale.Texture.FontManager;
 import undertale.UI.ScreenFadeManager;
 
 public class Renderer {
-    private InputManager inputManager;
     private SceneManager sceneManager;
     private FontManager fontManager;
     private ScreenFadeManager screenFadeManager;
+    private EscapeInputObserver escapeObserver;
     private Window window;
 
     private final int ESCAPING_X = 50;
     private final int ESCAPING_Y = 50;
 
-    Renderer(InputManager inputManager) {
-        this.inputManager = inputManager;
+    Renderer(EscapeInputObserver escapeObserver) {
+        this.escapeObserver = escapeObserver;
         this.sceneManager = SceneManager.getInstance();
         this.fontManager = FontManager.getInstance();
         this.screenFadeManager = ScreenFadeManager.getInstance();
@@ -47,9 +47,9 @@ public class Renderer {
     }
 
     private void renderEscaping() {
-        if (inputManager.isEscaping()) {
+        if (escapeObserver.isEscaping()) {
             // 按下1/3的结束时间内，透明度从0渐变到1
-            float alpha = Math.min(1.0f, 3 * inputManager.getEscapeTimer().durationFromStart() / inputManager.ESCAPE_HOLD_TIME);
+            float alpha = Math.min(1.0f, escapeObserver.getEscapeAlpha());
             fontManager.drawText("ESCAPING...", ESCAPING_X, ESCAPING_Y, 1.0f, 1.0f, 1.0f, alpha);
         }
     }

@@ -56,7 +56,8 @@ public class Game {
         sceneManager = SceneManager.getInstance();
 		player = new Player("Frisk");
         objectManager = new ObjectManager(player);
-        inputManager = new InputManager(gameWindow);
+        EscapeInputObserver escapeObserver = new EscapeInputObserver(gameWindow);
+        inputManager = new InputManager(gameWindow, escapeObserver);
         fontManager = FontManager.getInstance();
         screenFadeManager = ScreenFadeManager.getInstance();
 
@@ -79,7 +80,7 @@ public class Game {
         uiManager = UIManager.getInstance();
         
         // 初始化渲染器
-        renderer = new Renderer(inputManager);
+        renderer = new Renderer(escapeObserver);
 	}
 
 	private static void loop() {

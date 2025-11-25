@@ -8,7 +8,6 @@ import java.util.List;
 import undertale.Interfaces.InputObserver;
 import undertale.Scene.SceneManager;
 import undertale.UI.UIManager;
-import undertale.Utils.Timer;
 
 public class InputManager {
     private Window window;
@@ -16,21 +15,17 @@ public class InputManager {
     private boolean[] wasKeyPressed = new boolean[GLFW_KEY_LAST + 1];
     private List<InputObserver> observers = new ArrayList<>();
     
-    // escape
-    public final long ESCAPE_HOLD_TIME = 2000; // 按住2秒退出
-    private boolean isEscaping = false;
-    private Timer escapeTimer = new Timer();
-
     // scene
     private SceneManager sceneManager;
 
     // UI
     private UIManager uiManager;
 
-    InputManager(Window window) {
+    InputManager(Window window, EscapeInputObserver escapeObserver) {
         this.window = window;
         this.sceneManager = SceneManager.getInstance();
         this.uiManager = UIManager.getInstance();
+        addObserver(escapeObserver);
     }
 
     public void addObserver(InputObserver observer) {
@@ -52,24 +47,6 @@ public class InputManager {
         // 再更新当前帧状态
         for (int key = GLFW_KEY_SPACE; key <= GLFW_KEY_LAST; key++) {
             keyStates[key] = (glfwGetKey(window.getWindow(), key) == GLFW_PRESS);
-        }
-    }
-
-    private void handleEscaping() {
-        if (isKeyPressed(GLFW_KEY_ESCAPE)) {
-            if (!isEscaping) {
-                isEscaping = true;
-                escapeTimer.setTimerStart();
-            }
-            // 按住ESCAPE键超过2秒则退出
-            if(escapeTimer.isTimeElapsed(ESCAPE_HOLD_TIME)) {
-                org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose(window.getWindow(), true);
-                return;
-            }
-        } else {
-            if (isEscaping) {
-                isEscaping = false;
-            }
         }
     }
 
@@ -131,7 +108,6 @@ public class InputManager {
 
     public void processInput() {
         updateKeyState();
-        handleEscaping();
         handleDebug();
         for(InputObserver observer : observers) {
             observer.processInput(wasKeyPressed, keyStates);
@@ -159,13 +135,5 @@ public class InputManager {
     public boolean isKeyTriggered(int key){
         if (key < GLFW_KEY_SPACE || key > GLFW_KEY_LAST) return false;
         return keyStates[key] && !wasKeyPressed[key];
-    }
-
-    public boolean isEscaping() {
-        return isEscaping;
-    }
-
-    public Timer getEscapeTimer() {
-        return escapeTimer;
     }
 }
