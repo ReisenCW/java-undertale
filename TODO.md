@@ -218,118 +218,11 @@ public class ShaderManager {
    ```
    新增状态只需添加新的`MenuState`实现类，无需修改现有逻辑。
 
-## 1.6. 创建型-Builder Pattern
+## 1.6. 创建型-Builder Pattern √
 对于那些包含大量参数或存在众多重载方法的类与方法（例如Bullet类、drawTexture方法等），适合采用 Builder Pattern 进行优化。类似StringBuilder的设计思想，通过链式调用的方式分步设置所需参数，未显式设置的参数则自动沿用预设的默认值，既能避免冗长的构造函数或重载方法带来的维护成本，又能让参数配置过程更清晰直观，大幅提升代码的可读性与扩展性。
 
-## 1.7. 行为型-模板方法模式（Template Method）
-**现状**：不同`Scene`（如`BattleFightScene`、`GameOverScene`）的生命周期（初始化、更新、渲染）流程相似，但具体实现不同，存在重复代码。
 
-**重构建议**：
-1. **在`Scene`基类中定义模板方法**：
-   ```java
-   public abstract class Scene {
-       // 模板方法：固定流程
-       public final void process(float deltaTime) {
-           if (!initialized) {
-               init(); // 初始化（只执行一次）
-               initialized = true;
-           }
-           update(deltaTime); // 子类实现具体更新逻辑
-           render(); // 子类实现具体渲染逻辑
-       }
-       
-       protected abstract void init(); // 初始化（子类实现）
-       protected abstract void update(float deltaTime); // 更新（子类实现）
-       protected abstract void render(); // 渲染（子类实现）
-       
-       // 钩子方法：可选实现
-       public void onEnter() {}
-       public void onExit() {}
-   }
-   ```
-
-2. **子类继承并实现抽象方法**：
-   ```java
-   public class BattleFightScene extends Scene {
-       @Override
-       protected void init() {
-           // 战斗场景初始化逻辑
-       }
-       
-       @Override
-       protected void update(float deltaTime) {
-           // 战斗场景更新逻辑
-       }
-       
-       @Override
-       protected void render() {
-           // 战斗场景渲染逻辑
-       }
-   }
-   ```
-   统一场景生命周期流程，减少重复代码。
-
-
-
-2. **减少静态依赖**：`Game`类中大量使用`static`方法（如`Game.getPlayer()`），导致类之间强耦合。可改为通过依赖注入传递实例，而非直接调用静态方法。
-
-## 1.8. 行为型-命令模式（Command）
-**现状**：输入事件与具体操作（如菜单选择、战斗动作）直接绑定（如`InputManager`中处理按键后直接调用`player`方法），难以扩展（如添加撤销功能）。
-
-**重构建议**：
-1. **定义命令接口**：
-   ```java
-   public interface Command {
-       void execute();
-   }
-   ```
-
-2. **实现具体命令**：
-   ```java
-   public class SelectUpCommand implements Command {
-       private BeginMenuManager menuManager;
-       
-       public SelectUpCommand(BeginMenuManager menuManager) {
-           this.menuManager = menuManager;
-       }
-       
-       @Override
-       public void execute() {
-           menuManager.selectUp();
-       }
-   }
-   
-   public class ConfirmCommand implements Command {
-       private BeginMenuManager menuManager;
-       
-       @Override
-       public void execute() {
-           menuManager.confirmSelection();
-       }
-   }
-   ```
-
-3. **输入管理器映射命令**：
-   ```java
-   public class InputManager {
-       private Map<Integer, Command> keyCommands = new HashMap<>();
-       
-       public void mapKey(int key, Command command) {
-           keyCommands.put(key, command);
-       }
-       
-       public void processInput() {
-           for (Map.Entry<Integer, Command> entry : keyCommands.entrySet()) {
-               if (glfwGetKey(window, entry.getKey()) == GLFW_PRESS) {
-                   entry.getValue().execute();
-               }
-           }
-       }
-   }
-   ```
-   新增操作只需添加`Command`实现，无需修改输入处理逻辑。
-
-## 1.9. 结构型
+## 1.7. 结构型
 1. 组合模式（Composite Pattern）
 适用场景：项目中存在大量「整体 - 部分」关系的对象，例如子弹系统（Bullet 及其子类）、UI 组件（UIBase 及其派生管理器）等。现有代码基础：
 Bullet 作为所有子弹的基类，已定义统一接口（update()、render() 等），而 TitanSpawn、TitanSnake 等子类可视为「叶子节点」，若未来需要实现组合型子弹（如包含多个子子弹的集群攻击），可通过组合模式将其设计为「容器节点」，统一由 ObjectManager 管理。
@@ -395,7 +288,7 @@ GameObject decoratedBullet = new EffectDecorator(bullet, "glow");
 若未来需要集成第三方库（如不同的输入处理框架、音效引擎），可通过适配器模式封装差异接口，使现有代码（如 InputManager、SoundManager）无需修改即可兼容新依赖，保持系统稳定性。
 
 
-## 1.10 课上无 - 行为型 - Visitor
+## 1.8. 课上无 - 行为型 - Visitor
 1. Visitor 模式的应用场景
 Visitor 模式适合用于对不同类型对象对象执行相似操作但具体实现不同的场景，尤其适合扩展新操作而不修改原有类结构的情况。
 
