@@ -1,6 +1,7 @@
 package undertale.UI;
 
 import undertale.Animation.Animation;
+import undertale.Animation.AnimationBuilder;
 import undertale.Animation.AnimationManager;
 import undertale.GameMain.Game;
 import undertale.Scene.SceneManager;
@@ -74,9 +75,12 @@ public class BeginMenuManager extends UIBase {
             .size(BG_WIDTH, BOTTOM_MARGIN)
             .draw();
         // 绘制底部动画部分
-        mainMenuAnimation.renderCurrentFrame(
-            BG_LEFT, BOTTOM_MARGIN - mainMenuAnimation.getCurrentFrame().getHeight() * bgScaler, bgScaler, bgScaler,
-            0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+        float animX = BG_LEFT;
+        float animY = BOTTOM_MARGIN - mainMenuAnimation.getCurrentFrame().getHeight() * bgScaler;
+        new AnimationBuilder(mainMenuAnimation)
+            .position(animX, animY)
+            .scale(bgScaler, bgScaler)
+            .draw();
     }
 
     private void renderOptions() {

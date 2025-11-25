@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.function.Supplier;
 
 import undertale.Animation.Animation;
+import undertale.Animation.AnimationBuilder;
 import undertale.Utils.SaveManager;
 
 public class Enemy {
@@ -151,10 +152,13 @@ public class Enemy {
         // 按priority升序排序，priority高的后渲染
         Collections.sort(animationEntries, Comparator.comparingInt(e -> e.priority));
         for (AnimationEntry entry : animationEntries) {
-            entry.animation.renderCurrentFrame(
-                entry.left + shakeOffset,
-                entry.bottom - entry.animation.getFrameHeight() * entry.scaler,
-                entry.scaler, entry.scaler, 0.0f, 1.0f, 1.0f, 1.0f, entry.alpha * deathAlpha);
+            float animX = entry.left + shakeOffset;
+            float animY = entry.bottom - entry.animation.getFrameHeight() * entry.scaler;
+            new AnimationBuilder(entry.animation)
+                .position(animX, animY)
+                .scale(entry.scaler, entry.scaler)
+                .rgba(1.0f, 1.0f, 1.0f, entry.alpha * deathAlpha)
+                .draw();
         }
     }
 

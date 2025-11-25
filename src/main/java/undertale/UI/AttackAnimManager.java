@@ -1,6 +1,7 @@
 package undertale.UI;
 
 import undertale.Animation.Animation;
+import undertale.Animation.AnimationBuilder;
 import undertale.Animation.AnimationManager;
 import undertale.Enemy.Enemy;
 import undertale.Enemy.EnemyManager;
@@ -139,7 +140,11 @@ public class AttackAnimManager extends UIBase {
         float x = enemy.getEntryLeft("body") + enemy.getWidth("body") / 2 - scaler * attackAnimation.getFrameWidth() / 2 - 50;
         float y = enemy.getEntryBottom("body") - enemy.getHeight("body") / 2 - scaler * attackAnimation.getFrameHeight() / 2;
 
-        attackAnimation.renderCurrentFrame(x, y, scaler, scaler, 0, 1, 1, 1, 1);
+        new AnimationBuilder(attackAnimation)
+            .position(x, y)
+            .scale(scaler, scaler)
+            .draw();
+        
         renderDamage(enemy, realDamage);
     }
 

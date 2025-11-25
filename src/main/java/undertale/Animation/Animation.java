@@ -130,10 +130,6 @@ public class Animation {
         }
     }
 
-    public void renderCurrentFrame(float x, float y, float scaleX, float scaleY, float angle, float r, float g, float b, float a) {
-        renderCurrentFrame(x, y, scaleX, scaleY, angle, r, g, b, a, null, null);
-    }
-
     public boolean isFinished() {
         return isEnd;
     }

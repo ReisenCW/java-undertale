@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import undertale.Animation.Animation;
+import undertale.Animation.AnimationBuilder;
 import undertale.Animation.AnimationManager;
 import undertale.GameMain.Game;
 import undertale.GameObject.Player;
@@ -78,16 +79,23 @@ public class TitanFingers extends Bullet{
         @Override
         public void render() {
             if (markedForRemoval) return;
-            animation.renderCurrentFrame(this.x, this.y, getHScale(), getVScale(), this.getSelfAngle(), rgba[0], rgba[1], rgba[2], rgba[3], "titan_spawn_shader", program -> {
-                int locScreenSize = glGetUniformLocation(program, "uScreenSize");
-                int locColor = glGetUniformLocation(program, "uColor");
-                int locTexture = glGetUniformLocation(program, "uTexture");
-                int locScale = glGetUniformLocation(program, "uScale");
-                glUniform2i(locScreenSize, Game.getWindowWidth(), Game.getWindowHeight());
-                glUniform4f(locColor, rgba[0], rgba[1], rgba[2], rgba[3]);
-                glUniform1i(locTexture, 0);
-                glUniform1f(locScale, (contactDisappearTime - contactTimer) / contactDisappearTime);
-            });
+            new AnimationBuilder(animation)
+                .position(this.x, this.y)
+                .scale(getHScale(), getVScale())
+                .rotation(this.getSelfAngle())
+                .rgba(rgba[0], rgba[1], rgba[2], rgba[3])
+                .shaderName("titan_spawn_shader")
+                .uniformSetter(program -> {
+                    int locScreenSize = glGetUniformLocation(program, "uScreenSize");
+                    int locColor = glGetUniformLocation(program, "uColor");
+                    int locTexture = glGetUniformLocation(program, "uTexture");
+                    int locScale = glGetUniformLocation(program, "uScale");
+                    glUniform2i(locScreenSize, Game.getWindowWidth(), Game.getWindowHeight());
+                    glUniform4f(locColor, rgba[0], rgba[1], rgba[2], rgba[3]);
+                    glUniform1i(locTexture, 0);
+                    glUniform1f(locScale, (contactDisappearTime - contactTimer) / contactDisappearTime);
+                })
+                .draw();
         }
 
         @Override
@@ -540,6 +548,8 @@ public class TitanFingers extends Bullet{
     @Override 
     public void render() {
         Texture currentTexture = getCurrentTexture();
+        float u0 = direction == 1 ? 0.0f : 1.0f;
+        float u1 = 1 - u0;
         if (currentTexture != null) {
             // 绘制残影
             for (PalmTrail trail : palmTrails) {
@@ -549,6 +559,7 @@ public class TitanFingers extends Bullet{
                     .position(trail.x, trail.y)
                     .size(trailWidth, trailHeight)
                     .rotation(getSelfAngle())
+                    .uv(u0, u1, 1.0f, 0.0f)
                     .rgba(rgba[0], rgba[1], rgba[2], trail.alpha)
                     .draw();
             }
@@ -561,6 +572,7 @@ public class TitanFingers extends Bullet{
                 .size(currentWidth, currentHeight)
                 .rotation(getSelfAngle())
                 .rgba(rgba[0], rgba[1], rgba[2], rgba[3])
+                .uv(u0, u1, 1.0f, 0.0f)
                 .draw();
         }
         for (TitanSingleFinger finger : fingers) {

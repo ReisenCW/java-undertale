@@ -3,6 +3,7 @@ package undertale.GameObject.Bullets;
 import static org.lwjgl.opengl.GL20.*;
 
 import undertale.Animation.Animation;
+import undertale.Animation.AnimationBuilder;
 import undertale.Utils.GameUtilities;
 import undertale.GameMain.Game;
 import undertale.GameObject.CollisionDetector;
@@ -197,18 +198,25 @@ public class TitanSpawn extends Bullet{
     @Override
     public void render() {
         String shaderName = (rgba[3] < 1.0f) ? "texture_shader" : "titan_spawn_shader";
-        animation.renderCurrentFrame(this.x, this.y, getHScale(), getVScale(), this.getSelfAngle(), rgba[0], rgba[1], rgba[2], rgba[3], shaderName, program -> {
-            int locScreenSize = glGetUniformLocation(program, "uScreenSize");
-            int locColor = glGetUniformLocation(program, "uColor");
-            int locTexture = glGetUniformLocation(program, "uTexture");
-            glUniform2i(locScreenSize, Game.getWindowWidth(), Game.getWindowHeight());
-            glUniform4f(locColor, rgba[0], rgba[1], rgba[2], rgba[3]);
-            glUniform1i(locTexture, 0);
-            if (shaderName.equals("titan_spawn_shader")) {
-                int locScale = glGetUniformLocation(program, "uScale");
-                glUniform1f(locScale, (getHScale() + getVScale()) / 2.0f);
-            }
-        });
+        new AnimationBuilder(animation)
+            .position(this.x, this.y)
+            .scale(getHScale(), getVScale())
+            .rgba(rgba[0], rgba[1], rgba[2], rgba[3])
+            .rotation(this.getSelfAngle())
+            .shaderName(shaderName)
+            .uniformSetter(program -> {
+                int locScreenSize = glGetUniformLocation(program, "uScreenSize");
+                int locColor = glGetUniformLocation(program, "uColor");
+                int locTexture = glGetUniformLocation(program, "uTexture");
+                glUniform2i(locScreenSize, Game.getWindowWidth(), Game.getWindowHeight());
+                glUniform4f(locColor, rgba[0], rgba[1], rgba[2], rgba[3]);
+                glUniform1i(locTexture, 0);
+                if (shaderName.equals("titan_spawn_shader")) {
+                    int locScale = glGetUniformLocation(program, "uScale");
+                    glUniform1f(locScale, (getHScale() + getVScale()) / 2.0f);
+                }
+            })
+            .draw();
     }
 
     @Override

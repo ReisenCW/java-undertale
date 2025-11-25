@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import undertale.Animation.Animation;
+import undertale.Animation.AnimationBuilder;
 import undertale.Animation.AnimationManager;
 import undertale.GameMain.Game;
 import undertale.GameObject.CollisionDetector;
@@ -46,16 +47,23 @@ public class TitanSnake extends Bullet {
         }
 
         public void render() {
-            animation.renderCurrentFrame(this.x, this.y, getHScale(), getVScale(), this.getSelfAngle(), rgba[0], rgba[1], rgba[2], rgba[3], "titan_spawn_shader", program -> {
-                int locScreenSize = glGetUniformLocation(program, "uScreenSize");
-                int locColor = glGetUniformLocation(program, "uColor");
-                int locTexture = glGetUniformLocation(program, "uTexture");
-                int locScale = glGetUniformLocation(program, "uScale");
-                glUniform2i(locScreenSize, Game.getWindowWidth(), Game.getWindowHeight());
-                glUniform4f(locColor, rgba[0], rgba[1], rgba[2], rgba[3]);
-                glUniform1i(locTexture, 0);
-                glUniform1f(locScale, (getHScale() + getVScale()) / initialScale / 2.0f);
-            });
+            new AnimationBuilder(animation)
+                .position(this.x, this.y)
+                .scale(getHScale(), getVScale())
+                .rotation(this.getSelfAngle())
+                .rgba(rgba[0], rgba[1], rgba[2], rgba[3])
+                .shaderName("titan_spawn_shader")
+                .uniformSetter(program -> {
+                    int locScreenSize = glGetUniformLocation(program, "uScreenSize");
+                    int locColor = glGetUniformLocation(program, "uColor");
+                    int locTexture = glGetUniformLocation(program, "uTexture");
+                    int locScale = glGetUniformLocation(program, "uScale");
+                    glUniform2i(locScreenSize, Game.getWindowWidth(), Game.getWindowHeight());
+                    glUniform4f(locColor, rgba[0], rgba[1], rgba[2], rgba[3]);
+                    glUniform1i(locTexture, 0);
+                    glUniform1f(locScale, (getHScale() + getVScale()) / initialScale / 2.0f);
+                })
+                .draw();
         }
 
         boolean checkContactLight(Player player) {
