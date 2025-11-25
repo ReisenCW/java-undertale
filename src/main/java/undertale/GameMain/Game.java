@@ -4,11 +4,9 @@ import static org.lwjgl.glfw.GLFW.*;
 
 import undertale.GameObject.ObjectManager;
 import undertale.GameObject.Player;
-import undertale.Scene.BattleFightScene;
-import undertale.Scene.BattleMenuScene;
-import undertale.Scene.BeginMenuScene;
-import undertale.Scene.GameOverScene;
 import undertale.Scene.Scene;
+import undertale.Scene.Scene.SceneEnum;
+import undertale.Scene.SceneFactory;
 import undertale.Scene.SceneManager;
 import undertale.Shaders.ShaderManager;
 import undertale.Texture.FontManager;
@@ -62,18 +60,20 @@ public class Game {
         fontManager = FontManager.getInstance();
         screenFadeManager = ScreenFadeManager.getInstance();
 
+        SceneFactory sceneFactory = new SceneFactory(objectManager, inputManager);
+
         // 初始化场景管理器并注册场景
-        sceneManager.registerScene(Scene.SceneEnum.START_MENU,
-        new BeginMenuScene(objectManager, inputManager));
-        sceneManager.registerScene(Scene.SceneEnum.BATTLE_MENU,
-        new BattleMenuScene(objectManager, inputManager));
-        sceneManager.registerScene(Scene.SceneEnum.BATTLE_FIGHT,
-        new BattleFightScene(objectManager, inputManager));
-        sceneManager.registerScene(Scene.SceneEnum.GAME_OVER,
-        new GameOverScene(objectManager, inputManager));
+        sceneManager.registerScene(SceneEnum.START_MENU,
+        sceneFactory.creatScene(SceneEnum.START_MENU));
+        sceneManager.registerScene(SceneEnum.BATTLE_MENU,
+        sceneFactory.creatScene(SceneEnum.BATTLE_MENU));
+        sceneManager.registerScene(SceneEnum.BATTLE_FIGHT,
+        sceneFactory.creatScene(SceneEnum.BATTLE_FIGHT));
+        sceneManager.registerScene(SceneEnum.GAME_OVER,
+        sceneFactory.creatScene(SceneEnum.GAME_OVER));
         
         // 初始场景
-        sceneManager.switchScene(Scene.SceneEnum.START_MENU, true);
+        sceneManager.switchScene(SceneEnum.START_MENU, true);
         
         // 初始化UI管理器
         uiManager = UIManager.getInstance();
