@@ -64,6 +64,8 @@ public class SaveManager {
 
     private void save() {
         try {
+            // 确保 save 文件夹存在
+            Files.createDirectories(Paths.get("save"));
             JsonObject json = new JsonObject();
             json.addProperty("success", successCount);
             FileWriter writer = new FileWriter(SAVE_PATH);
