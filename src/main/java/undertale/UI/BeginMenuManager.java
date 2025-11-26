@@ -10,7 +10,7 @@ import undertale.Texture.Texture;
 import undertale.Texture.TextureBuilder;
 import undertale.Utils.SaveManager;
 
-public class BeginMenuManager extends UIBase {
+public class BeginMenuManager extends UIBase implements UIComponent {
     class Option {
         String text;
         float positionX;
@@ -125,6 +125,7 @@ public class BeginMenuManager extends UIBase {
      * @return 是否开始游戏
      */
     public boolean confirmSelection() {
+        // confirmSelection invoked
         switch (choiceIndex) {
             case 0: // Start
                 // 使用渐暗再变亮的特效切换场景

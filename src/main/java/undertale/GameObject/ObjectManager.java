@@ -8,6 +8,7 @@ import undertale.Animation.Animation;
 import undertale.Enemy.EnemyManager;
 import undertale.GameMain.Game;
 import undertale.GameObject.Bullets.Bullet;
+import undertale.GameObject.GameObjectComposite;
 import undertale.GameObject.Bullets.BallBlast;
 import undertale.GameObject.Bullets.TitanSpawn;
 import undertale.GameObject.Bullets.TitanSnake;
@@ -21,7 +22,7 @@ import undertale.Texture.Texture;
 
 public class ObjectManager {
     private Player player;
-    private ArrayList<Bullet> bullets;
+    // active bullets are held in bulletsLayer (composite) — do not maintain a separate list
     private ArrayList<Bullet> pendingBullets;
     // 对象池复用子弹, 避免频繁创建和销毁子弹, 减少gc压力和内存分配开销
     private ArrayList<Bullet> bulletPool;
@@ -39,18 +40,31 @@ public class ObjectManager {
     // TitanSpawn 粒子
     private ArrayList<TitanSpawnParticle> titanSpawnParticles;
 
+    // Composite root and layers (POC)
+    private GameObjectComposite root;
+    private GameObjectComposite bulletsLayer;
+    private GameObjectComposite collectablesLayer;
+    private GameObjectComposite effectsLayer;
+
     private EnemyManager enemyManager;
-    private BulletRenderer bulletRenderer;
-    private CollectableRenderer collectableRenderer;
+    // renderers deprecated: objects render themselves now
     private SoundManager soundManager;
 
     public ObjectManager(Player player){
         init(player);
     }
 
+    /**
+     * No-arg constructor for tests that don't need a fully initialized Player.
+     * Initializes internal collections and layers only.
+     */
+    ObjectManager() {
+        init(null);
+    }
+
     private void init(Player player){
         this.player = player;
-        bullets = new ArrayList<>();
+        // bullets list removed; bulletsLayer will hold active bullets
         pendingBullets = new ArrayList<>();
         bulletPool = new ArrayList<>();
         toRemove = new ArrayList<>();
@@ -59,10 +73,23 @@ public class ObjectManager {
         collectablesToRemove = new ArrayList<>();
         rippleEffects = new ArrayList<>();
         titanSpawnParticles = new ArrayList<>();
-        enemyManager = EnemyManager.getInstance();
-        bulletRenderer = new BulletRenderer();
-        collectableRenderer = new CollectableRenderer();
-        soundManager = SoundManager.getInstance();
+        // create composite root and layers
+        root = new GameObjectComposite();
+        bulletsLayer = new GameObjectComposite();
+        collectablesLayer = new GameObjectComposite();
+        effectsLayer = new GameObjectComposite();
+        root.addChild(bulletsLayer);
+        root.addChild(collectablesLayer);
+        root.addChild(effectsLayer);
+        // In test-only construction (player == null) avoid triggering global singletons
+        if (player != null) {
+            enemyManager = EnemyManager.getInstance();
+            // bulletRenderer / collectableRenderer removed in favor of GameObject.render()
+            soundManager = SoundManager.getInstance();
+        } else {
+            enemyManager = null;
+            soundManager = null;
+        }
     }
 
     public Bullet createBullet(float x, float y, float selfAngle, float speedAngle, float speed, int damage, Texture texture){
@@ -74,7 +101,8 @@ public class ObjectManager {
             // 重置子弹属性
             bullet.reset(x, y, selfAngle, speedAngle, speed, damage, texture);
         }
-        bullets.add(bullet);
+        // add to bullets layer (composite authoritative)
+        if (bulletsLayer != null) bulletsLayer.addChild(bullet);
         return bullet;
     }
 
@@ -87,7 +115,8 @@ public class ObjectManager {
             // 重置子弹属性
             bullet.reset(x, y, selfAngle, speedAngle, speed, damage, animation);
         }
-        bullets.add(bullet);
+        // add to bullets layer (composite authoritative)
+        if (bulletsLayer != null) bulletsLayer.addChild(bullet);
         return bullet;
     }
 
@@ -125,6 +154,7 @@ public class ObjectManager {
             tp.reset(x, y, initialScale);
         }
         collectables.add(tp);
+        if (collectablesLayer != null) collectablesLayer.addChild(tp);
         return tp;
     }
 
@@ -137,38 +167,70 @@ public class ObjectManager {
     public void addCollectable(Collectable collectable) {
         if (collectable != null) {
             collectables.add(collectable);
+            if (collectablesLayer != null) collectablesLayer.addChild(collectable);
         }
     }
 
     public void addTitanSpawnParticle(TitanSpawnParticle particle) {
         if (particle != null) {
             titanSpawnParticles.add(particle);
+            if (effectsLayer != null) effectsLayer.addChild(particle);
         }
+    }
+
+    // Test helper: add a ripple effect to the manager and layer
+    void addRippleEffect(RippleEffect ripple) {
+        if (ripple != null) {
+            rippleEffects.add(ripple);
+            if (effectsLayer != null) effectsLayer.addChild(ripple);
+        }
+    }
+
+    // Package-private accessors used by unit tests to verify layer contents
+    GameObjectComposite getEffectsLayer() { return effectsLayer; }
+    int getTitanSpawnParticlesCount() { return titanSpawnParticles.size(); }
+    int getRippleEffectsCount() { return rippleEffects.size(); }
+    int getBulletsCount() {
+        if (bulletsLayer == null) return 0;
+        int count = 0;
+        for (GameObject go : bulletsLayer.getChildren()) {
+            if (go instanceof Bullet) count++;
+        }
+        return count;
     }
 
     public void updateMenuScene(float deltaTime){
         // enemy
-        enemyManager.update(deltaTime);
+        if (enemyManager != null) enemyManager.update(deltaTime);
         // player
-        player.update(deltaTime);
+        if (player != null) player.update(deltaTime);
     }
 
     public void updateFightScene(float deltaTime){
-        // 先添加 pending bullets
-        bullets.addAll(pendingBullets);
+        // 先添加 pending bullets -> add each to bulletsLayer (composite authoritative)
+        if (bulletsLayer != null) {
+            for (Bullet b : pendingBullets) {
+                bulletsLayer.addChild(b);
+            }
+        }
         pendingBullets.clear();
 
         // enemy
-        enemyManager.update(deltaTime);
+        if (enemyManager != null) enemyManager.update(deltaTime);
         // player
-        player.update(deltaTime);
+        if (player != null) player.update(deltaTime);
 
-        // bullets
+        // bullets: iterate the bullets layer so composite is authoritative for ordering
         toRemove.clear();
-        for (Bullet bullet : bullets) {
-            bullet.update(deltaTime);
-            if(!player.isAlive())
-                continue;
+        if (bulletsLayer != null) {
+            java.util.List<GameObject> bulletChildren = bulletsLayer.getChildren();
+            for (int i = 0; i < bulletChildren.size(); i++) {
+                GameObject go = bulletChildren.get(i);
+                if (!(go instanceof Bullet)) continue;
+                Bullet bullet = (Bullet) go;
+                bullet.update(deltaTime);
+                if (player == null || !player.isAlive())
+                    continue;
 
             // 如果是TitanSpawn或TitanSnake并且已标记为删除，加入移除列表
             if (bullet instanceof TitanSpawn) {
@@ -188,13 +250,16 @@ public class ObjectManager {
 
             // 检查TitanSpawn与BallBlast的碰撞
             if (bullet instanceof TitanSpawn && bullet.isColli) {
-                for (Bullet other : bullets) {
-                    if (other instanceof BallBlast && other != bullet) {
-                        if (CollisionDetector.checkCircleCollision(bullet, other)) {
-                            ((TitanSpawn) bullet).markForRemovalWithoutTP();
-                            toRemove.add(bullet);
-                            break;
-                        }
+                // check collision against other bullets in the layer
+                for (int j = 0; j < bulletChildren.size(); j++) {
+                    GameObject otherGo = bulletChildren.get(j);
+                    if (!(otherGo instanceof BallBlast)) continue;
+                    Bullet other = (Bullet) otherGo;
+                    if (other == bullet) continue;
+                    if (CollisionDetector.checkCircleCollision(bullet, other)) {
+                        ((TitanSpawn) bullet).markForRemovalWithoutTP();
+                        toRemove.add(bullet);
+                        break;
                     }
                 }
             }
@@ -211,9 +276,10 @@ public class ObjectManager {
                 toRemove.add(bullet);
             }
         }
+        }
         // 将要移除的子弹回收到对象池
         for (Bullet bullet : toRemove) {
-            bullets.remove(bullet);
+            if (bulletsLayer != null) bulletsLayer.removeChild(bullet);
             returnBulletToPool(bullet);
         }
 
@@ -230,15 +296,18 @@ public class ObjectManager {
             if(collectable.isCollected()) {
                 // 如果是TensionPoint，创建涟漪效果
                 if (collectable instanceof TensionPoint) {
-                    rippleEffects.add(new RippleEffect(collectable.getX(), collectable.getY()));
+                            RippleEffect ripple = new RippleEffect(collectable.getX(), collectable.getY());
+                            rippleEffects.add(ripple);
+                            if (effectsLayer != null) effectsLayer.addChild(ripple);
                 }
-                collectablesToRemove.add(collectable);
+                    collectablesToRemove.add(collectable);
                 continue;
             }
         }
         // 移除已收集的collectables
         for (Collectable collectable : collectablesToRemove) {
             collectables.remove(collectable);
+            if (collectablesLayer != null) collectablesLayer.removeChild(collectable);
             returnCollectableToPool(collectable);
         }
 
@@ -248,6 +317,7 @@ public class ObjectManager {
             effect.update(deltaTime);
             if (!effect.isActive()) {
                 rippleEffects.remove(i);
+                if (effectsLayer != null) effectsLayer.removeChild(effect);
             }
         }
 
@@ -257,6 +327,7 @@ public class ObjectManager {
             particle.update(deltaTime);
             if (!particle.isActive()) {
                 titanSpawnParticles.remove(i);
+                if (effectsLayer != null) effectsLayer.removeChild(particle);
             }
         }
     }
@@ -269,7 +340,7 @@ public class ObjectManager {
     }
 
     private boolean checkPlayerBulletCollisionReturnHit(Bullet bullet){
-        if(!player.isAlive())
+        if (player == null || !player.isAlive())
             return false;
         if(!bullet.isColli)
             return false;
@@ -307,29 +378,17 @@ public class ObjectManager {
     }
 
     public void renderFightScene(boolean renderBullets, boolean renderPlayer, boolean renderCollectables){
-        // collectables
-        if(renderCollectables) {
-            collectableRenderer.clearCollectables();
-            for (Collectable collectable : collectables) {
-                collectableRenderer.addCollectable(collectable);
-            }
-            collectableRenderer.renderCollectables();
+        // Render using composite layers so objects render themselves and groups
+        if (renderCollectables && collectablesLayer != null) {
+            collectablesLayer.render();
         }
-        // 渲染涟漪效果
-        for (RippleEffect effect : rippleEffects) {
-            effect.render();
+        // effects layer (ripples, titan spawn particles, etc.)
+        if (effectsLayer != null) {
+            effectsLayer.render();
         }
-        // 渲染 TitanSpawn 粒子
-        for (TitanSpawnParticle particle : titanSpawnParticles) {
-            particle.render();
-        }
-        // bullets
-        if(renderBullets) {
-            bulletRenderer.clearBullets();
-            for (Bullet bullet : bullets) {
-                bulletRenderer.addBullet(bullet);
-            }
-            bulletRenderer.renderBullets();
+        // bullets layer
+        if (renderBullets && bulletsLayer != null) {
+            bulletsLayer.render();
         }
 
         //player
@@ -354,15 +413,27 @@ public class ObjectManager {
     }
 
     public void clearBullets() {
-        bullets.clear();
+        // bullets list removed; clear layer and object pool
         bulletPool.clear();
+        if (bulletsLayer != null) bulletsLayer.clearChildren();
     }
 
     public void clearRipples() {
+        // remove ripple objects from effects layer and clear list
+        if (effectsLayer != null) {
+            for (RippleEffect r : rippleEffects) {
+                effectsLayer.removeChild(r);
+            }
+        }
         rippleEffects.clear();
     }
 
     public void clearTitanSpawnParticles() {
+        if (effectsLayer != null) {
+            for (TitanSpawnParticle p : titanSpawnParticles) {
+                effectsLayer.removeChild(p);
+            }
+        }
         titanSpawnParticles.clear();
     }
 
@@ -370,6 +441,7 @@ public class ObjectManager {
     public void clearCollectables() {
         collectables.clear();
         collectablePool.clear();
+        if (collectablesLayer != null) collectablesLayer.clearChildren();
     }
 
     public void allowPlayerMovement(boolean allow) {
@@ -405,11 +477,15 @@ public class ObjectManager {
     }
 
     public void destroy() {
-        bullets.clear();
+        // remove all active bullets from layer and clear pool
+        if (bulletsLayer != null) bulletsLayer.clearChildren();
         bulletPool.clear();
     }
 
     public Player getPlayer() {
         return player;
     }
+
+    // Package-private accessor for tests
+    GameObjectComposite getBulletsLayer() { return bulletsLayer; }
 }

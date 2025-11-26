@@ -17,7 +17,7 @@ import undertale.Texture.TextureBuilder;
 
 import java.util.Random;
 
-public class AttackAnimManager extends UIBase {
+public class AttackAnimManager extends UIBase implements UIComponent {
     private AnimationManager animationManager;
     private FontManager fontManager;
     private SoundManager soundManager;
@@ -316,5 +316,20 @@ public class AttackAnimManager extends UIBase {
 
     public boolean isDamageDisplayFinished() {
         return !showDamage;
+    }
+
+    @Override
+    public void update(float deltaTime) {
+        // Delegate to existing logic using the current enemy from EnemyManager
+        Enemy enemy = enemyManager.getCurrentEnemy();
+        updateAttackAnim(deltaTime, enemy);
+        updateMissTime(deltaTime);
+    }
+
+    @Override
+    public void render() {
+        // Render with the current enemy (UIManager will still call renderFightPanel explicitly where needed)
+        Enemy enemy = enemyManager.getCurrentEnemy();
+        renderFightPanel(enemy);
     }
 }

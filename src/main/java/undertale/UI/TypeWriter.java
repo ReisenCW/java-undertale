@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import undertale.Sound.SoundManager;
 import undertale.Texture.FontManager;
 
-public class TypeWriter extends UIBase {
+public class TypeWriter extends UIBase implements UIComponent {
     private FontManager fontManager;
     private SoundManager soundManager;
 
@@ -56,6 +56,11 @@ public class TypeWriter extends UIBase {
                 }
             }
         }
+    }
+
+    @Override
+    public void render() {
+        // TypeWriter doesn't render globally without context - leave as no-op.
     }
 
     // 根据当前 typewriterElapsed 和 displayLines/isRawNewline 计算应显示的字符数

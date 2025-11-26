@@ -12,7 +12,23 @@ import undertale.Texture.Texture;
  
 
 // 子弹渲染器, 用于批量渲染子弹以提升性能
+/**
+ * Legacy bulk bullet renderer kept for reference/performance experiments.
+ *
+ * NOTE: Rendering now happens via GameObject.render() and composite layers in
+ * ObjectManager. This class is deprecated and no longer used by the engine.
+ */
+@Deprecated
 public class BulletRenderer {
+/**
+ * Legacy bullet renderer kept for reference/performance experiments.
+ *
+ * NOTE: Bullets now render themselves via GameObject.render() and are
+ * managed by composite layers. This class is deprecated and not used by
+ * ObjectManager anymore.
+ */
+@Deprecated
+// 子弹渲染器, 用于批量渲染子弹以提升性能
     private ArrayList<Bullet> bulletsToRender;
 
     public BulletRenderer() {

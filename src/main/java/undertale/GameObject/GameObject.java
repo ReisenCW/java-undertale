@@ -4,6 +4,10 @@ package undertale.GameObject;
  * 游戏中的对象基类，包含位置、方向、速度等基本属性和方法
  * @field angle 为顺时针方向, 单位为度, 0度向右, 90度向下
  */
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public abstract class GameObject {
     protected float x;
     protected float y;
@@ -20,6 +24,51 @@ public abstract class GameObject {
     protected float minSpeed = -1.0f;
 
     public abstract void update(float deltaTime);
+
+    // --- Composite helpers -------------------------------------------------
+    private GameObject parent = null;
+    private List<GameObject> children = null;
+
+    /** Default (leaf) implementation: subclasses can override. */
+    public void render() { }
+
+    public void addChild(GameObject child) {
+        if (child == null) return;
+        if (children == null) children = new ArrayList<>();
+        children.add(child);
+        child.parent = this;
+    }
+
+    public void removeChild(GameObject child) {
+        if (child == null || children == null) return;
+        children.remove(child);
+        child.parent = null;
+        if (children.isEmpty()) children = null;
+    }
+
+    public List<GameObject> getChildren() {
+        return children == null ? Collections.emptyList() : Collections.unmodifiableList(children);
+    }
+
+    public boolean hasChildren() {
+        return children != null && !children.isEmpty();
+    }
+
+    public GameObject getParent() { return parent; }
+
+    protected void updateChildren(float deltaTime) {
+        if (children == null) return;
+        for (GameObject c : new ArrayList<>(children)) {
+            if (c != null) c.update(deltaTime);
+        }
+    }
+
+    protected void renderChildren() {
+        if (children == null) return;
+        for (GameObject c : new ArrayList<>(children)) {
+            if (c != null) c.render();
+        }
+    }
 
     public void updatePosition(float deltaTime) {
         speedX += accelerateX * deltaTime;

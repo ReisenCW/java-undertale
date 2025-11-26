@@ -3,12 +3,11 @@ package undertale.GameObject.Effects;
 import static org.lwjgl.opengl.GL20.*;
 
 import undertale.GameMain.Game;
+import undertale.GameObject.GameObject;
 import undertale.Texture.Texture;
 import undertale.Texture.TextureBuilder;
 
-public class TitanSpawnParticle {
-    private float x;
-    private float y;
+public class TitanSpawnParticle extends GameObject {
     private float speed;
     private float speedAngle;
     private float selfAngle;
@@ -33,9 +32,15 @@ public class TitanSpawnParticle {
     }
 
     private void init() {
-        tpTexture = Game.getTexture("tension_point");
+        try {
+            tpTexture = Game.getTexture("tension_point");
+        } catch (Exception e) {
+            // Game.textureManager may be unavailable during unit tests; leave texture null
+            tpTexture = null;
+        }
     }
 
+    @Override
     public void update(float deltaTime) {
         elapsedTime += deltaTime;
         if (elapsedTime >= duration) {
@@ -58,6 +63,7 @@ public class TitanSpawnParticle {
         y += (float) Math.sin(rad) * speed * deltaTime;
     }
 
+    @Override
     public void render() {
         if (tpTexture != null && currentScale > 0) {
             // 黄白色: RGB(1.0, 1.0, 0.7)
@@ -83,5 +89,15 @@ public class TitanSpawnParticle {
 
     public boolean isActive() {
         return elapsedTime < duration;
+    }
+
+    @Override
+    public float getWidth() {
+        return tpTexture != null ? currentScale * tpTexture.getWidth() : 0f;
+    }
+
+    @Override
+    public float getHeight() {
+        return tpTexture != null ? currentScale * tpTexture.getHeight() : 0f;
     }
 }

@@ -6,7 +6,7 @@ import undertale.Texture.FontManager;
 import undertale.Texture.Texture;
 import undertale.Texture.TextureBuilder;
 
-public class BgUIManager extends UIBase {
+public class BgUIManager extends UIBase implements UIComponent {
     private FontManager fontManager;
     private Player player;
 
@@ -136,5 +136,15 @@ public class BgUIManager extends UIBase {
         // 绘制currentHealth/maxHealth
         String hpText = player.getCurrentHealth() + "  /  " + player.getMaxHealth();
         fontManager.drawText(hpText, HP_BAR_X + HP_BAR_WIDTH + 20, HEIGHT, 1.0f, 1.0f, 1.0f, 1.0f);
+    }
+
+    @Override
+    public void update(float deltaTime) {
+        // No-op for POC: BgUIManager has no online per-frame update at present
+    }
+
+    @Override
+    public void render() {
+        // No-op by default because specific render calls require parameters
     }
 }

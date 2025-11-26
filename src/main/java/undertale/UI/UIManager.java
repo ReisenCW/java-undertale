@@ -41,6 +41,7 @@ public class UIManager extends UIBase {
     private GameOverUIManager gameOverUIManager;
     private BeginMenuManager beginMenuManager;
     private SoundManager soundManager;
+    private UIContainer rootContainer;
     private String pendingItemDescription = null;
 
     public MenuState menuState = MenuState.BEGIN;
@@ -70,6 +71,15 @@ public class UIManager extends UIBase {
         beginMenuManager = new BeginMenuManager(fontManager);
         enemyManager = EnemyManager.getInstance();
         soundManager = SoundManager.getInstance();
+
+        // create root UI container and register sub-managers as children
+        rootContainer = new UIContainer();
+        rootContainer.addChild(menuTypeWriter);
+        rootContainer.addChild(bgUIManager);
+        rootContainer.addChild(attackAnimManager);
+        rootContainer.addChild(battleFrameManager);
+        rootContainer.addChild(gameOverUIManager);
+        rootContainer.addChild(beginMenuManager);
     }
 
     public static UIManager getInstance() {
@@ -279,6 +289,7 @@ public class UIManager extends UIBase {
 
     // 菜单“确定”操作
     public void handleMenuSelect() {
+        // handleMenuSelect invoked
         if(menuState == MenuState.SUCCESS && menuTypeWriter.isTypewriterAllShown() && !isBackToMain) {
             isBackToMain = true;
             // 使用渐暗再变亮的特效切回战斗菜单
@@ -517,6 +528,21 @@ public class UIManager extends UIBase {
             }
         }
     }
+
+    /**
+     * POC helper: update entire UI tree from root.
+     */
+    public void updateAllUI(float deltaTime) {
+        if (rootContainer != null) rootContainer.update(deltaTime);
+    }
+
+    /**
+     * POC helper: render entire UI tree from root.
+     * Note: this is non-destructive — existing per-case render still used.
+     */
+    public void renderAllUI() {
+        if (rootContainer != null) rootContainer.render();
+    }
     
     public void selectMoveRight() {
         if(menuState != MenuState.MAIN) return;
@@ -585,6 +611,7 @@ public class UIManager extends UIBase {
 
     public void handleBeginMenuSelect() {
         soundManager.playSE("confirm");
+        // handleBeginMenuSelect invoked
         if(beginMenuManager.confirmSelection()) {
             menuState = MenuState.MAIN;
         }

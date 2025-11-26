@@ -9,7 +9,7 @@ import undertale.GameObject.Player;
 import undertale.Texture.Texture;
 import undertale.Texture.TextureBuilder;
 
-public class GameOverUIManager extends UIBase{
+public class GameOverUIManager extends UIBase implements UIComponent {
     private TypeWriter typeWriter;
     private Player player;
     private Texture gameOverBgTexture;

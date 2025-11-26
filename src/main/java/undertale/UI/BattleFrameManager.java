@@ -3,7 +3,7 @@ package undertale.UI;
 import undertale.GameObject.Player;
 import undertale.Texture.Texture;
 
-public class BattleFrameManager extends UIBase{
+public class BattleFrameManager extends UIBase implements UIComponent{
     Player player;
     
     public float batelFrameWidth;
@@ -40,6 +40,16 @@ public class BattleFrameManager extends UIBase{
                 batelFrameLeft + batelFrameWidth - BATTLE_FRAME_LINE_WIDTH,
                 batelFrameBottom - batelFrameHeight + BATTLE_FRAME_LINE_WIDTH,
                 batelFrameBottom - BATTLE_FRAME_LINE_WIDTH);
+    }
+
+    @Override
+    public void update(float deltaTime) {
+        // No per-frame update needed for the frame manager in current design
+    }
+
+    @Override
+    public void render() {
+        renderBattleFrame();
     }
 
     public void moveBattleFrame(float deltaTime, float duration, float targetWidth, float targetHeight, float targetLeft, float targetBottom) {
