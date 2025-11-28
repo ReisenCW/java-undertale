@@ -17,12 +17,19 @@ public class Renderer {
     private final int ESCAPING_X = 50;
     private final int ESCAPING_Y = 50;
 
-    Renderer(EscapeInputObserver escapeObserver) {
+    private int width;
+    private int height;
+    
+    // 重构内容: 构造函数改为接收 SceneManager、FontManager、ScreenFadeManager、Window 以及窗口宽高作为参数。
+    // 作用: 移除了对 Game.getWindow() 和各 Manager getInstance() 的直接静态调用，使得 Renderer 的依赖关系清晰可见，便于测试和维护。
+    Renderer(EscapeInputObserver escapeObserver, SceneManager sceneManager, FontManager fontManager, ScreenFadeManager screenFadeManager, Window window, int width, int height) {
         this.escapeObserver = escapeObserver;
-        this.sceneManager = SceneManager.getInstance();
-        this.fontManager = FontManager.getInstance();
-        this.screenFadeManager = ScreenFadeManager.getInstance();
-        this.window = Game.getWindow();
+        this.sceneManager = sceneManager;
+        this.fontManager = fontManager;
+        this.screenFadeManager = screenFadeManager;
+        this.window = window;
+        this.width = width;
+        this.height = height;
         init();
     }
 
@@ -32,7 +39,7 @@ public class Renderer {
         // 计算方式: 源颜色的alpha值决定源颜色的贡献度, (1 - 源颜色的alpha)决定目标颜色的贡献度
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         // 设置视口为窗口大小, 左下角为(0,0)
-        glViewport(0, 0, Game.getWindowWidth(), Game.getWindowHeight());
+        glViewport(0, 0, width, height);
     }
 
     public void render() {

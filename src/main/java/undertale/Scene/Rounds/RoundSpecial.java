@@ -14,6 +14,7 @@ import undertale.Texture.Texture;
 import undertale.Texture.TextureBuilder;
 import undertale.Texture.TextureManager;
 import undertale.Enemy.EnemyManager;
+import undertale.UI.UIManager;
 
 public class RoundSpecial extends Round {
     private float frameLeft = 400;
@@ -59,9 +60,11 @@ public class RoundSpecial extends Round {
     private Animation titanSpawnAnimation;
     private AnimationManager animationManager;
     private Texture ballBlastTexture;
+    private EnemyManager enemyManager;
 
-    public RoundSpecial(int intensity, long duration, long frameMoveTime) {
-        super(duration, frameMoveTime);
+    public RoundSpecial(int intensity, long duration, long frameMoveTime, UIManager uiManager, EnemyManager enemyManager) {
+        super(duration, frameMoveTime, uiManager);
+        this.enemyManager = enemyManager;
         SHOOT_NUM = intensity;
         animationManager = AnimationManager.getInstance();
         titanSpawnAnimation = animationManager.getAnimation("titan_spawn_animation");
@@ -105,7 +108,7 @@ public class RoundSpecial extends Round {
             chargeTimer += deltaTime;
             lineSpawnTimer += deltaTime;
             // titan震动
-            EnemyManager enemyManager = EnemyManager.getInstance();
+            // EnemyManager enemyManager = EnemyManager.getInstance();
             Titan titan = (Titan) enemyManager.getCurrentEnemy();
             if (titan != null) {
                 titan.setShakeOffset((float) Math.sin(chargeTimer * 80) * 8);

@@ -7,6 +7,11 @@ import undertale.GameObject.Player;
 import undertale.Texture.Texture;
 import undertale.Texture.TextureBuilder;
 
+/**
+ * 子弹类型（叶子节点） — 作为组合结构中的叶子实现。
+ * 已重构说明（Refactor note）: Bullet 继承自 GameObject 并承担自身的 update()/render()，
+ * 可被添加到 bulletsLayer（GameObjectComposite）进行统一管理。
+ */
 public class Bullet extends GameObject{
     protected static int nextId = 0;
     protected int id;
