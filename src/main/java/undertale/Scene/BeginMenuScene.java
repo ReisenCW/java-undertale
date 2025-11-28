@@ -3,6 +3,7 @@ package undertale.Scene;
 import undertale.GameMain.InputManager;
 import undertale.GameObject.ObjectManager;
 import undertale.UI.UIManager;
+import undertale.UI.state.MenuStateType;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class BeginMenuScene extends Scene {
@@ -23,7 +24,7 @@ public class BeginMenuScene extends Scene {
         }
         // 确保UI处于BEGIN状态并重置Begin Menu相关变量
         objectManager.resetGame();
-        uiManager.resetVars(UIManager.MenuState.BEGIN);
+        uiManager.resetVars(MenuStateType.BEGIN);
         uiManager.resetBeginMenu();
     }
 
@@ -49,7 +50,7 @@ public class BeginMenuScene extends Scene {
 
     @Override
     public void processInput(boolean[] preKeyStates, boolean[] currKeyStates) {
-        if(uiManager.menuState != UIManager.MenuState.BEGIN) return;
+        if(uiManager.getMenuStateType() != MenuStateType.BEGIN) return;
         if(currKeyStates[GLFW_KEY_UP] && !preKeyStates[GLFW_KEY_UP]) {
             uiManager.beginMenuSelectUp();
         }

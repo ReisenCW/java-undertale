@@ -4,6 +4,7 @@ import undertale.GameMain.Game;
 import undertale.GameMain.InputManager;
 import undertale.GameObject.ObjectManager;
 import undertale.UI.UIManager;
+import undertale.UI.state.MenuStateType;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class GameOverScene extends Scene {
@@ -31,7 +32,7 @@ public class GameOverScene extends Scene {
     public void onExit() {
         unregisterAsObserver();
         // 重置全局游戏对象（玩家、敌人、子弹）
-        Game.resetGame(UIManager.MenuState.MAIN);
+        Game.resetGame(MenuStateType.MAIN);
         // 重新初始化战斗场景（回到第一轮等初始状态）
         Scene battleFight = SceneManager.getInstance().getScene(SceneEnum.BATTLE_FIGHT);
         if (battleFight != null) {

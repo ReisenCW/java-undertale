@@ -15,6 +15,7 @@ import undertale.Texture.FontManager;
 import undertale.Texture.Texture;
 import undertale.Texture.TextureManager;
 import undertale.UI.UIManager;
+import undertale.UI.state.MenuStateType;
 import undertale.Utils.ConfigManager;
 import undertale.Utils.Timer;
 import undertale.UI.ScreenFadeManager;
@@ -192,9 +193,9 @@ public class Game {
         return getInstance().uiManager.getFrameBottom();
     }
 
-    public static void resetGame(UIManager.MenuState menuState) {
+    public static void resetGame(MenuStateType menuStateType) {
         getInstance().objectManager.resetGame();
-        getInstance().uiManager.resetVars(menuState);
+        getInstance().uiManager.resetVars(menuStateType);
         getInstance().sceneManager.reset();
     }
 }
