@@ -1,0 +1,68 @@
+@startuml
+
+class Game {
+  - sceneManager: SceneManager
+  - objectManager: ObjectManager
+  - inputManager: InputManager
+  ..
+}
+
+class SceneManager {
+  - scenes: HashMap<SceneEnum, Scene>
+  - currentScene: Scene
+  ..
+  + getInstance(): SceneManager
+  + registerScene(type: SceneEnum, scene: Scene): void
+  + switchScene(type: SceneEnum, force: boolean): void
+  ..
+}
+
+class SceneFactory {
+  - objectManager: ObjectManager
+  - inputManager: InputManager
+  ..
+  + creatScene(type: SceneEnum): Scene
+  ..
+}
+
+abstract class Scene {
+  + onEnter(): void
+  + onExit(): void
+  + getCurrentScene(): SceneEnum
+  + init(): void
+  + update(deltaTime: float): void
+  + render(): void
+  ..
+}
+
+class BattleMenuScene
+class BattleFightScene
+class GameOverScene
+class BeginMenuScene
+
+enum SceneEnum {
+  BATTLE_MENU
+  BATTLE_FIGHT
+  GAME_OVER
+  START_MENU
+}
+
+' 关联关系
+Game *--> SceneManager
+Game --> SceneFactory : create
+SceneManager o--> Scene
+SceneManager *--> SceneEnum
+
+' 组合关系
+SceneFactory --> Scene : create
+
+' 继承关系
+Scene <|-- BattleMenuScene
+Scene <|-- BattleFightScene
+Scene <|-- GameOverScene
+Scene <|-- BeginMenuScene
+
+' 依赖关系
+SceneFactory ..> SceneEnum : depend
+
+@enduml

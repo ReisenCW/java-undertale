@@ -1,0 +1,77 @@
+@startuml
+
+class TextureManager {
+  - textures: HashMap<String, Texture>
+  ..
+  + getTexture(name: String): Texture
+  ..
+}
+
+class TextureBuilder {
+  - textureId: int
+  - x: float
+  - y: float
+  - width: float
+  - height: float
+  ..
+  + TextureBuilder()
+  + textureId(textureId: int): TextureBuilder
+  + position(x: float, y: float): TextureBuilder
+  + size(width: float, height: float): TextureBuilder
+  ..
+  + draw(): void
+}
+
+class Texture {
+  - id: int
+  - width: int
+  - height: int
+  ..
+  + Texture(resourcePath: String, filterType: int)
+  + getId(): int
+  + static drawTexture(...): void
+  ..
+}
+
+class AnimationManager {
+  animations: HashMap<String, Animation>
+  ..
+  getAnimation(name: String): Animation
+  ..
+}
+
+class Animation {
+  frames: ArrayList<Texture>
+  currentFrame: int
+  ..
+  renderCurrentFrame(...): void
+  updateAnimation(deltaTime: float): void
+  ..
+}
+
+class AnimationBuilder {
+  anim: Animation
+  x: float
+  y: float
+  ..
+  AnimationBuilder(anim: Animation)
+  position(x: float, y: float): AnimationBuilder
+  ..
+  draw(): void
+}
+
+
+TextureManager *--> "textures" Texture
+
+TextureBuilder ..> "draw" Texture : <<use>>\n call static drawTexture(...)
+
+AnimationManager *--> "animations" Animation
+
+Animation *--> "frames" Texture
+
+AnimationBuilder ..> "draw" Animation : <<use>>\n call renderCurrentFrame
+
+Animation ..> TextureBuilder : <<use>>\n in renderCurrentFrame
+
+
+@enduml

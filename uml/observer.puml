@@ -1,0 +1,57 @@
+@startuml
+
+interface InputObserver {
++ processInput(preKeyStates: boolean[], currKeyStates: boolean[]): void
+}
+
+class InputManager {
+- window: Window
+- keyStates: boolean[]
+- wasKeyPressed: boolean[]
+- observers: List<InputObserver>
++ addObserver(observer: InputObserver): void
++ removeObserver(observer: InputObserver): void
++ processInput(): void
+}
+
+class Scene {
+- registerAsObserver(): void
+- unregisterAsObserver(): void
++ processInput(preKeyStates: boolean[], currKeyStates: boolean[]): void
+}
+
+class BattleMenuScene {
++ processInput(preKeyStates: boolean[], currKeyStates: boolean[]): void
+}
+
+class BeginMenuScene {
++ processInput(preKeyStates: boolean[], currKeyStates: boolean[]): void
+}
+
+class GameOverScene {
++ processInput(preKeyStates: boolean[], currKeyStates: boolean[]): void
+}
+
+class BattleFightScene {
+- registerAsObserver(): void
+- unregisterAsObserver(): void
++ processInput(preKeyStates: boolean[], currKeyStates: boolean[]): void
+}
+
+class ObjectManager {
+- getPlayer(): InputObserver
+}
+
+InputManager --> "observers" InputObserver : 1..*
+
+Scene ..|> InputObserver
+
+BattleMenuScene --|> Scene
+BeginMenuScene --|> Scene
+GameOverScene --|> Scene
+BattleFightScene --|> Scene
+
+BattleFightScene ..> ObjectManager : <<use>>\n getPlayer()
+ObjectManager ..> InputObserver : <<use>>\n Player implements
+
+@enduml
