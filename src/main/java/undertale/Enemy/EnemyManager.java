@@ -3,6 +3,8 @@ package undertale.Enemy;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import undertale.GameObject.Player;
+
 public class EnemyManager {
 	private ArrayList<Enemy> enemies;
     // private static EnemyManager instance; // Removed Singleton
@@ -13,16 +15,16 @@ public class EnemyManager {
     //    instance = new EnemyManager();
     // }
 
-	public EnemyManager() { // Made public
+	public EnemyManager(Player player) { // Made public
 		enemies = new ArrayList<>();
-        init();
+        init(player);
     }
 
     // public static EnemyManager getInstance() { ... } // Removed
 
-    private void init() {
+    private void init(Player player) {
         // 创建Titan敌人
-        Titan titan = new Titan();
+        Titan titan = new Titan(player);
         addEnemy(titan);
         setCurrentEnemy(0);
     }

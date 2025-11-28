@@ -70,10 +70,11 @@ public class Game {
         shaderManager = ShaderManager.getInstance();
         textureManager = TextureManager.getInstance();
         sceneManager = SceneManager.getInstance();
-        // Initialize EnemyManager
-        enemyManager = new EnemyManager();
-
+        
         player = new Player("Frisk");
+        // Initialize EnemyManager
+        enemyManager = new EnemyManager(player);
+
         objectManager = new ObjectManager(player, enemyManager);
         EscapeInputObserver escapeObserver = new EscapeInputObserver(gameWindow);
         inputManager = new InputManager(gameWindow);
