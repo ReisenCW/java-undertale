@@ -17,12 +17,18 @@ public class Renderer {
     private final int ESCAPING_X = 50;
     private final int ESCAPING_Y = 50;
 
-    Renderer(EscapeInputObserver escapeObserver) {
+    private int width;
+    private int height;
+
+    // 使用依赖注入重构构造函数，传入所需依赖
+    Renderer(EscapeInputObserver escapeObserver, SceneManager sceneManager, FontManager fontManager, ScreenFadeManager screenFadeManager, Window window, int width, int height) {
         this.escapeObserver = escapeObserver;
-        this.sceneManager = SceneManager.getInstance();
-        this.fontManager = FontManager.getInstance();
-        this.screenFadeManager = ScreenFadeManager.getInstance();
-        this.window = Game.getWindow();
+        this.sceneManager = sceneManager;
+        this.fontManager = fontManager;
+        this.screenFadeManager = screenFadeManager;
+        this.window = window;
+        this.width = width;
+        this.height = height;
         init();
     }
 
@@ -32,7 +38,7 @@ public class Renderer {
         // 计算方式: 源颜色的alpha值决定源颜色的贡献度, (1 - 源颜色的alpha)决定目标颜色的贡献度
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         // 设置视口为窗口大小, 左下角为(0,0)
-        glViewport(0, 0, Game.getWindowWidth(), Game.getWindowHeight());
+        glViewport(0, 0, width, height);
     }
 
     public void render() {

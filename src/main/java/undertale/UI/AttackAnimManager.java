@@ -55,11 +55,11 @@ public class AttackAnimManager extends UIBase implements UIComponent {
     private float damageDisplayElapsed = 0f;
     private float missDisplayElapsed = 0f;
 
-    public AttackAnimManager(FontManager fontManager, Player player) {
+    public AttackAnimManager(FontManager fontManager, Player player, EnemyManager enemyManager) {
         super();
         this.fontManager = fontManager;
         this.soundManager = SoundManager.getInstance();
-        this.enemyManager = EnemyManager.getInstance();
+        this.enemyManager = enemyManager;
         this.player = player;
         animationManager = AnimationManager.getInstance();
         attackBarOffset = 0.0f;

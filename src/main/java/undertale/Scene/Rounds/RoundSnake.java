@@ -6,6 +6,7 @@ import undertale.GameObject.Player;
 import undertale.GameObject.Bullets.TitanSnake;
 import undertale.GameObject.Bullets.TitanSpawn;
 import undertale.GameMain.Game;
+import undertale.UI.UIManager;
 
 public class RoundSnake extends Round{
     private float spawnTimer = 0f;
@@ -23,8 +24,8 @@ public class RoundSnake extends Round{
     private final float centerX;
     private final float centerY;
 
-    public RoundSnake(int intensity, long duration, long frameMoveTime) {
-        super(duration, frameMoveTime);
+    public RoundSnake(int intensity, long duration, long frameMoveTime, UIManager uiManager) {
+        super(duration, frameMoveTime, uiManager);
         AnimationManager animationManager = AnimationManager.getInstance();
         titanSpawnAnimation = animationManager.getAnimation("titan_snake_body");
 

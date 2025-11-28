@@ -8,8 +8,8 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class GameOverScene extends Scene {
     private boolean bgmStarted = false;
-    public GameOverScene(ObjectManager objectManager, InputManager inputManager) {
-        super(objectManager, inputManager);
+    public GameOverScene(ObjectManager objectManager, InputManager inputManager, UIManager uiManager) {
+        super(objectManager, inputManager, uiManager);
         init();
     }
 

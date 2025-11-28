@@ -28,7 +28,7 @@ public class UIManager extends UIBase {
         SUCCESS
     }
 
-    private static UIManager instance;
+    // private static UIManager instance; // Removed Singleton
 
     private Player player;
 
@@ -55,22 +55,23 @@ public class UIManager extends UIBase {
     public boolean sliceSEPlayed = false;
     private boolean isBackToMain = false;
 
-    static {
-        instance = new UIManager();
-    }
+    // static {
+    //    instance = new UIManager();
+    // }
 
-    private UIManager() {
+    public UIManager(Player player, EnemyManager enemyManager, SoundManager soundManager, FontManager fontManager) {
         super();
-        fontManager = FontManager.getInstance();
-        player = Game.getPlayer();
+        this.player = player;
+        this.enemyManager = enemyManager;
+        this.soundManager = soundManager;
+        this.fontManager = fontManager;
+        
         menuTypeWriter = new TypeWriter(fontManager);
         bgUIManager = new BgUIManager(fontManager, player);
-        attackAnimManager = new AttackAnimManager(fontManager, player);
+        attackAnimManager = new AttackAnimManager(fontManager, player, enemyManager);
         battleFrameManager = new BattleFrameManager(player);
         gameOverUIManager = new GameOverUIManager(menuTypeWriter, player);
         beginMenuManager = new BeginMenuManager(fontManager);
-        enemyManager = EnemyManager.getInstance();
-        soundManager = SoundManager.getInstance();
 
         // create root UI container and register sub-managers as children
         rootContainer = new UIContainer();
@@ -82,16 +83,7 @@ public class UIManager extends UIBase {
         rootContainer.addChild(beginMenuManager);
     }
 
-    public static UIManager getInstance() {
-        if(instance == null) {
-            synchronized(UIManager.class) {
-                if(instance == null) {
-                    instance = new UIManager();
-                }
-            }
-        }
-        return instance;
-    }
+    // public static UIManager getInstance() { ... } // Removed
 
     public void resetVars(MenuState state) {
         resetStates(state);

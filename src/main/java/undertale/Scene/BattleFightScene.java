@@ -9,17 +9,19 @@ import undertale.GameMain.InputManager;
 import undertale.GameObject.ObjectManager;
 import undertale.Scene.Rounds.*;
 import undertale.Sound.SoundManager;
+import undertale.UI.UIManager;
 
 public class BattleFightScene extends Scene {
-    private EnemyManager enemyManager = EnemyManager.getInstance();
+    private EnemyManager enemyManager;
     private int phase = 0; // 0-3
     private int phaseRound = 0; // 0-2
     private ArrayList<Round> rounds;
     private long roundTime;
     private boolean isSpecial = false;
 
-    public BattleFightScene(ObjectManager objectManager, InputManager inputManager) {
-        super(objectManager, inputManager);
+    public BattleFightScene(ObjectManager objectManager, InputManager inputManager, UIManager uiManager, EnemyManager enemyManager) {
+        super(objectManager, inputManager, uiManager);
+        this.enemyManager = enemyManager;
         init();
     }
 
@@ -34,12 +36,12 @@ public class BattleFightScene extends Scene {
         // 0-2, 4-6, 8-10
         // 3,7,11为special round, 只有使用了unleash之后才会进入该round
         for(int p = 0; p < 3; p++) {
-            rounds.add(new RoundSwarm(p + 1, 16000, 1500));
-            rounds.add(new RoundSnake(p + 1, 17000, 1500));
-            rounds.add(new RoundFinger(p + 1, 22000, 1500));
-            rounds.add(new RoundSpecial(p + 1, 17000, 1500));
+            rounds.add(new RoundSwarm(p + 1, 16000, 1500, uiManager));
+            rounds.add(new RoundSnake(p + 1, 17000, 1500, uiManager));
+            rounds.add(new RoundFinger(p + 1, 22000, 1500, uiManager));
+            rounds.add(new RoundSpecial(p + 1, 17000, 1500, uiManager, enemyManager));
         }
-        rounds.add(new RoundSpecial(3, 17000, 1500)); // 循环最后一个攻击
+        rounds.add(new RoundSpecial(3, 17000, 1500, uiManager, enemyManager)); // 循环最后一个攻击
         roundTime = 0;
     }
 

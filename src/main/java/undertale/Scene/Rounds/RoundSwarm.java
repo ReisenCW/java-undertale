@@ -6,6 +6,7 @@ import undertale.GameObject.Player;
 import undertale.GameObject.Bullets.TitanSpawn;
 import undertale.GameObject.Bullets.TitanSwarmRed;
 import undertale.GameMain.Game;
+import undertale.UI.UIManager;
 
 public class RoundSwarm extends Round{
 
@@ -22,8 +23,8 @@ public class RoundSwarm extends Round{
     private final float centerY;
     private final int intensity;
 
-    public RoundSwarm(int intensity, long duration, long frameMoveTime) {
-        super(duration, frameMoveTime);
+    public RoundSwarm(int intensity, long duration, long frameMoveTime, UIManager uiManager) {
+        super(duration, frameMoveTime, uiManager);
         AnimationManager animationManager = AnimationManager.getInstance();
         titanSpawnAnimation[0] = animationManager.getAnimation("titan_spawn_animation");
         titanSpawnAnimation[1] = animationManager.getAnimation("spawn_evolver_animation");

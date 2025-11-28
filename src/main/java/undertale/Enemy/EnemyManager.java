@@ -5,29 +5,20 @@ import java.util.Iterator;
 
 public class EnemyManager {
 	private ArrayList<Enemy> enemies;
-    private static EnemyManager instance;
+    // private static EnemyManager instance; // Removed Singleton
 
     private Enemy currentEnemy = null;
 
-    static {
-        instance = new EnemyManager();
-    }
+    // static {
+    //    instance = new EnemyManager();
+    // }
 
-	private EnemyManager() {
+	public EnemyManager() { // Made public
 		enemies = new ArrayList<>();
         init();
     }
 
-    public static EnemyManager getInstance() {
-        if(instance == null) {
-            synchronized(EnemyManager.class) {
-                if(instance == null) {
-                    instance = new EnemyManager();
-                }
-            }
-        }
-        return instance;
-    }
+    // public static EnemyManager getInstance() { ... } // Removed
 
     private void init() {
         // 创建Titan敌人

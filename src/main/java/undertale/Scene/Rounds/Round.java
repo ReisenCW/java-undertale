@@ -10,11 +10,11 @@ public abstract class Round {
     protected ObjectManager objectManager;
     protected UIManager uiManager;
 
-    public Round(long duration, long frameMoveTime) {
+    public Round(long duration, long frameMoveTime, UIManager uiManager) {
         this.roundDuration = duration;
         this.frameMoveTime = frameMoveTime;
         objectManager = Game.getObjectManager();
-        uiManager = UIManager.getInstance();
+        this.uiManager = uiManager;
     }
     
     public void onEnter() {}

@@ -22,9 +22,9 @@ public abstract class Scene implements InputObserver {
     protected SoundManager soundManager;
 
     // 构造函数注入依赖
-    public Scene(ObjectManager objectManager, InputManager inputManager) {
+    public Scene(ObjectManager objectManager, InputManager inputManager, UIManager uiManager) {
         this.sceneManager = SceneManager.getInstance();
-        this.uiManager = UIManager.getInstance();
+        this.uiManager = uiManager;
         this.textureManager = TextureManager.getInstance();
         this.objectManager = objectManager;
         this.inputManager = inputManager;

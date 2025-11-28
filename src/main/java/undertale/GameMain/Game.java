@@ -2,6 +2,8 @@ package undertale.GameMain;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+import undertale.Enemy.EnemyManager;
+import undertale.Sound.SoundManager;
 import undertale.GameObject.ObjectManager;
 import undertale.GameObject.Player;
 import undertale.Scene.Scene;
@@ -18,29 +20,43 @@ import undertale.Utils.Timer;
 import undertale.UI.ScreenFadeManager;
 
 public class Game {
-    private static boolean allowDebug = true;
+    private static Game instance;
 
-    private static Window gameWindow;
+    private boolean allowDebug = true;
 
-    public static ConfigManager configManager;
-    private static Renderer renderer;
-	private static Player player;
-    private static SceneManager sceneManager;
-    private static ObjectManager objectManager;
-    private static InputManager inputManager;
-    private static UIManager uiManager;
-    private static TextureManager textureManager;
-    private static FontManager fontManager;
-    private static ScreenFadeManager screenFadeManager;
-    private static ShaderManager shaderManager;
+    private Window gameWindow;
 
-    public static void run() {
+    private ConfigManager configManager;
+    private Renderer renderer;
+	private Player player;
+    private SceneManager sceneManager;
+    private ObjectManager objectManager;
+    private InputManager inputManager;
+    private UIManager uiManager;
+    private EnemyManager enemyManager;
+    private TextureManager textureManager;
+    private FontManager fontManager;
+    private ScreenFadeManager screenFadeManager;
+    private ShaderManager shaderManager;
+
+    public Game() {
+        // Constructor
+    }
+
+    public static Game getInstance() {
+        if (instance == null) {
+            instance = new Game();
+        }
+        return instance;
+    }
+
+    public void run() {
 		init();
 		loop();
         destroy();
 	}
 
-    private static void destroy() {
+    private void destroy() {
         textureManager.destroyAll();
         fontManager.destroy();
         objectManager.destroy();
@@ -48,22 +64,31 @@ public class Game {
 		gameWindow.destroyWindow();
     }
 
-	private static void init() {
+	private void init() {
         configManager = ConfigManager.getInstance();
         gameWindow = new Window(configManager.WINDOW_WIDTH, configManager.WINDOW_HEIGHT, "Undertale");
         shaderManager = ShaderManager.getInstance();
         textureManager = TextureManager.getInstance();
         sceneManager = SceneManager.getInstance();
-		player = new Player("Frisk");
-        objectManager = new ObjectManager(player);
+        // Initialize EnemyManager
+        enemyManager = new EnemyManager();
+
+        player = new Player("Frisk");
+        objectManager = new ObjectManager(player, enemyManager);
         EscapeInputObserver escapeObserver = new EscapeInputObserver(gameWindow);
         inputManager = new InputManager(gameWindow);
         inputManager.addObserver(escapeObserver);
         inputManager.addObserver(new DebugInputObserver(allowDebug));
         fontManager = FontManager.getInstance();
+        
+        // Initialize ScreenFadeManager with dimensions
+        ScreenFadeManager.init(configManager.WINDOW_WIDTH, configManager.WINDOW_HEIGHT);
         screenFadeManager = ScreenFadeManager.getInstance();
 
-        SceneFactory sceneFactory = new SceneFactory(objectManager, inputManager);
+        // Initialize UIManager
+        uiManager = new UIManager(player, enemyManager, SoundManager.getInstance(), fontManager);
+
+        SceneFactory sceneFactory = new SceneFactory(objectManager, inputManager, uiManager, enemyManager);
 
         // 初始化场景管理器并注册场景
         sceneManager.registerScene(SceneEnum.START_MENU,
@@ -78,14 +103,11 @@ public class Game {
         // 初始场景
         sceneManager.switchScene(SceneEnum.START_MENU, true);
         
-        // 初始化UI管理器
-        uiManager = UIManager.getInstance();
-        
-        // 初始化渲染器
-        renderer = new Renderer(escapeObserver);
+        // 初始化渲染器 - Inject dependencies
+        renderer = new Renderer(escapeObserver, sceneManager, fontManager, screenFadeManager, gameWindow, configManager.WINDOW_WIDTH, configManager.WINDOW_HEIGHT);
 	}
 
-	private static void loop() {
+	private void loop() {
         Timer timer = new Timer();
 		while ( !glfwWindowShouldClose(gameWindow.getWindow()) ) {
             timer.setTimerStart();
@@ -95,7 +117,7 @@ public class Game {
 		}
 	}
 
-    private static void update(float deltaTime) {
+    private void update(float deltaTime) {
         // 场景更新
         Scene currentScene = sceneManager.getCurrentScene();
         if (currentScene != null) {
@@ -109,65 +131,65 @@ public class Game {
         screenFadeManager.update(deltaTime);
     }
 
-    private static void render() {
+    private void render() {
         renderer.render();
     }
     
     public static Window getWindow() {
-        return gameWindow;
+        return getInstance().gameWindow;
     }
 
     public static int getWindowWidth() {
-        return configManager.WINDOW_WIDTH;
+        return getInstance().configManager.WINDOW_WIDTH;
     }
 
     public static int getWindowHeight() {
-        return configManager.WINDOW_HEIGHT;
+        return getInstance().configManager.WINDOW_HEIGHT;
     }
 
     public static Renderer getRenderer() {
-        return renderer;
+        return getInstance().renderer;
     }
 
 	public static Player getPlayer() {
-		return player;
+		return getInstance().player;
 	}
 
     public static ObjectManager getObjectManager() {
-        return objectManager;
+        return getInstance().objectManager;
     }
 
     public static InputManager getInputManager() {
-        return inputManager;
+        return getInstance().inputManager;
     }
 
     public static UIManager getUIManager() {
-        return uiManager;
+        return getInstance().uiManager;
     }
 
     public static Texture getTexture(String name) {
-        return textureManager.getTexture(name);
+        return getInstance().textureManager.getTexture(name);
     }
 
     public static float getFrameHeight() {
-        return uiManager.getFrameHeight();
+        return getInstance().uiManager.getFrameHeight();
     }
 
     public static float getFrameWidth() {
-        return uiManager.getFrameWidth();
+        return getInstance().uiManager.getFrameWidth();
     }
 
     public static float getFrameLeft() {
-        return uiManager.getFrameLeft();
+        return getInstance().uiManager.getFrameLeft();
     }
 
     public static float getFrameBottom() {
-        return uiManager.getFrameBottom();
+        return getInstance().uiManager.getFrameBottom();
     }
 
     public static void resetGame(UIManager.MenuState menuState) {
-        objectManager.resetGame();
-        uiManager.resetVars(menuState);
-        sceneManager.reset();
+        getInstance().objectManager.resetGame();
+        getInstance().uiManager.resetVars(menuState);
+        getInstance().sceneManager.reset();
     }
 }

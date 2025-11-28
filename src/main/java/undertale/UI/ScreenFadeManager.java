@@ -25,20 +25,32 @@ public class ScreenFadeManager{
     private float WINDOW_WIDTH;
     private float WINDOW_HEIGHT;
 
-    static {
-        instance = new ScreenFadeManager();
-    }
+    // static {
+    //    instance = new ScreenFadeManager();
+    // }
 
-    private ScreenFadeManager() {
+    private ScreenFadeManager(float width, float height) {
         state = State.INACTIVE;
         timer = 0.0f;
         fadeDuration = 1.0f;
-        WINDOW_WIDTH = Game.getWindowWidth();
-        WINDOW_HEIGHT = Game.getWindowHeight();
+        WINDOW_WIDTH = width;
+        WINDOW_HEIGHT = height;
     }
 
     public static ScreenFadeManager getInstance() {
+        if (instance == null) {
+             // Fallback or throw error if not initialized. 
+             // For now, we can't easily get width/height here without Game.
+             // So we will rely on Game initializing it.
+             // Or we keep the old constructor for now but mark deprecated?
+             // Let's just change the initialization in Game.
+             throw new RuntimeException("ScreenFadeManager not initialized");
+        }
         return instance;
+    }
+
+    public static void init(float width, float height) {
+        instance = new ScreenFadeManager(width, height);
     }
 
     /**
