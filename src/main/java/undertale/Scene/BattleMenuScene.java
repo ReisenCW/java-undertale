@@ -7,7 +7,7 @@ import undertale.UI.UIManager;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class BattleMenuScene extends Scene {
-    private EnemyManager enemyManager = EnemyManager.getInstance();
+    private EnemyManager enemyManager;
     private int round;
     private long battleFrameResetTime = 1000; // 1000ms
 
@@ -17,8 +17,9 @@ public class BattleMenuScene extends Scene {
         "* The titan's hands are moving."
     };
 
-    public BattleMenuScene(ObjectManager objectManager, InputManager inputManager) {
-        super(objectManager, inputManager);
+    public BattleMenuScene(ObjectManager objectManager, InputManager inputManager, UIManager uiManager, EnemyManager enemyManager) {
+        super(objectManager, inputManager, uiManager);
+        this.enemyManager = enemyManager;
         init();
     }
 

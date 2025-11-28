@@ -57,8 +57,8 @@ public class ObjectManager {
     // renderers deprecated: objects render themselves now
     private SoundManager soundManager;
 
-    public ObjectManager(Player player){
-        init(player);
+    public ObjectManager(Player player, EnemyManager enemyManager){
+        init(player, enemyManager);
     }
 
     /**
@@ -66,11 +66,12 @@ public class ObjectManager {
      * Initializes internal collections and layers only.
      */
     ObjectManager() {
-        init(null);
+        init(null, null);
     }
 
-    private void init(Player player){
+    private void init(Player player, EnemyManager enemyManager){
         this.player = player;
+        this.enemyManager = enemyManager;
         // bullets list removed; bulletsLayer will hold active bullets
         pendingBullets = new ArrayList<>();
         bulletPool = new ArrayList<>();
@@ -90,11 +91,9 @@ public class ObjectManager {
         root.addChild(effectsLayer);
         // In test-only construction (player == null) avoid triggering global singletons
         if (player != null) {
-            enemyManager = EnemyManager.getInstance();
             // bulletRenderer / collectableRenderer removed in favor of GameObject.render()
             soundManager = SoundManager.getInstance();
         } else {
-            enemyManager = null;
             soundManager = null;
         }
     }

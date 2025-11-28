@@ -22,16 +22,15 @@ public class Titan extends Enemy {
     private static float bodyBottom;
     private static float starBottom;
 
-    public Titan() {
+    public Titan(Player player) {
         super("Titan", 6000, 6000, 114514, 19198);
         this.weakened = false;
-        init();
+        init(player);
     }
 
-    private void init() {
+    private void init(Player player) {
         AnimationManager animationManager = AnimationManager.getInstance();
         soundManager = SoundManager.getInstance();
-        Player player = Game.getPlayer();
         roundsPerWeaken = 2;
         defenseRate = initialDefenseRate;
         // 添加Act行为

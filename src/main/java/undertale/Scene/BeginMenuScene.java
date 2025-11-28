@@ -6,8 +6,8 @@ import undertale.UI.UIManager;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class BeginMenuScene extends Scene {
-    public BeginMenuScene(ObjectManager objectManager, InputManager inputManager) {
-        super(objectManager, inputManager);
+    public BeginMenuScene(ObjectManager objectManager, InputManager inputManager, UIManager uiManager) {
+        super(objectManager, inputManager, uiManager);
     }
 
     @Override

@@ -3,6 +3,7 @@ package undertale.Scene.Rounds;
 import undertale.GameMain.Game;
 import undertale.GameObject.Bullets.TitanFingers;
 import undertale.Texture.TextureManager;
+import undertale.UI.UIManager;
 
 public class RoundFinger extends Round {
     private int intensity;
@@ -13,8 +14,8 @@ public class RoundFinger extends Round {
     // 0: 朝右, 1: 朝左
     private TitanFingers[] titanFingers = new TitanFingers[2];
 
-    public RoundFinger(int intensity, long duration, long frameMoveTime) {
-        super(duration, frameMoveTime);
+    public RoundFinger(int intensity, long duration, long frameMoveTime, UIManager uiManager) {
+        super(duration, frameMoveTime, uiManager);
         this.intensity = intensity;
         this.edge = 400.0f;
         this.centerX = Game.getWindowWidth() / 2.0f;

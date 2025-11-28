@@ -1,14 +1,20 @@
 package undertale.Sound;
-
 import javax.sound.sampled.*;
-import undertale.GameMain.Game;
 import undertale.Utils.ConfigManager;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-// 声音管理器，采用享元模式，负责音效和音乐的加载与复用
+// 声音管理器，重构后采用享元模式，负责音效和音乐的加载与复用
+// 享元原理：将相同的音频资源只加载一次，复用Clip实例，节省内存和加载时间
+// 实现方法：使用ConcurrentHashMap作为享元池，分别存放音乐和音效的Clip实例
+// 在使用时，先从享元池获取Clip，若不存在则加载新Clip并存入池中
+// 播放音效时，若Clip正在播放，则新建临时Clip实现多实例并发播放
+// 播放音乐时，停止当前音乐Clip并复用享元池中的Clip
+// 该设计适用于大部分游戏场景，兼顾性能和内存占用
+// 项目也保留了非享元的预加载方法以供选择，但默认采用懒加载和享元复用
+
 public class SoundManager
 {
     private static final SoundManager instance = new SoundManager(); // 单例实例
@@ -37,7 +43,7 @@ public class SoundManager
     {
         return instance;
     }
-    // 预加载所有音效与音乐
+    // 预加载所有音效与音乐，非享元模式，但是可以在加载速度较慢的系统上使用
     public void preloadAll()
     {
         if (preloaded) return; // 已预加载则跳过
@@ -84,7 +90,8 @@ public class SoundManager
     private Clip loadClip(String path) throws Exception
     {
         AudioInputStream ais = null;
-        try {
+        try
+        {
             // 优先从资源目录加载
             InputStream ris = getClass().getClassLoader().getResourceAsStream(path);
             if (ris != null)
@@ -183,10 +190,7 @@ public class SoundManager
             try
             {
                 stopMusic(); // 停止当前音乐
-                
-                String path = (musicTracks != null && musicTracks.containsKey(musicFile)
-                        ? musicTracks.get(musicFile)
-                        : musicFile);// 获取音乐路径
+                String path = (musicTracks != null && musicTracks.containsKey(musicFile) ? musicTracks.get(musicFile) : musicFile);// 获取音乐路径
                 // 懒加载Clip，享元池复用
                 Clip cached = musicCache.computeIfAbsent(path, key -> {
                     try { return loadClip(key); } catch (Exception e) { return null; }
@@ -235,7 +239,11 @@ public class SoundManager
                     }
                     else
                     {
-                        try { musicClip.setFramePosition(0); } catch (Exception ignored) {}
+                        try
+                        {
+                            musicClip.setFramePosition(0);
+                        }
+                        catch (Exception ignored) {}
                     }
                 }
                 catch (Exception ignored) {}
@@ -248,7 +256,7 @@ public class SoundManager
     public void stopAllSe()
     {
         for (Clip clip : seCache.values())
-            {
+        {
             try
             {
                 if (clip != null && clip.isRunning())
@@ -263,9 +271,7 @@ public class SoundManager
     // 停止指定音效
     public void stopSe(String soundFile)
     {
-        String path = (soundEffects != null && soundEffects.containsKey(soundFile)
-                ? soundEffects.get(soundFile)
-                : soundFile);
+        String path = (soundEffects != null && soundEffects.containsKey(soundFile) ? soundEffects.get(soundFile) : soundFile);
         Clip clip = seCache.get(path);
         if (clip != null && clip.isRunning())
         {
@@ -316,7 +322,6 @@ public class SoundManager
         }
         musicCache.clear();
     }
-
     // 检查指定音乐是否正在播放
     public boolean isMusicPlaying(String musicName)
     {
