@@ -20,6 +20,13 @@ import undertale.GameObject.Player.LightLevel;
 import undertale.Sound.SoundManager;
 import undertale.Texture.Texture;
 
+/**
+ * ObjectManager 管理游戏对象生命周期与分层（layers）。
+ *
+ * 已重构说明（Refactor note）:
+ * 本类采用组合层（Composite layers）管理活动对象（bulletsLayer, collectablesLayer, effectsLayer），
+ * 并由对象自身负责 render()/update()，不再通过集中式渲染器强制渲染所有对象。
+ */
 public class ObjectManager {
     private Player player;
     // active bullets are held in bulletsLayer (composite) — do not maintain a separate list
@@ -92,33 +99,7 @@ public class ObjectManager {
         }
     }
 
-    public Bullet createBullet(float x, float y, float selfAngle, float speedAngle, float speed, int damage, Texture texture){
-        Bullet bullet = getBulletFromPool();
-        if (bullet == null) {
-            // 如果对象池中没有可用子弹，则创建新的子弹
-            bullet = new Bullet(x, y, selfAngle, speedAngle, speed, damage, texture);
-        } else {
-            // 重置子弹属性
-            bullet.reset(x, y, selfAngle, speedAngle, speed, damage, texture);
-        }
-        // add to bullets layer (composite authoritative)
-        if (bulletsLayer != null) bulletsLayer.addChild(bullet);
-        return bullet;
-    }
-
-    public Bullet createBullet(float x, float y, float selfAngle, float speedAngle, float speed, int damage, Animation animation){
-        Bullet bullet = getBulletFromPool();
-        if (bullet == null) {
-            // 如果对象池中没有可用子弹，则创建新的子弹
-            bullet = new Bullet(x, y, selfAngle, speedAngle, speed, damage, animation);
-        } else {
-            // 重置子弹属性
-            bullet.reset(x, y, selfAngle, speedAngle, speed, damage, animation);
-        }
-        // add to bullets layer (composite authoritative)
-        if (bulletsLayer != null) bulletsLayer.addChild(bullet);
-        return bullet;
-    }
+    // NOTE: createBullet() factory methods were removed — scenes / rounds directly construct bullets and use addBullet().
 
     private Bullet getBulletFromPool() {
         if (bulletPool.isEmpty()) {
@@ -144,19 +125,7 @@ public class ObjectManager {
         return collectablePool.remove(collectablePool.size() - 1);
     }
 
-    public Collectable createCollectable(float x, float y, float initialScale) {
-        TensionPoint tp = (TensionPoint) getCollectableFromPool();
-        if (tp == null) {
-            // 如果对象池中没有可用TensionPoint，则创建新的
-            tp = new TensionPoint(x, y, initialScale);
-        } else {
-            // 重置TensionPoint属性
-            tp.reset(x, y, initialScale);
-        }
-        collectables.add(tp);
-        if (collectablesLayer != null) collectablesLayer.addChild(tp);
-        return tp;
-    }
+    // NOTE: createCollectable() factory method removed — rounds/scenes typically construct collectables directly and call addCollectable().
 
     public void addBullet(Bullet bullet) {
         if (bullet != null) {

@@ -11,6 +11,13 @@ import undertale.Scene.BattleFightScene;
 import undertale.Texture.FontManager;
 import undertale.Texture.Texture;
 
+/**
+ * UI 管理器: 按照模块化子管理器负责各自渲染与更新。
+ *
+ * 已重构说明（Refactor note）:
+ * UI 子系统采用组合式思想（UIComponent / UIContainer），以便在需要时把多个 UIComponent 组成树形结构。
+ * 当前实现保留了按场景/状态逐一调用子管理器的方式（按需渲染），但框架已支持将来把 UI 统一挂到 root 容器中以实现集中遍历。
+ */
 public class UIManager extends UIBase {
     public enum MenuState {
         BEGIN,
@@ -41,7 +48,6 @@ public class UIManager extends UIBase {
     private GameOverUIManager gameOverUIManager;
     private BeginMenuManager beginMenuManager;
     private SoundManager soundManager;
-    private UIContainer rootContainer;
     private String pendingItemDescription = null;
 
     public MenuState menuState = MenuState.BEGIN;
@@ -72,14 +78,7 @@ public class UIManager extends UIBase {
         enemyManager = EnemyManager.getInstance();
         soundManager = SoundManager.getInstance();
 
-        // create root UI container and register sub-managers as children
-        rootContainer = new UIContainer();
-        rootContainer.addChild(menuTypeWriter);
-        rootContainer.addChild(bgUIManager);
-        rootContainer.addChild(attackAnimManager);
-        rootContainer.addChild(battleFrameManager);
-        rootContainer.addChild(gameOverUIManager);
-        rootContainer.addChild(beginMenuManager);
+        // Sub-managers created and held as fields above; invocation happens per-case.
     }
 
     public static UIManager getInstance() {
@@ -529,20 +528,7 @@ public class UIManager extends UIBase {
         }
     }
 
-    /**
-     * POC helper: update entire UI tree from root.
-     */
-    public void updateAllUI(float deltaTime) {
-        if (rootContainer != null) rootContainer.update(deltaTime);
-    }
-
-    /**
-     * POC helper: render entire UI tree from root.
-     * Note: this is non-destructive — existing per-case render still used.
-     */
-    public void renderAllUI() {
-        if (rootContainer != null) rootContainer.render();
-    }
+    // Root-based helpers were POC and removed — sub-managers are invoked explicitly
     
     public void selectMoveRight() {
         if(menuState != MenuState.MAIN) return;

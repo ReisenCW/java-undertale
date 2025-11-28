@@ -40,13 +40,10 @@ public class InputManager {
 
     public void processInput() {
         updateKeyState();
-        // DEBUG: if Z pressed this frame, log observers for troubleshooting
-        // input polling - no debug logging
 
         for(InputObserver observer : observers) {
             observer.processInput(wasKeyPressed, keyStates);
         }
     }
 
-    // keyName helper removed: no longer needed for debug output
 }
