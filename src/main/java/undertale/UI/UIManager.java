@@ -2,7 +2,6 @@ package undertale.UI;
 
 import undertale.Enemy.Enemy;
 import undertale.Enemy.EnemyManager;
-import undertale.GameMain.Game;
 import undertale.GameObject.Player;
 import undertale.Item.Item;
 import undertale.Scene.SceneManager;

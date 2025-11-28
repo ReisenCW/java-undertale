@@ -3,7 +3,6 @@ package undertale.Enemy;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import undertale.GameMain.Game;
 import undertale.GameObject.Player;
 
 public class EnemyManager {

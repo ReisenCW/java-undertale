@@ -3,6 +3,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import undertale.Interfaces.InputObserver;
 import undertale.Utils.Timer;
 
+// Escape退出观察者
 public class EscapeInputObserver implements InputObserver {
     private boolean isEscaping = false;
     private Timer escapeTimer = new Timer();

@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import undertale.Animation.Animation;
 import undertale.Enemy.EnemyManager;
 import undertale.GameMain.Game;
 import undertale.GameObject.Bullets.Bullet;
-import undertale.GameObject.GameObjectComposite;
 import undertale.GameObject.Bullets.BallBlast;
 import undertale.GameObject.Bullets.TitanSpawn;
 import undertale.GameObject.Bullets.TitanSnake;
@@ -18,7 +16,6 @@ import undertale.GameObject.Effects.RippleEffect;
 import undertale.GameObject.Effects.TitanSpawnParticle;
 import undertale.GameObject.Player.LightLevel;
 import undertale.Sound.SoundManager;
-import undertale.Texture.Texture;
 
 /**
  * ObjectManager 管理游戏对象生命周期与分层（layers）。

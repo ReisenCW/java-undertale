@@ -1,6 +1,5 @@
 package undertale.UI;
 
-import undertale.GameMain.Game;
 import undertale.Texture.Texture;
 
 /**
