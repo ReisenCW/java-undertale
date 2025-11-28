@@ -1,6 +1,10 @@
 # Creational - Factory Pattern
 - The Factory Pattern is a creational design pattern that provides a way to create objects without specifying the exact class of object that will be created. By using factory methods, client code can be decoupled from concrete classes, thereby improving code flexibility and maintainability.
 
+- refactored files:
+    - SceneFactory.java (new file)
+    - Game.java
+
 - In the refactoring of this project, the `SceneFactory` class is used to create different types of scene objects.
 - The core method of `SceneFactory` is `createScene(SceneEnum type)`, which decides which specific scene object to create based on the passed scene type enumeration value.
 ```java
@@ -34,6 +38,14 @@ sceneFactory.creatScene(SceneEnum.START_MENU));
 
 # Creational - Builder Pattern
 - The Builder Pattern is a creational design pattern that separates the construction of a complex object from its representation, allowing the same construction process to create different representations.
+
+- refactored files:
+    - TextureBuilder.java (new file)
+    - AnimationBuilder.java (new file)
+    - Texture.java
+    - Animation.java
+    - other files that use Texture and Animation drawing methods
+
 - In this project, the `TextureBuilder` class and `AnimationBuilder` class are implemented to handle the drawing of textures and animations.
 - Since they are similar, `TextureBuilder` is used as an example here.
 
@@ -98,6 +110,18 @@ new TextureBuilder().textureId(currentTexture.getId())
 
 # Behavioral - Observer Pattern
 - The Observer Pattern is a behavioral design pattern that defines a one-to-many dependency between objects so that when one object changes state, all its dependents are notified and updated automatically.
+
+- refactored files:
+    - InputObserver.java (new file)
+    - InputManager.java
+    - Scene.java
+    - BattleMenuScene.java
+    - BattleFightScene.java
+    - BeginMenuScene.java
+    - GameOverScene.java
+    - Player.java
+    - DebugInputObserver.java (new file)
+    - EscapeInputObserver.java (new file)
 
 - Before refactoring, `InputManager` held objects of classes that needed to judge input, such as `ObjectManager`, `UIManager`, `SceneManager`, `Player`, as member variables, and directly called methods of these classes inside the `InputManager` class to handle input events. This led to high coupling between the `InputManager` class and these classes, making it difficult to maintain and extend.
 ```java
