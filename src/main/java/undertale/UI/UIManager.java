@@ -58,7 +58,9 @@ public class UIManager extends UIBase {
     // static {
     //    instance = new UIManager();
     // }
-
+    
+    // 重构内容: 移除了单例模式，构造函数改为接收 Player、EnemyManager、SoundManager、FontManager 等依赖。
+    // 作用: UIManager 不再自己去查找依赖，而是由外部注入。这解决了 UIManager 与 EnemyManager 等组件的紧耦合问题。
     public UIManager(Player player, EnemyManager enemyManager, SoundManager soundManager, FontManager fontManager) {
         super();
         this.player = player;

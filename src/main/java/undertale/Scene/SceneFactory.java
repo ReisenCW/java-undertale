@@ -12,6 +12,8 @@ public class SceneFactory {
     private UIManager uiManager;
     private EnemyManager enemyManager;
 
+    // 重构内容: 更新了工厂方法，持有 UIManager 和 EnemyManager 实例，并在创建场景时将它们注入。
+    // 作用: 负责将依赖传递给具体的场景实例。
     public SceneFactory(ObjectManager objectManager, InputManager inputManager, UIManager uiManager, EnemyManager enemyManager) {
         this.objectManager = objectManager;
         this.inputManager = inputManager;

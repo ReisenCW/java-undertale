@@ -1,5 +1,6 @@
 package undertale.Scene;
 
+import undertale.Enemy.EnemyManager;
 import undertale.GameMain.InputManager;
 import undertale.GameObject.ObjectManager;
 import undertale.Interfaces.InputObserver;
@@ -21,6 +22,8 @@ public abstract class Scene implements InputObserver {
     protected TextureManager textureManager;
     protected SoundManager soundManager;
 
+    // 重构内容: Scene 基类和所有子类的构造函数增加了 UIManager 参数。BattleFightScene 和 BattleMenuScene 还增加了 EnemyManager 参数。
+    // 作用: 场景不再依赖全局单例来获取 UI 和 敌人管理器，而是通过构造函数注入。
     // 构造函数注入依赖
     public Scene(ObjectManager objectManager, InputManager inputManager, UIManager uiManager) {
         this.sceneManager = SceneManager.getInstance();

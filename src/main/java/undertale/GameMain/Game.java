@@ -20,6 +20,10 @@ import undertale.Utils.Timer;
 import undertale.UI.ScreenFadeManager;
 
 public class Game {
+    // 重构内容: 将 Game 类从全静态方法改为单例模式 (Singleton)，但内部使用实例变量来管理所有管理器（Managers）。
+    // 作用: 允许 Game 类持有并管理各个组件的生命周期和依赖关系，而不是让组件之间通过静态方法相互调用。
+    // 依赖注入: 在 init() 方法中，Game 负责实例化 EnemyManager、UIManager、SceneFactory 等，
+    //          并将它们作为参数传递给需要它们的组件（如 Renderer、SceneFactory）。
     private static Game instance;
 
     private boolean allowDebug = true;
@@ -72,7 +76,7 @@ public class Game {
         sceneManager = SceneManager.getInstance();
         
         player = new Player("Frisk");
-        // Initialize EnemyManager
+        // 在创建 EnemyManager 时传入 Player 实例
         enemyManager = new EnemyManager(player);
 
         objectManager = new ObjectManager(player, enemyManager);

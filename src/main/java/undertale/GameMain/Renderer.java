@@ -19,8 +19,9 @@ public class Renderer {
 
     private int width;
     private int height;
-
-    // 使用依赖注入重构构造函数，传入所需依赖
+    
+    // 重构内容: 构造函数改为接收 SceneManager、FontManager、ScreenFadeManager、Window 以及窗口宽高作为参数。
+    // 作用: 移除了对 Game.getWindow() 和各 Manager getInstance() 的直接静态调用，使得 Renderer 的依赖关系清晰可见，便于测试和维护。
     Renderer(EscapeInputObserver escapeObserver, SceneManager sceneManager, FontManager fontManager, ScreenFadeManager screenFadeManager, Window window, int width, int height) {
         this.escapeObserver = escapeObserver;
         this.sceneManager = sceneManager;

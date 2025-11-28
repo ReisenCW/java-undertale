@@ -3,6 +3,7 @@ package undertale.Enemy;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import undertale.GameMain.Game;
 import undertale.GameObject.Player;
 
 public class EnemyManager {
@@ -21,7 +22,9 @@ public class EnemyManager {
     }
 
     // public static EnemyManager getInstance() { ... } // Removed
-
+    
+    // 重构内容: 移除了单例模式（getInstance），改为普通类。
+    // 作用: EnemyManager 现在由 Game 创建并持有，通过参数传递给 UIManager 和 BattleFightScene。这消除了全局状态，使得敌人管理器的生命周期更可控。
     private void init(Player player) {
         // 创建Titan敌人
         Titan titan = new Titan(player);
