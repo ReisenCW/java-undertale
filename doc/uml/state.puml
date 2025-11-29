@@ -1,0 +1,48 @@
+@startuml
+class UIManager
+
+class MenuStateContext {
+  - currentState: MenuState
+  + setState(state: MenuState)
+  + getCurrentState(): MenuState
+}
+
+interface MenuState {
+  + handleSelect(context: MenuStateContext)
+  + handleCancel(context: MenuStateContext)
+  + handleSelectUp(context: MenuStateContext)
+  + handleSelectDown(context: MenuStateContext)
+  + renderFrameContents(context: MenuStateContext, roundText: String)
+  + updatePlayerPosition(context: MenuStateContext)
+  + getStateType(): MenuStateType
+}
+
+abstract class AbstractMenuState {
+  # getStateType(): MenuStateType
+  + handleSelect(context: MenuStateContext)
+  + handleCancel(context: MenuStateContext)
+  + handleSelectUp(context: MenuStateContext)
+  + handleSelectDown(context: MenuStateContext)
+  + renderFrameContents(context: MenuStateContext, roundText: String)
+  + updatePlayerPosition(context: MenuStateContext)
+}
+
+class BeginMenuState
+class MainMenuState
+class FightState
+class ActSelectActState
+
+class StateFactory {
+  - stateCache: Map<MenuStateType, MenuState>
+  + createState(type: MenuStateType): MenuState
+}
+
+UIManager --> MenuStateContext : contains
+MenuStateContext --> MenuState : currentState
+MenuState <|.. AbstractMenuState
+AbstractMenuState <|-- BeginMenuState
+AbstractMenuState <|-- MainMenuState
+AbstractMenuState <|-- FightState
+AbstractMenuState <|-- ActSelectActState
+StateFactory --> MenuState : creates
+@enduml
