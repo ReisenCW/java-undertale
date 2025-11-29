@@ -1,5 +1,4 @@
 @startuml
-title 组合模式重构 — 修改前类图 (简化)
 
 class ObjectManager {
   - List<Bullet> bullets
@@ -35,9 +34,9 @@ BulletRenderer --> Bullet : read
 CollectableRenderer --> Collectable : read
 
 note right of ObjectManager
-  - 多处活动列表
-  - 渲染职责集中
-  - 测试与可扩展性受限
+  - Multiple activity lists
+  - Rendering responsibilities are centralized
+  - Testing and scalability are limited
 end note
 
 @enduml
