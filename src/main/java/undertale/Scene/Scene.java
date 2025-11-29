@@ -1,6 +1,5 @@
 package undertale.Scene;
 
-import undertale.Enemy.EnemyManager;
 import undertale.GameMain.InputManager;
 import undertale.GameObject.ObjectManager;
 import undertale.Interfaces.InputObserver;
@@ -45,6 +44,7 @@ public abstract class Scene implements InputObserver {
     public abstract void update(float deltaTime);
     public abstract void render();
 
+    // 注册和注销为输入观察者
     protected void registerAsObserver() {
         inputManager.addObserver(this);
     }

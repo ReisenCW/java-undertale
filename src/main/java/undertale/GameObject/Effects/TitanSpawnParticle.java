@@ -7,6 +7,10 @@ import undertale.GameObject.GameObject;
 import undertale.Texture.Texture;
 import undertale.Texture.TextureBuilder;
 
+/**
+ * Titan spawn 粒子 — 已迁移为 GameObject 子类并加入 effectsLayer（Composite pattern）。
+ * 在测试环境中，init() 对 Game.textureManager 采取容错处理以支持无头测试。
+ */
 public class TitanSpawnParticle extends GameObject {
     private float speed;
     private float speedAngle;

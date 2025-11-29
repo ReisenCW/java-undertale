@@ -3,6 +3,10 @@ package undertale.GameObject.Effects;
 import undertale.GameObject.GameObject;
 import undertale.Texture.Texture;
 
+/**
+ * 涟漪效果 (RippleEffect) — 已迁移为 GameObject 的子类。
+ * 作为 Composite 模式中的叶子节点被加入到 effectsLayer 以统一管理与渲染。
+ */
 public class RippleEffect extends GameObject {
     // use GameObject.x/y as center
     private float maxRadius = 20.0f;

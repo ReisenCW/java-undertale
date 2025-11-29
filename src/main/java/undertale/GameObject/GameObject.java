@@ -2,6 +2,12 @@ package undertale.GameObject;
 
 /**
  * 游戏中的对象基类，包含位置、方向、速度等基本属性和方法
+ *
+ * 已重构说明（Refactor note）:
+ * 本项目已将 GameObject 子系统重构为组合模式 (Composite pattern)。
+ * 每个 GameObject 支持作为叶子或容器（可添加/移除子节点）。
+ * 组合节点可通过 updateChildren()/renderChildren() 统一遍历与调度。
+ *
  * @field angle 为顺时针方向, 单位为度, 0度向右, 90度向下
  */
 import java.util.ArrayList;

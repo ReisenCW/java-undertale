@@ -3,6 +3,7 @@ package undertale.GameMain;
 import undertale.Interfaces.InputObserver;
 import static org.lwjgl.glfw.GLFW.*;
 
+// 输入调试观察者
 public class DebugInputObserver implements InputObserver {
     private boolean DEBUG = false;
     private boolean allowDebug;

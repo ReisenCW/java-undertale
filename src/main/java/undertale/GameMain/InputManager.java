@@ -6,10 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import undertale.Interfaces.InputObserver;
+
+// 使用observer模式重构输入管理
 public class InputManager {
     private Window window;
     private boolean[] keyStates = new boolean[GLFW_KEY_LAST + 1];
     private boolean[] wasKeyPressed = new boolean[GLFW_KEY_LAST + 1];
+    // 观察者列表
     private List<InputObserver> observers = new ArrayList<>();
     
     InputManager(Window window) {
@@ -40,13 +43,11 @@ public class InputManager {
 
     public void processInput() {
         updateKeyState();
-        // DEBUG: if Z pressed this frame, log observers for troubleshooting
-        // input polling - no debug logging
 
+        // 当前帧和上一帧的按键状态传递给观察者
         for(InputObserver observer : observers) {
             observer.processInput(wasKeyPressed, keyStates);
         }
     }
 
-    // keyName helper removed: no longer needed for debug output
 }

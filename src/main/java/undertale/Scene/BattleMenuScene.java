@@ -4,6 +4,7 @@ import undertale.Enemy.EnemyManager;
 import undertale.GameMain.InputManager;
 import undertale.GameObject.ObjectManager;
 import undertale.UI.UIManager;
+import undertale.UI.state.MenuStateType;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class BattleMenuScene extends Scene {
@@ -36,14 +37,14 @@ public class BattleMenuScene extends Scene {
         }
         objectManager.allowPlayerMovement(false);
         objectManager.clearBullets();
-        uiManager.resetVars(UIManager.MenuState.MAIN);
+        uiManager.resetVars(MenuStateType.MAIN);
         round = Math.min(++round, roundMessages.length);
     }
 
     @Override
     public void onExit() {
         unregisterAsObserver();
-        uiManager.menuState = UIManager.MenuState.MAIN;
+        uiManager.setMenuState(MenuStateType.MAIN);
         uiManager.setSelected(-1);
     }
 

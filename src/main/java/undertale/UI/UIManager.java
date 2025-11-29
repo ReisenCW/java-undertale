@@ -1,37 +1,26 @@
 package undertale.UI;
 
-import undertale.Enemy.Enemy;
 import undertale.Enemy.EnemyManager;
-import undertale.GameMain.Game;
 import undertale.GameObject.Player;
-import undertale.Item.Item;
 import undertale.Scene.SceneManager;
 import undertale.Sound.SoundManager;
 import undertale.Scene.BattleFightScene;
 import undertale.Texture.FontManager;
-import undertale.Texture.Texture;
+import undertale.UI.state.*;
 
+/**
+ * UI Manager - Refactored with State Pattern
+ * 
+ * Refactor note:
+ * - Replaced enum-based state management with State Pattern
+ * - Each menu state now has its own class implementing MenuState interface
+ * - State transitions and behaviors are encapsulated in state classes
+ * - UIManager delegates menu operations to the current state object
+ * - This eliminates large switch statements and improves maintainability
+ */
 public class UIManager extends UIBase {
-    public enum MenuState {
-        BEGIN,
-        MAIN,
-        FIGHT_SELECT_ENEMY,
-        FIGHT,
-        ACT_SELECT_ENEMY,
-        ACT_SELECT_ACT,
-        ACT,
-        ITEM_SELECT_ITEM,
-        ITEM,
-        MERCY_SELECT_ENEMY,
-        MERCY_SELECT_SPARE,
-        MERCY,
-        SUCCESS
-    }
-
-    // private static UIManager instance; // Removed Singleton
 
     private Player player;
-
     private EnemyManager enemyManager;
     private FontManager fontManager;
     private TypeWriter menuTypeWriter;
@@ -41,26 +30,10 @@ public class UIManager extends UIBase {
     private GameOverUIManager gameOverUIManager;
     private BeginMenuManager beginMenuManager;
     private SoundManager soundManager;
-    private UIContainer rootContainer;
-    private String pendingItemDescription = null;
 
-    public MenuState menuState = MenuState.BEGIN;
+    // State Pattern: Context holding current state
+    private MenuStateContext stateContext;
 
-    public int selectedEnemy = 0;
-    public int selectedAct = 0;
-    public int selectedItem = 0;
-    public int itemListFirstIndex = 0;
-    public int selectedAction = -1;
-
-    public boolean sliceSEPlayed = false;
-    private boolean isBackToMain = false;
-
-    // static {
-    //    instance = new UIManager();
-    // }
-    
-    // 重构内容: 移除了单例模式，构造函数改为接收 Player、EnemyManager、SoundManager、FontManager 等依赖。
-    // 作用: UIManager 不再自己去查找依赖，而是由外部注入。这解决了 UIManager 与 EnemyManager 等组件的紧耦合问题。
     public UIManager(Player player, EnemyManager enemyManager, SoundManager soundManager, FontManager fontManager) {
         super();
         this.player = player;
@@ -75,46 +48,23 @@ public class UIManager extends UIBase {
         gameOverUIManager = new GameOverUIManager(menuTypeWriter, player);
         beginMenuManager = new BeginMenuManager(fontManager);
 
-        // create root UI container and register sub-managers as children
-        rootContainer = new UIContainer();
-        rootContainer.addChild(menuTypeWriter);
-        rootContainer.addChild(bgUIManager);
-        rootContainer.addChild(attackAnimManager);
-        rootContainer.addChild(battleFrameManager);
-        rootContainer.addChild(gameOverUIManager);
-        rootContainer.addChild(beginMenuManager);
+        // Initialize state context
+        stateContext = new MenuStateContext(player, enemyManager, soundManager, fontManager,
+                                           menuTypeWriter, attackAnimManager);
+        stateContext.setState(StateFactory.createState(MenuStateType.BEGIN));
     }
 
-    // public static UIManager getInstance() { ... } // Removed
-
-    public void resetVars(MenuState state) {
-        resetStates(state);
-        resetTimeVars();
-    }
-
-    private void resetStates(MenuState state) {
-        menuState = state;
-        selectedEnemy = 0;
-        selectedAct = 0;
-        selectedItem = 0;
-        selectedAction = 0;
-        itemListFirstIndex = 0;
-        sliceSEPlayed = false;
-        isBackToMain = false;
+    public void resetVars(MenuStateType stateType) {
+        stateContext.resetSelections();
+        stateContext.resetTimeVars();
+        stateContext.setState(StateFactory.createState(stateType));
         setSelected(0);
-
         attackAnimManager.resetStates();
     }
 
-    private void resetTimeVars() {
-        menuTypeWriter.reset();
-        attackAnimManager.resetTimeVars();
-    }
-
     public void renderBattleUI() {
-        // 渲染按钮, 玩家信息, 战斗框架
-        boolean allowFocus = menuState != MenuState.SUCCESS;
-        bgUIManager.renderButtons(selectedAction, allowFocus);
+        boolean allowFocus = stateContext.getCurrentStateType() != MenuStateType.SUCCESS;
+        bgUIManager.renderButtons(stateContext.selectedAction, allowFocus);
         bgUIManager.renderPlayerInfo();
         bgUIManager.renderTensionBar();
         battleFrameManager.renderBattleFrame();
@@ -122,378 +72,33 @@ public class UIManager extends UIBase {
 
     public void renderFrameContents(String roundText) {
         if(roundText == null) return;
-        switch(menuState) {
-            case BEGIN -> {}
-            case FIGHT_SELECT_ENEMY, ACT_SELECT_ENEMY, MERCY_SELECT_ENEMY -> 
-                renderEnemyList();
-            case ACT_SELECT_ACT ->
-                renderActList(enemyManager.getCurrentEnemy());
-            case ITEM_SELECT_ITEM ->
-                renderItemList();
-            case MERCY_SELECT_SPARE ->
-                renderMercyList();
-            case ACT -> {
-                Enemy enemy = enemyManager.getCurrentEnemy();
-                menuTypeWriter.renderTextsInMenu(enemy.getActs().get(selectedAct).getDescription());
-            }
-            case ITEM -> {
-                // 当进入 ITEM 状态时，消费物品的逻辑已在选择确认时执行一次，并把要显示的文本存入 pendingItemDescription
-                if (pendingItemDescription != null) {
-                    menuTypeWriter.renderTextsInMenu(pendingItemDescription);
-                } else {
-                    menuTypeWriter.renderTextsInMenu("");
-                }
-            }
-            case FIGHT -> {
-                attackAnimManager.renderFightPanel(enemyManager.getCurrentEnemy());
-            }
-            case MAIN ->
-                menuTypeWriter.renderTextsInMenu(roundText);
-            case MERCY -> {
-                String text = "* You spared the enemy.";
-                Enemy enemy = enemyManager.getCurrentEnemy();
-                if(enemy != null){
-                    if(!enemy.isYellow) {
-                        text += "\n* But the enemy's name isn't yellow.";
-                    }
-                    else{
-                        text += "\n* You won!\n* You earned 0 " + " EXP and " + enemyManager.getTotalGold(true) + " gold.";
-                    }
-                }
-                menuTypeWriter.renderTextsInMenu(text);
-            }
-            case SUCCESS -> {
-                String msg = "* You won!\n* You earned " + enemyManager.getTotalExp() + " EXP and " + enemyManager.getTotalGold(false) + " gold.";
-                menuTypeWriter.renderTextsInMenu(msg);
-            }
-        }
-    }
-
-    private void renderEnemyList() {
-        int enemyCnt = enemyManager.getEnemyCount();
-        float top = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 50;
-        float left = MENU_FRAME_LEFT + 100;
-        for (int i = 0; i < enemyCnt; i++) {
-            Enemy enemy = enemyManager.getEnemy(i);
-            float blue = enemy.isYellow ? 0.0f : 1.0f;
-            fontManager.drawText(enemy.getName(), left, top + i * (fontManager.getFontHeight() + 20), 1.0f, 1.0f, blue, 1.0f);
-        }
-    }
-
-    private void renderActList(Enemy enemy) {
-        int actCnt = enemy.getActs().size();
-        float top = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 50;
-        float left = MENU_FRAME_LEFT + 100;
-        for (int i = 0; i < actCnt; i++) {
-            Enemy.Act act = enemy.getActs().get(i);
-            // act name
-            float greyRGB = 180.0f / 255.0f;
-            float actColor = act.getRequirementChecker().get() ? 1.0f : greyRGB;
-            fontManager.drawText(act.getName(), left, top + i * (fontManager.getFontHeight() + 20), actColor, actColor, actColor, 1.0f);
-
-            // act requirement
-            fontManager.drawText(act.getRequirement(),
-            left + 300, top + i * (fontManager.getFontHeight() + 20),
-            0.8f,
-            greyRGB, greyRGB, greyRGB, 1.0f);
-        }
-    }
-
-    private void renderItemList() {
-        // 一页显示4个，支持滚动
-        int itemCnt = player.getItemNumber();
-        float top = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 50;
-        float left = MENU_FRAME_LEFT + 100;
-        int itemsPerPage = 4;
-        float infoLeft = MENU_FRAME_LEFT + MENU_FRAME_WIDTH - 200; // 右侧回血信息位置
-        for (int i = 0; i < itemsPerPage; i++) {
-            int idx = itemListFirstIndex + i;
-            if (idx >= itemCnt) break;
-            Item item = player.getItemByIndex(idx);
-            float y = top + i * (fontManager.getFontHeight() + 20);
-            // 高亮当前选中项
-            if (idx == selectedItem) {
-                fontManager.drawText("> " + item.getName(), left, y, 1.0f, 1.0f, 0.5f, 1.0f);
-                // 显示回血信息
-                String healInfo = "+" + item.getHealingAmount() + " HP";
-                fontManager.drawText(healInfo, infoLeft, y, 1.0f, 1.0f, 1.0f, 1.0f);
-            } else {
-                fontManager.drawText(item.getName(), left, y, 1.0f, 1.0f, 1.0f, 1.0f);
-            }
-        }
-        // 分页指示器：竖直小方块，当前页为大实心，其余为小空心
-        // 只有当item数量>4时才绘制分页指示器
-        if (itemCnt > 4) {
-            int totalPages = Math.max(itemCnt - 3, 1);
-            int currentPage = itemListFirstIndex;
-            float indicatorX = MENU_FRAME_LEFT + MENU_FRAME_WIDTH - 30; // 靠近对话框右边框左侧
-            
-            // 计算对话框中心Y坐标
-            float frameCenterY = MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT / 2;
-            
-            // 计算方框间距，让所有方框相对于对话框中心上下对称
-            float totalHeight = (totalPages - 1) * 40; // 40是gap
-            float indicatorTop = frameCenterY - totalHeight / 2;
-            
-            for (int p = 0; p < totalPages; p++) {
-                float cx = indicatorX;
-                float cy = indicatorTop + p * 40; // 40是gap
-                if (p == currentPage) {
-                    // 大实心方块
-                    Texture.drawRect(cx, cy, 14, 14, 1.0f, 1.0f, 1.0f, 1.0f);
-                } else {
-                    // 小空心方块
-                    Texture.drawHollowRect(cx + 2, cy + 2, 10, 10, 1.0f, 1.0f, 1.0f, 1.0f, 2.0f);
-                }
-            }
-        }
-        if (itemListFirstIndex > 0) {
-            fontManager.drawText("↑", left - 40, top, 1.0f, 1.0f, 1.0f, 1.0f);
-        }
-        if (itemListFirstIndex + itemsPerPage < itemCnt) {
-            fontManager.drawText("↓", left - 40, top + (itemsPerPage - 1) * (fontManager.getFontHeight() + 20), 1.0f, 1.0f, 1.0f, 1.0f);
-        }
-    }
-
-    private void renderMercyList() {
-        // spare单项
-        fontManager.drawText("spare", MENU_FRAME_LEFT + 100, MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 50, 1.0f, 1.0f, 1.0f, 1.0f);
+        stateContext.getCurrentState().renderFrameContents(stateContext, roundText);
     }
 
     public void updatePlayerMenuPosition() {
-        if(menuState == MenuState.FIGHT || menuState == MenuState.ACT || menuState == MenuState.ITEM || menuState == MenuState.MERCY) {
+        MenuStateType currentType = stateContext.getCurrentStateType();
+        if(currentType == MenuStateType.FIGHT || currentType == MenuStateType.ACT || 
+           currentType == MenuStateType.ITEM || currentType == MenuStateType.MERCY) {
             return;
         }
-        else if(menuState == MenuState.MAIN) {
-            int LEFT_OFFSET = 25;
-            player.setPosition(LEFT_MARGIN + BTN_MARGIN + selectedAction * (BTN_WIDTH + BTN_MARGIN) + LEFT_OFFSET - player.getWidth() / 2, BOTTOM_MARGIN - BOTTOM_OFFSET  - BTN_HEIGHT/2 - player.getHeight()/2);
-        }
-        else {
-            int row = switch(menuState) {
-                case FIGHT_SELECT_ENEMY, MERCY_SELECT_ENEMY -> selectedEnemy;
-                case ACT_SELECT_ACT -> selectedAct;
-                case ITEM_SELECT_ITEM -> selectedItem - itemListFirstIndex;
-                case MERCY_SELECT_SPARE -> 0;
-                default -> 0;
-            };
-            // 渲染在list
-            player.setPosition(MENU_FRAME_LEFT + 60 - player.getWidth() / 2, MENU_FRAME_BOTTOM - MENU_FRAME_HEIGHT + 40 + row * (fontManager.getFontHeight() + 20) - player.getHeight() / 2);
-        }
+        stateContext.getCurrentState().updatePlayerPosition(stateContext);
     }
 
-    // 菜单“确定”操作
+    // Delegate to current state
     public void handleMenuSelect() {
-        // handleMenuSelect invoked
-        if(menuState == MenuState.SUCCESS && menuTypeWriter.isTypewriterAllShown() && !isBackToMain) {
-            isBackToMain = true;
-            // 使用渐暗再变亮的特效切回战斗菜单
-            ScreenFadeManager.getInstance().startFadeOutIn(
-                1.5f,
-                () -> {
-                    SceneManager.getInstance().shouldSwitch = true;
-                },
-                () -> {
-                    resetVars(MenuState.BEGIN);
-                }
-            );
-        }
-        else if (menuState == MenuState.MAIN) {
-            soundManager.playSE("confirm");
-            menuState = switch(selectedAction) {
-                case 0 -> {
-                    menuTypeWriter.showAll();
-                    yield MenuState.FIGHT_SELECT_ENEMY;
-                }
-                case 1 -> {
-                    // 若没有act，则不进入act菜单
-                    if(enemyManager.getCurrentEnemy().getActs().isEmpty()){
-                        yield MenuState.MAIN;
-                    }
-                    else{
-                        menuTypeWriter.showAll();
-                        yield MenuState.ACT_SELECT_ENEMY;
-                    }
-                }
-                case 2 -> {
-                    if(player.getItemNumber() == 0){
-                        yield MenuState.MAIN;
-                    }
-                    else{
-                        menuTypeWriter.showAll();
-                        yield MenuState.ITEM_SELECT_ITEM;
-                    }
-                }
-                    case 3 -> {
-                        menuTypeWriter.showAll();
-                        yield MenuState.MERCY_SELECT_ENEMY;
-                    }
-                default -> MenuState.MAIN;
-            };
-        }
-        else {
-            menuState = switch(menuState) {
-                case FIGHT_SELECT_ENEMY -> {
-                    soundManager.playSE("confirm");
-                    yield MenuState.FIGHT;
-                }
-                case ACT_SELECT_ENEMY -> {
-                    soundManager.playSE("confirm");
-                    yield MenuState.ACT_SELECT_ACT;
-                }
-                case ACT_SELECT_ACT -> {
-                    // 执行act对应函数
-                    soundManager.playSE("confirm");
-                    Enemy enemy = enemyManager.getCurrentEnemy();
-                    // 如果不满足act条件则不执行
-                    if (enemy.getActs().get(selectedAct).getRequirementChecker().get()) {
-                        enemy.getActs().get(selectedAct).getFunction().run();
-                        yield MenuState.ACT;
-                    } else {
-                        yield MenuState.ACT_SELECT_ACT;
-                    }
-                }
-                case ITEM_SELECT_ITEM -> {
-                    soundManager.playSE("confirm");
-                    // 在确认选择物品时，执行一次性消费逻辑（回血、播放音效、准备要显示的文本）
-                    Item item = player.getItemByIndex(selectedItem);
-                    int healAmount = item.getHealingAmount();
-                    player.heal(healAmount);
-                    pendingItemDescription = "* You ate the " + item.getName() + ", healed " + healAmount + " HP.\n" + item.getAdditionalDescription();
-                    // 重置打字机以便从头开始显示文字
-                    menuTypeWriter.reset();
-                    // 从玩家物品栏中移除该物品
-                    player.removeItemByIndex(selectedItem);
-                    yield MenuState.ITEM;
-                }
-                case MERCY_SELECT_ENEMY -> {
-                    soundManager.playSE("confirm");
-                    yield MenuState.MERCY_SELECT_SPARE;
-                }
-                case MERCY_SELECT_SPARE -> {
-                    soundManager.playSE("confirm");
-                    yield MenuState.MERCY;
-                }
-                case ACT, ITEM, MERCY -> {
-                    // 若文本已经全部显示切换到FightScene
-                    if (menuTypeWriter.isTypewriterAllShown()) {
-                        SceneManager.getInstance().shouldSwitch = true;
-                    }
-                    yield menuState;
-                }
-                case FIGHT -> {
-                    // Attack bar停止 — 开始攻击时重置相关动画以保证slice动画每次都能播放
-                    if(!sliceSEPlayed){
-                        soundManager.playSE("slice");
-                        sliceSEPlayed = true;
-                    }
-                    attackAnimManager.resetSliceAnimation();
-                    yield menuState;
-                }
-                default -> menuState;
-            };
-        }
+        stateContext.getCurrentState().handleSelect(stateContext);
     }
 
-    // 菜单“撤销/返回”操作
     public void handleMenuCancel() {
-        // X返回上一级
-        switch(menuState) {
-            case BEGIN, MAIN -> {}
-            case FIGHT_SELECT_ENEMY,  ACT_SELECT_ENEMY, MERCY_SELECT_ENEMY, ITEM_SELECT_ITEM -> {
-                soundManager.playSE("menu_move");
-                menuState = MenuState.MAIN;
-            }
-            case ACT_SELECT_ACT -> {
-                soundManager.playSE("menu_move");
-                menuState = MenuState.ACT_SELECT_ENEMY;
-            }
-            case MERCY_SELECT_SPARE -> {
-                soundManager.playSE("menu_move");
-                menuState = MenuState.MERCY_SELECT_ENEMY;
-            }
-            case FIGHT, ACT, ITEM, MERCY, SUCCESS -> {
-                // 打字机全部显示
-                menuTypeWriter.showAll();
-            }
-        }
+        stateContext.getCurrentState().handleCancel(stateContext);
     }
 
     public void menuSelectDown() {
-        // 向下选择，item支持分页滚动
-        switch(menuState) {
-            case BEGIN, MAIN, SUCCESS -> {}
-            case FIGHT_SELECT_ENEMY, MERCY_SELECT_ENEMY, ACT_SELECT_ENEMY -> {
-                if (selectedEnemy < enemyManager.getEnemyCount() - 1) {
-                    soundManager.playSE("menu_move");
-                    selectedEnemy++;
-                    enemyManager.setCurrentEnemy(selectedEnemy);
-                }
-            }
-            case ACT_SELECT_ACT -> {
-                Enemy enemy = enemyManager.getCurrentEnemy();
-                if (selectedAct < enemy.getActs().size() - 1) {
-                    soundManager.playSE("menu_move");
-                    selectedAct++;
-                }
-            }
-            case ITEM_SELECT_ITEM -> {
-                int itemCnt = player.getItemNumber();
-                int itemsPerPage = 4;
-                if (selectedItem < itemCnt - 1) {
-                    soundManager.playSE("menu_move");
-                    selectedItem++;
-                    if (selectedItem >= itemListFirstIndex + itemsPerPage) {
-                        itemListFirstIndex++;
-                    }
-                }
-            }
-            case MERCY_SELECT_SPARE -> {
-                if (selectedEnemy < enemyManager.getEnemyCount() - 1) {
-                    soundManager.playSE("menu_move");
-                    selectedEnemy++;
-                    enemyManager.setCurrentEnemy(selectedEnemy);
-                }
-            }
-            case FIGHT, ACT, ITEM, MERCY -> {}
-        }
+        stateContext.getCurrentState().handleSelectDown(stateContext);
     }
 
     public void menuSelectUp() {
-        // 向上选择, item支持分页滚动
-        switch(menuState) {
-            case BEGIN, MAIN, SUCCESS -> {}
-            case FIGHT_SELECT_ENEMY, MERCY_SELECT_ENEMY, ACT_SELECT_ENEMY -> {
-                if (selectedEnemy > 0) {
-                    soundManager.playSE("menu_move");
-                    selectedEnemy--;
-                    enemyManager.setCurrentEnemy(selectedEnemy);
-                }
-            }
-            case ACT_SELECT_ACT -> {
-                if (selectedAct > 0) {
-                    soundManager.playSE("menu_move");
-                    selectedAct--;
-                    enemyManager.setCurrentEnemy(selectedEnemy);
-                }
-            }
-            case ITEM_SELECT_ITEM -> {
-                if (selectedItem > 0) {
-                    soundManager.playSE("menu_move");
-                    selectedItem--;
-                    if (selectedItem < itemListFirstIndex) {
-                        itemListFirstIndex--;
-                    }
-                }
-            }
-            case MERCY_SELECT_SPARE -> {
-                if (selectedEnemy > 0) {
-                    soundManager.playSE("menu_move");
-                    selectedEnemy--;
-                    enemyManager.setCurrentEnemy(selectedEnemy);
-                }
-            }
-            case FIGHT, ACT, ITEM, MERCY -> {}
-        }
+        stateContext.getCurrentState().handleSelectUp(stateContext);
     }
 
     public void makePlayerInFrame() {
@@ -505,11 +110,11 @@ public class UIManager extends UIBase {
     }
 
     public void update(float deltaTime) {
-        if(menuState == MenuState.BEGIN) {
+        if(stateContext.getCurrentStateType() == MenuStateType.BEGIN) {
             beginMenuManager.update(deltaTime);
             return;
         }
-        if(menuState == MenuState.FIGHT) {
+        if(stateContext.getCurrentStateType() == MenuStateType.FIGHT) {
             attackAnimManager.updateAttackAnim(deltaTime, enemyManager.getCurrentEnemy());
         }
         attackAnimManager.updateMissTime(deltaTime);
@@ -518,61 +123,43 @@ public class UIManager extends UIBase {
         }
         if(attackAnimManager.isAttackAnimFinished()) {
             if(attackAnimManager.isDamageDisplayFinished()) {
-                menuState = MenuState.SUCCESS;
+                stateContext.setState(StateFactory.createState(MenuStateType.SUCCESS));
             }
         }
     }
 
-    /**
-     * POC helper: update entire UI tree from root.
-     */
-    public void updateAllUI(float deltaTime) {
-        if (rootContainer != null) rootContainer.update(deltaTime);
-    }
-
-    /**
-     * POC helper: render entire UI tree from root.
-     * Note: this is non-destructive — existing per-case render still used.
-     */
-    public void renderAllUI() {
-        if (rootContainer != null) rootContainer.render();
-    }
-    
     public void selectMoveRight() {
-        if(menuState != MenuState.MAIN) return;
+        if(stateContext.getCurrentStateType() != MenuStateType.MAIN) return;
         soundManager.playSE("menu_move");
-        selectedAction = (selectedAction + 1) % 4;
+        stateContext.selectedAction = (stateContext.selectedAction + 1) % 4;
     }
 
     public void selectMoveLeft() {
-        if(menuState != MenuState.MAIN) return;
+        if(stateContext.getCurrentStateType() != MenuStateType.MAIN) return;
         soundManager.playSE("menu_move");
-        selectedAction = (selectedAction + 3) % 4;
+        stateContext.selectedAction = (stateContext.selectedAction + 3) % 4;
     }
 
     public void setSelected(int index){
-        selectedAction = index;
+        stateContext.selectedAction = index;
     }
 
-    public void setMenuState(MenuState state) {
-        this.menuState = state;
-        // 离开 ITEM 状态时清除一次性物品显示文本，避免残留
-        if (state != MenuState.ITEM) {
-            pendingItemDescription = null;
-        }
+    public void setMenuState(MenuStateType stateType) {
+        stateContext.setState(StateFactory.createState(stateType));
     }
 
-    public MenuState getMenuState() {
-        return this.menuState;
+    public MenuStateType getMenuStateType() {
+        return stateContext.getCurrentStateType();
     }
 
     public boolean isRenderPlayer() {
-        return switch (menuState) {
-            case ACT, FIGHT, ITEM, MERCY, SUCCESS -> false;
-            default -> true;
-        };
+        MenuStateType type = stateContext.getCurrentStateType();
+        return type != MenuStateType.ACT && type != MenuStateType.FIGHT && 
+               type != MenuStateType.ITEM && type != MenuStateType.MERCY && 
+               type != MenuStateType.SUCCESS;
     }
 
+    // Game Over UI methods
     public void updateGameOver(float deltaTime) {
         gameOverUIManager.update(deltaTime);
     }
@@ -589,6 +176,7 @@ public class UIManager extends UIBase {
         gameOverUIManager.reset();
     }
 
+    // Begin menu methods
     public void renderBeginMenu() {
         beginMenuManager.render();
     }
@@ -605,15 +193,13 @@ public class UIManager extends UIBase {
 
     public void handleBeginMenuSelect() {
         soundManager.playSE("confirm");
-        // handleBeginMenuSelect invoked
         if(beginMenuManager.confirmSelection()) {
-            menuState = MenuState.MAIN;
+            stateContext.setState(StateFactory.createState(MenuStateType.MAIN));
         }
     }
 
     public void handleGameOverConfirm() {
         if(gameOverUIManager.isMessageAllPrinted()) {
-            // 使用渐暗再变亮的特效切回战斗菜单
             ScreenFadeManager.getInstance().startFadeOutIn(1.5f,
                 () -> SceneManager.getInstance().shouldSwitch = true,
                 null
@@ -631,6 +217,7 @@ public class UIManager extends UIBase {
         beginMenuManager.reset();
     }
 
+    // Battle frame getters
     public float getFrameLeft() {
         return battleFrameManager.getFrameLeft();
     }
