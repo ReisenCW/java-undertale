@@ -25,16 +25,15 @@ public Scene creatScene(SceneEnum type) {
 // use START_MENU as an example
 // previous code
 sceneManager.registerScene(Scene.SceneEnum.START_MENU,
-new BeginMenuScene(objectManager, inputManager));
-
+                           new BeginMenuScene(objectManager, inputManager));
 // refactored code
 sceneManager.registerScene(SceneEnum.START_MENU,
-sceneFactory.creatScene(SceneEnum.START_MENU));
+                           sceneFactory.creatScene(SceneEnum.START_MENU));
 ```
 
 - Class diagram after using Factory Pattern
 
-![factory](uml/factory.puml)
+![factory](img/factory.png)
 
 # Creational - Builder Pattern
 - The Builder Pattern is a creational design pattern that separates the construction of a complex object from its representation, allowing the same construction process to create different representations.
@@ -106,7 +105,7 @@ new TextureBuilder().textureId(currentTexture.getId())
 - This approach not only improves code readability but also avoids the maintenance cost of a large number of overloaded methods, and makes it very convenient to add new parameter setting methods, improving code extensibility.
 
 - Class diagram after using Builder Pattern
-![texture_builder](uml/builder.puml)
+![texture_builder](img/builder.png)
 
 # Behavioral - Observer Pattern
 - The Observer Pattern is a behavioral design pattern that defines a one-to-many dependency between objects so that when one object changes state, all its dependents are notified and updated automatically.
@@ -133,8 +132,6 @@ public void processInput() {
         case BATTLE_MENU -> handleMenuChoose();
         case GAME_OVER -> processGameOverInput();
         case START_MENU -> processBeginMenuInput();
-        default -> {
-        }
     }
 }
 // and those handle methods directly call methods of Player, SceneManager, UIManager, etc.
@@ -210,21 +207,7 @@ public class BattleMenuScene extends Scene {
         if(currKeyStates[GLFW_KEY_RIGHT] && !preKeyStates[GLFW_KEY_RIGHT]) {
             uiManager.selectMoveRight();
         }
-        if(currKeyStates[GLFW_KEY_LEFT] && !preKeyStates[GLFW_KEY_LEFT]) {
-            uiManager.selectMoveLeft();
-        }
-        if(currKeyStates[GLFW_KEY_Z] && !preKeyStates[GLFW_KEY_Z]) {
-            uiManager.handleMenuSelect();
-        }
-        if(currKeyStates[GLFW_KEY_X] && !preKeyStates[GLFW_KEY_X]) {
-            uiManager.handleMenuCancel();
-        }
-        if(currKeyStates[GLFW_KEY_UP] && !preKeyStates[GLFW_KEY_UP]) {
-            uiManager.menuSelectUp();
-        }
-        if(currKeyStates[GLFW_KEY_DOWN] && !preKeyStates[GLFW_KEY_DOWN]) {
-            uiManager.menuSelectDown();
-        }
+        // other input handling codes...
     }
 }
 ```
@@ -232,4 +215,4 @@ public class BattleMenuScene extends Scene {
 - Thus, the refactored `InputManager` class no longer directly depends on any other specific game-related classes, but interacts with observers through the observer interface. `InputManager` itself only needs to update and provide the key states of the previous frame and the current state, improving code flexibility, simplicity, and maintainability.
 
 - Class diagram after using Observer Pattern
-![observer](uml/observer.puml)
+![observer](img/observer.png)
