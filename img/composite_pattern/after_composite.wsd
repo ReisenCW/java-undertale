@@ -1,0 +1,53 @@
+@startuml
+title 组合模式重构 — 修改后类图 (简化)
+
+abstract class GameObject {
+  - float x, y
+  + update(deltaTime)
+  + render()
+  + addChild(child)
+  + removeChild(child)
+}
+
+class GameObjectComposite {
+  + update(deltaTime)
+  + render()
+  + clearChildren()
+}
+
+class Bullet {
+  - int id
+  - Texture texture
+  + update(dt)
+  + render()
+}
+
+class RippleEffect
+class TitanSpawnParticle
+
+class ObjectManager {
+  - GameObjectComposite root
+  - GameObjectComposite bulletsLayer
+  - GameObjectComposite collectablesLayer
+  - GameObjectComposite effectsLayer
+  + updateFightScene(dt)
+  + renderFightScene()
+}
+
+GameObject <|-- GameObjectComposite
+GameObject <|-- Bullet
+GameObject <|-- RippleEffect
+GameObject <|-- TitanSpawnParticle
+
+ObjectManager --> "1" GameObjectComposite : root
+ObjectManager --> "1" GameObjectComposite : bulletsLayer
+ObjectManager --> "1" GameObjectComposite : collectablesLayer
+ObjectManager --> "1" GameObjectComposite : effectsLayer
+
+note right of ObjectManager
+  - 分层管理
+  - 对象自身渲染/更新
+  - 更低耦合与更好测试
+end note
+
+@enduml
