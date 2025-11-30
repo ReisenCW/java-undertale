@@ -4,6 +4,7 @@
 - Group Number: 1
 - Group Members:
   -  , , 
+  -  , , @tongji.edu.cn
 
 ## Project Introduction
 - This project implements the battle system of the game "Undertale" using Java, coupled with packages like LWJGL.
