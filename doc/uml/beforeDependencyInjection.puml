@@ -1,0 +1,50 @@
+@startuml
+title Before refactoring: Global Singleton and Implicit Dependency Structure
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+
+class Game {
+    {static} -player : Player
+    {static} -uiManager : UIManager
+    {static} -objectManager : ObjectManager
+    {static} +init()
+    {static} +loop()
+}
+
+class EnemyManager <<Singleton>> {
+    {static} -instance : EnemyManager
+    -EnemyManager()
+    {static} +getInstance() : EnemyManager
+}
+
+class UIManager <<Singleton>> {
+    {static} -instance : UIManager
+    -UIManager()
+    {static} +getInstance() : UIManager
+}
+
+class ObjectManager {
+    +ObjectManager(Player)
+    -init()
+}
+
+class BattleFightScene {
+    +BattleFightScene()
+}
+
+' 关系描述
+Game o-- ObjectManager : static field
+Game o-- UIManager : static field
+
+' 隐式依赖 (Hidden Dependencies)
+ObjectManager ..> EnemyManager : calls getInstance() inside init
+UIManager ..> EnemyManager : calls getInstance() inside ctor
+BattleFightScene ..> EnemyManager : calls getInstance() inside logic
+
+note right of EnemyManager
+    Other classes directly obtain instances via 
+    `EnemyManager.getInstance()`, 
+    resulting in tight coupling.
+end note
+
+@enduml

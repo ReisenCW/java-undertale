@@ -1,0 +1,65 @@
+@startuml
+title After refactoring: Constructor injection and explicit dependencies
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+
+class Game <<Singleton>> {
+    -player : Player
+    -enemyManager : EnemyManager
+    -uiManager : UIManager
+    -objectManager : ObjectManager
+    -sceneFactory : SceneFactory
+    +init()
+}
+
+class EnemyManager {
+    +EnemyManager(Player)
+}
+
+class UIManager {
+    +UIManager(Player, EnemyManager, ...)
+}
+
+class ObjectManager {
+    +ObjectManager(Player, EnemyManager)
+}
+
+class SceneFactory {
+    -enemyManager : EnemyManager
+    -uiManager : UIManager
+    +SceneFactory(..., UIManager, EnemyManager)
+    +createScene() : Scene
+}
+
+class BattleFightScene {
+    -enemyManager : EnemyManager
+    +BattleFightScene(..., EnemyManager)
+}
+
+' 组合关系 (Composition) - Game 负责创建并持有
+Game *-- Player
+Game *-- EnemyManager : 1. new(player)
+Game *-- ObjectManager : 2. new(player, enemyManager)
+Game *-- UIManager : 3. new(..., enemyManager)
+Game *-- SceneFactory : 4. new(..., uiManager, enemyManager)
+
+' 显式依赖 (Explicit Dependencies) - 通过构造函数注入
+ObjectManager --> EnemyManager : holds ref
+UIManager --> EnemyManager : holds ref
+SceneFactory --> BattleFightScene : creates & injects
+BattleFightScene --> EnemyManager : holds ref
+
+note top of Game
+    The Game class acts as the "Composition Root,"
+    instantiating objects sequentially in the init() function
+    passing dependencies as parameters.
+end note
+
+note right of BattleFightScene
+    Instead of retrieving the 
+    singleton instance itself,
+    it receives the EnemyManager 
+    through the constructor.
+end note
+
+@enduml
