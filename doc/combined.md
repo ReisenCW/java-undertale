@@ -2,8 +2,7 @@
 ## Project Name and member information
 - Project Name: Undertale Battle System implementation with java
 - Group Number: 1
-- Group Members:
-  -  , , 
+<!-- - Group Members: -->
 
 ## Project Introduction
 - This project implements the battle system of the game "Undertale" using Java, coupled with packages like LWJGL.
@@ -622,3 +621,22 @@ This layer has the biggest changes, aiming to **abolish singletons**.
 This refactoring transformed the project from a **static singleton mesh structure** to a **hierarchical object tree structure**. Although the amount of code increased slightly (mainly constructor parameter passing), it significantly improved the system's architectural quality. The `Game` class now assumes the responsibility of an assembler, while other classes focus on their own business logic, no longer caring about "where am I" or "what is the global state". This is a very positive and professional architectural evolution.
 
 ## AI Usage and Experience Discussions
+
+In this project refactoring process, AI tools played a crucial role in analyzing the codebase, identifying architectural issues, and suggesting design pattern implementations.
+
+### Identifying Refactoring Entry Points
+AI was used to scan the initial codebase to identify "code smells" such as tight coupling caused by excessive use of Singletons and static methods. By analyzing the dependencies between `Game`, `Scene`, and various Managers, AI suggested starting with the **Dependency Injection** pattern to decouple these components. It also highlighted the complexity in `UIManager` and `InputManager`, recommending the **State Pattern** and **Observer Pattern** respectively to simplify the logic.
+
+### Generating UML Class Diagram Outlines
+Visualizing the complex relationships between classes was essential for understanding the impact of refactoring. AI tools were utilized to generate PlantUML code for both the "Before" and "After" states of the system. This helped in:
+- Visualizing the transition from a mesh-like dependency structure to a hierarchical tree structure.
+- Verifying the correctness of the new class relationships after applying patterns like **Composite** and **Factory**.
+- Creating clear documentation images (e.g., `observer.png`, `state.puml`) to communicate the design changes.
+
+### Optimization and Summarization
+After implementing the changes, AI assisted in summarizing the benefits of each refactoring step. It compared the code before and after, highlighting improvements in:
+- **Readability**: Explaining how `TextureBuilder` improved code clarity over overloaded methods.
+- **Maintainability**: Detailing how the **Flyweight Pattern** in `SoundManager` reduced memory usage and improved performance.
+- **Extensibility**: Describing how the **Composite Pattern** in `GameObject` makes adding new game entities easier.
+AI also helped in drafting this documentation, ensuring that the technical details and architectural decisions were clearly articulated.
+
