@@ -2,7 +2,7 @@
 ## Project Name and member information
 - Project Name: Undertale Battle System implementation with java
 - Group Number: 1
-<!-- - Group Members: -->
+- Group Members:
 
 ## Project Introduction
 - This project implements the battle system of the game "Undertale" using Java, coupled with packages like LWJGL.
