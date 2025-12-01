@@ -3,7 +3,7 @@ import javax.sound.sampled.*;
 import undertale.Utils.ConfigManager;
 import java.io.*;
 
-// 重构后的音频管理器，移除享元模式，每次播放时都从文件系统加载音频
+// 重构前的音频管理器，非享元模式，每次播放时都从文件系统加载音频
 // 该设计不缓存音频资源，每次播放都创建新的Clip实例，占用更多内存和CPU资源
 // 适用于音频文件较少或内存充足的场景
 public class SoundManager
