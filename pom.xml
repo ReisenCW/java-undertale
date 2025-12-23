@@ -29,10 +29,129 @@
                     <fork>true</fork>
                 </configuration>
             </plugin>
+            <!-- 自动解压LWJGL natives jar到natives目录 -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>extract-lwjgl-natives</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>ExtractLwjglNatives</mainClass>
+                            <classpathScope>compile</classpathScope>
+                            <arguments></arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M7</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>undertale.Main</mainClass>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <!-- 复制普通依赖到lib -->
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <excludeClassifiers>natives-windows</excludeClassifiers>
+                        </configuration>
+                    </execution>
+                    <!-- 复制LWJGL natives到natives目录 -->
+                    <execution>
+                        <id>copy-natives</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/natives</outputDirectory>
+                            <includeClassifiers>natives-windows</includeClassifiers>
+                            <stripVersion>true</stripVersion>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Launch4j Maven插件 -->
+            <plugin>
+                <groupId>com.akathist.maven.plugins.launch4j</groupId>
+                <artifactId>launch4j-maven-plugin</artifactId>
+                <version>2.5.2</version>
+                <executions>
+                    <execution>
+                        <id>l4j-clui</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>launch4j</goal>
+                        </goals>
+                        <configuration>
+                            <!-- 核心修改：从console改成gui，关闭CMD窗口 -->
+                            <headerType>gui</headerType>
+                            <outfile>target/mygame.exe</outfile>
+                            <jar>
+                                ${project.build.directory}/${project.artifactId}-${project.version}.jar</jar>
+                            <errTitle>游戏启动错误</errTitle>
+                            <!-- 添加日志输出，方便排查异常 -->
+                            <cmdLine></cmdLine>
+                            <chdir>.</chdir>
+                            <priority>normal</priority>
+                            <downloadUrl>https://adoptium.net/</downloadUrl>
+                            <supportUrl></supportUrl>
+                            <stayAlive>false</stayAlive>
+                            <!-- 错误日志输出到文件，排查问题用 -->
+                            <log>game_error.log</log>
+                            <classPath>
+                                <mainClass>undertale.Main</mainClass>
+                                <addDependencies>true</addDependencies>
+                                <preCp>lib/</preCp>
+                            </classPath>
+                            <jre>
+                                <minVersion>1.8.0</minVersion>
+                                <jdkPreference>preferJre</jdkPreference>
+                                <runtimeBits>64/32</runtimeBits>
+                            </jre>
+                            <versionInfo>
+                                <fileVersion>1.0.0.0</fileVersion>
+                                <productVersion>1.0.0.0</productVersion>
+                                <companyName>Your Name</companyName>
+                                <productName>My LWJGL Game</productName>
+                                <internalName>MyGame</internalName>
+                                <originalFilename>mygame.exe</originalFilename>
+                            </versionInfo>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
