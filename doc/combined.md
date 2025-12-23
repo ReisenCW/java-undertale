@@ -533,12 +533,11 @@ The refactor moves the GameObject and UI subsystems toward a Composite pattern s
 
 **Before (centralized renderers + scattered lists)**
 
-![before](../img/composite_pattern/before_composite.png)
+![before](./img/before_composite.png)
 
 **After (composite layers + objects render themselves)**
 
-![after](../img/composite_pattern/after_composite.png)
-
+![after](./img/after_composite.png)
 ## Structural - Dependency Injection
 
 ### Refactoring Overview
