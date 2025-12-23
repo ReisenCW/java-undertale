@@ -286,6 +286,7 @@ public class Player extends GameObject implements InputObserver {
     }
 
     public void takeDamage(int damage) {
+        soundManager.playSE("player_hurt");
         currentHealth -= (damage + baseTakenDamage);
         if (currentHealth < 0) currentHealth = 0;
     }

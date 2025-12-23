@@ -15,7 +15,6 @@ import undertale.GameObject.Collectables.TensionPoint;
 import undertale.GameObject.Effects.RippleEffect;
 import undertale.GameObject.Effects.TitanSpawnParticle;
 import undertale.GameObject.Player.LightLevel;
-import undertale.Sound.SoundManager;
 
 /**
  * ObjectManager 管理游戏对象生命周期与分层（layers）。
@@ -28,14 +27,12 @@ public class ObjectManager {
     private Player player;
     // active bullets are held in bulletsLayer (composite) — do not maintain a separate list
     private ArrayList<Bullet> pendingBullets;
-    // 对象池复用子弹, 避免频繁创建和销毁子弹, 减少gc压力和内存分配开销
-    private ArrayList<Bullet> bulletPool;
+
     // 声明为成员变量避免频繁创建临时列表
     private ArrayList<Bullet> toRemove;
 
     // 可拾取物
     private ArrayList<Collectable> collectables;
-    private ArrayList<Collectable> collectablePool;
     private ArrayList<Collectable> collectablesToRemove;
 
     // 涟漪效果
@@ -51,17 +48,11 @@ public class ObjectManager {
     private GameObjectComposite effectsLayer;
 
     private EnemyManager enemyManager;
-    // renderers deprecated: objects render themselves now
-    private SoundManager soundManager;
 
     public ObjectManager(Player player, EnemyManager enemyManager){
         init(player, enemyManager);
     }
 
-    /**
-     * No-arg constructor for tests that don't need a fully initialized Player.
-     * Initializes internal collections and layers only.
-     */
     ObjectManager() {
         init(null, null);
     }
@@ -71,10 +62,8 @@ public class ObjectManager {
         this.enemyManager = enemyManager;
         // bullets list removed; bulletsLayer will hold active bullets
         pendingBullets = new ArrayList<>();
-        bulletPool = new ArrayList<>();
         toRemove = new ArrayList<>();
         collectables = new ArrayList<>();
-        collectablePool = new ArrayList<>();
         collectablesToRemove = new ArrayList<>();
         rippleEffects = new ArrayList<>();
         titanSpawnParticles = new ArrayList<>();
@@ -86,42 +75,7 @@ public class ObjectManager {
         root.addChild(bulletsLayer);
         root.addChild(collectablesLayer);
         root.addChild(effectsLayer);
-        // In test-only construction (player == null) avoid triggering global singletons
-        if (player != null) {
-            // bulletRenderer / collectableRenderer removed in favor of GameObject.render()
-            soundManager = SoundManager.getInstance();
-        } else {
-            soundManager = null;
-        }
     }
-
-    // NOTE: createBullet() factory methods were removed — scenes / rounds directly construct bullets and use addBullet().
-
-    private Bullet getBulletFromPool() {
-        if (bulletPool.isEmpty()) {
-            return null;
-        }
-        // 从对象池中获取子弹并移出对象池
-        return bulletPool.remove(bulletPool.size() - 1);
-    }
-
-    private void returnBulletToPool(Bullet bullet) {
-        bulletPool.add(bullet);
-    }
-
-    private void returnCollectableToPool(Collectable collectable) {
-        collectablePool.add(collectable);
-    }
-
-    private Collectable getCollectableFromPool() {
-        if (collectablePool.isEmpty()) {
-            return null;
-        }
-        // 从对象池中获取collectable并移出对象池
-        return collectablePool.remove(collectablePool.size() - 1);
-    }
-
-    // NOTE: createCollectable() factory method removed — rounds/scenes typically construct collectables directly and call addCollectable().
 
     public void addBullet(Bullet bullet) {
         if (bullet != null) {
@@ -245,7 +199,6 @@ public class ObjectManager {
         // 将要移除的子弹回收到对象池
         for (Bullet bullet : toRemove) {
             if (bulletsLayer != null) bulletsLayer.removeChild(bullet);
-            returnBulletToPool(bullet);
         }
 
         // Collectables
@@ -273,7 +226,6 @@ public class ObjectManager {
         for (Collectable collectable : collectablesToRemove) {
             collectables.remove(collectable);
             if (collectablesLayer != null) collectablesLayer.removeChild(collectable);
-            returnCollectableToPool(collectable);
         }
 
         // 更新涟漪效果
@@ -313,8 +265,6 @@ public class ObjectManager {
         if (bullet.checkCollisionWithPlayer(player)) {
             // 碰撞
             if (!player.isHurt()) {
-                // 播放受伤音效
-                soundManager.playSE("player_hurt");
                 // 玩家受伤
                 player.takeDamage(bullet.getDamage());
                 player.setHurt(true);
@@ -378,13 +328,10 @@ public class ObjectManager {
     }
 
     public void clearBullets() {
-        // bullets list removed; clear layer and object pool
-        bulletPool.clear();
         if (bulletsLayer != null) bulletsLayer.clearChildren();
     }
 
     public void clearRipples() {
-        // remove ripple objects from effects layer and clear list
         if (effectsLayer != null) {
             for (RippleEffect r : rippleEffects) {
                 effectsLayer.removeChild(r);
@@ -402,10 +349,8 @@ public class ObjectManager {
         titanSpawnParticles.clear();
     }
 
-
     public void clearCollectables() {
         collectables.clear();
-        collectablePool.clear();
         if (collectablesLayer != null) collectablesLayer.clearChildren();
     }
 
@@ -442,15 +387,12 @@ public class ObjectManager {
     }
 
     public void destroy() {
-        // remove all active bullets from layer and clear pool
         if (bulletsLayer != null) bulletsLayer.clearChildren();
-        bulletPool.clear();
     }
 
     public Player getPlayer() {
         return player;
     }
 
-    // Package-private accessor for tests
     GameObjectComposite getBulletsLayer() { return bulletsLayer; }
 }

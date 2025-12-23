@@ -1,7 +1,5 @@
 package undertale.UI.state;
 
-import undertale.UI.UIBase;
-
 /**
  * Main menu state - handles the primary action selection (FIGHT, ACT, ITEM, MERCY)
  */

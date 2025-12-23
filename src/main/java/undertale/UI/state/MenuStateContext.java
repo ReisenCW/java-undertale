@@ -2,8 +2,6 @@ package undertale.UI.state;
 
 import undertale.Enemy.EnemyManager;
 import undertale.GameObject.Player;
-import undertale.Item.Item;
-import undertale.Scene.SceneManager;
 import undertale.Sound.SoundManager;
 import undertale.Texture.FontManager;
 import undertale.UI.TypeWriter;
