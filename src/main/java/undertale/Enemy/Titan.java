@@ -23,7 +23,7 @@ public class Titan extends Enemy {
     private static float starBottom;
 
     public Titan(Player player) {
-        super("Titan", 6000, 6000, 114514, 19198);
+        super("Titan", 5500, 5500, 114514, 19198);
         this.weakened = false;
         init(player);
     }
