@@ -45,7 +45,6 @@ public class Game {
     private ShaderManager shaderManager;
 
     public Game() {
-        // Constructor
     }
 
     public static Game getInstance() {
@@ -77,7 +76,6 @@ public class Game {
         sceneManager = SceneManager.getInstance();
         
         player = new Player("Frisk");
-        // 在创建 EnemyManager 时传入 Player 实例
         enemyManager = new EnemyManager(player);
 
         objectManager = new ObjectManager(player, enemyManager);
@@ -87,11 +85,9 @@ public class Game {
         inputManager.addObserver(new DebugInputObserver(allowDebug));
         fontManager = FontManager.getInstance();
         
-        // Initialize ScreenFadeManager with dimensions
         ScreenFadeManager.init(configManager.WINDOW_WIDTH, configManager.WINDOW_HEIGHT);
         screenFadeManager = ScreenFadeManager.getInstance();
 
-        // Initialize UIManager
         uiManager = new UIManager(player, enemyManager, SoundManager.getInstance(), fontManager);
 
         SceneFactory sceneFactory = new SceneFactory(objectManager, inputManager, uiManager, enemyManager);
@@ -109,7 +105,7 @@ public class Game {
         // 初始场景
         sceneManager.switchScene(SceneEnum.START_MENU, true);
         
-        // 初始化渲染器 - Inject dependencies
+        // 初始化渲染器
         renderer = new Renderer(escapeObserver, sceneManager, fontManager, screenFadeManager, gameWindow, configManager.WINDOW_WIDTH, configManager.WINDOW_HEIGHT);
 	}
 
