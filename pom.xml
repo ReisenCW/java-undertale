@@ -42,7 +42,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <mainClass>ExtractLwjglNatives</mainClass>
+                            <mainClass>undertale.ExtractLwjglNatives</mainClass>
                             <classpathScope>compile</classpathScope>
                             <arguments></arguments>
                         </configuration>
