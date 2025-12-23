@@ -19,10 +19,7 @@ import undertale.UI.state.*;
  * - This eliminates large switch statements and improves maintainability
  */
 public class UIManager extends UIBase {
-
-    private Player player;
     private EnemyManager enemyManager;
-    private FontManager fontManager;
     private TypeWriter menuTypeWriter;
     private BgUIManager bgUIManager;
     private AttackAnimManager attackAnimManager;
@@ -36,10 +33,8 @@ public class UIManager extends UIBase {
 
     public UIManager(Player player, EnemyManager enemyManager, SoundManager soundManager, FontManager fontManager) {
         super();
-        this.player = player;
         this.enemyManager = enemyManager;
         this.soundManager = soundManager;
-        this.fontManager = fontManager;
         
         menuTypeWriter = new TypeWriter(fontManager);
         bgUIManager = new BgUIManager(fontManager, player);
