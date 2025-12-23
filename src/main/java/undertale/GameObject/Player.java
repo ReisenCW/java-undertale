@@ -79,7 +79,7 @@ public class Player extends GameObject implements InputObserver {
         this.lowSpeed = Float.parseFloat(playerMap.getOrDefault("lowSpeed", "80.0"));
         this.currentSpeed = highSpeed;
         this.setSpeed(highSpeed);
-        this.tensionPoints = 80;
+        this.tensionPoints = 20;
 
         this.enhancedLightRadius = Float.parseFloat(playerMap.getOrDefault("enhancedLightRadius", "150.0"));
         this.normalLightRadius = Float.parseFloat(playerMap.getOrDefault("normalLightRadius", "100.0"));
@@ -463,7 +463,7 @@ public class Player extends GameObject implements InputObserver {
         this.currentHealth = this.maxHealth;
         this.isHurt = false;
         this.isMovable = true;
-        this.tensionPoints = 80;
+        this.tensionPoints = 20;
         this.x = Game.getWindowWidth() / 2 - (hScale * heartTexture.getWidth()) / 2;
         this.y = Game.getWindowHeight() / 2 - (vScale * heartTexture.getHeight()) / 2;
         this.setCurrentLightRadius(LightLevel.NORMAL);
