@@ -1,6 +1,7 @@
 package undertale.Scene;
 
 import undertale.Enemy.EnemyManager;
+import undertale.Enemy.Titan;
 import undertale.GameMain.InputManager;
 import undertale.GameObject.ObjectManager;
 import undertale.UI.UIManager;
@@ -9,14 +10,9 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class BattleMenuScene extends Scene {
     private EnemyManager enemyManager;
-    private int round;
     private long battleFrameResetTime = 1000; // 1000ms
-
-    private String[] roundMessages = {
-        "* The titan appeared.",
-        "* A swarm is coming.",
-        "* The titan's hands are moving."
-    };
+    private boolean isFirstRound = true;
+    private String roundMessage = "";
 
     public BattleMenuScene(ObjectManager objectManager, InputManager inputManager, UIManager uiManager, EnemyManager enemyManager) {
         super(objectManager, inputManager, uiManager);
@@ -26,7 +22,7 @@ public class BattleMenuScene extends Scene {
 
     @Override
     public void init() {
-        round = 0;
+        isFirstRound = true;
     }
 
     @Override
@@ -38,7 +34,7 @@ public class BattleMenuScene extends Scene {
         objectManager.allowPlayerMovement(false);
         objectManager.clearBullets();
         uiManager.resetVars(MenuStateType.MAIN);
-        round = Math.min(++round, roundMessages.length);
+        roundMessage = getRoundMessage();
     }
 
     @Override
@@ -69,8 +65,68 @@ public class BattleMenuScene extends Scene {
     public void render() {
         enemyManager.render();
         uiManager.renderBattleUI();
-        uiManager.renderFrameContents(roundMessages[round - 1]);
+        uiManager.renderFrameContents(roundMessage);
         objectManager.renderBattleMenuScene(uiManager.isRenderPlayer());
+    }
+
+    private String getRoundMessage() {
+        // 1) first round
+        // 2) titan defense down -> show attack message
+        // 3) TP >= 80 && titan not weakened -> suggest UNLEASH
+        // 4) based on current round kind
+
+        // First round message
+        if (isFirstRound) {
+            isFirstRound = false;
+            return String.join("\n",
+                "* Darkness constricts you...",
+                "* TP Gain reduced outside of ???"
+            );
+        }
+
+        BattleFightScene fight = (BattleFightScene) SceneManager.getInstance().getScene(SceneEnum.BATTLE_FIGHT);
+        BattleFightScene.RoundKind kind = BattleFightScene.RoundKind.UNKNOWN;
+        if (fight != null) kind = fight.getCurrentRoundKind();
+
+        // Titan weakened
+        boolean titanWeakened = false;
+        if (enemyManager != null && enemyManager.getCurrentEnemy() instanceof Titan) {
+            Titan titan = (Titan) enemyManager.getCurrentEnemy();
+            titanWeakened = titan.isWeakened();
+            if (titanWeakened) {
+                return "* Attack!!! Its defense is down!!!";
+            }
+        }
+
+        // TP > threshold -> suggest UNLEASH if titan is NOT weakened
+        int tp = 0;
+        if (objectManager != null && objectManager.getPlayer() != null) {
+            tp = objectManager.getPlayer().getTensionPoints();
+        }
+        if (tp >= 80 && !titanWeakened) {
+            return String.join("\n",
+                "* The atmosphere feels tense...",
+                "* (You can use UNLEASH!)"
+            );
+        }
+
+        // Round-specific messages
+        switch (kind) {
+            case SWARM:
+                return String.join("\n",
+                    "* The dark flows...",
+                    "* A swarm is coming."
+                );
+            case SNAKE:
+                return "* Darkness stares at you.";
+            case FINGER:
+                return String.join("\n",
+                    "* For a moment,",
+                    "* You felt your heart being gripped"
+                );
+            default:
+                return "* The ground shudders...";
+        }
     }
 
     @Override

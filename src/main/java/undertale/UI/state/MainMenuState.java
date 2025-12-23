@@ -44,6 +44,11 @@ public class MainMenuState extends AbstractMenuState {
         
         context.setState(nextState);
     }
+
+    @Override
+    public void handleCancel(MenuStateContext context) {
+        context.getMenuTypeWriter().showAll();
+    }
     
     @Override
     public void renderFrameContents(MenuStateContext context, String roundText) {

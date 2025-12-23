@@ -50,14 +50,11 @@ public class BattleFightScene extends Scene {
         registerAsObserver();
         roundTime = 0;
         if(isSpecial) {
-            System.out.println("special round");
             phaseRound = -1;
             isSpecial = false;
         } else {
             phaseRound++;
-            System.out.println("nromal round " + phaseRound);
             if (phase >= 3 || phaseRound > 2) {
-                System.out.println("reset phase round to 0");
                 phaseRound = 0;
             }
         }
@@ -67,7 +64,6 @@ public class BattleFightScene extends Scene {
         objectManager.initPlayerPosition();
         objectManager.startPlayerLightExpansion();
         objectManager.allowPlayerMovement(true);
-        System.out.println("current phase: " + phase + ", round: " + phaseRound + ", roundIndex: " + roundIndex);
     }
 
     /**
@@ -161,5 +157,21 @@ public class BattleFightScene extends Scene {
     @Override
     protected void unregisterAsObserver() {
         inputManager.removeObserver(objectManager.getPlayer());
+    }
+
+    public int getPhaseRound() {
+        return phaseRound;
+    }
+
+    public enum RoundKind { SWARM, SNAKE, FINGER, UNKNOWN }
+
+    public RoundKind getCurrentRoundKind() {
+        int roundIndex = phase * 4 + phaseRound;
+        if (rounds == null || rounds.size() <= roundIndex || roundIndex < 0) return RoundKind.UNKNOWN;
+        Round r = rounds.get(roundIndex);
+        if (r instanceof RoundSwarm) return RoundKind.SNAKE;
+        if (r instanceof RoundSnake) return RoundKind.FINGER;
+        if (r instanceof RoundFinger) return RoundKind.SWARM;
+        return RoundKind.UNKNOWN;
     }
 }
