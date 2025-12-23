@@ -2,10 +2,27 @@
 ## Project Name and member information
 - Project Name: Undertale Battle System implementation with java
 - Group Number: 1
-- Group Members:
 
 ## Project Introduction
 - This project implements the battle system of the game "Undertale" using Java, coupled with packages like LWJGL.
+
+### Game Controls
+
+**General & Menu**
+- **Z**: Confirm selection.
+- **X**: Cancel selection / Skip dialogue text.
+
+**Battle - Movement**
+- **Arrow Keys**: Move the Heart to dodge attacks / select menu options.
+- **Shift (Hold)**: Move at a slower speed for precision dodging.
+
+**Battle - Actions**
+- **ITEM**: Use consumable items to heal HP.
+- **ACT**: Interact with enemies using special commands:
+  - **Check**: View enemy information and stats.
+  - **Light**: Player emits a larger light.
+  - **Unleash**: Decrease enemy's defense for 1 turn and trigger the next phase.
+  - **SingleHeal**: Heal a small amount of HP.
 
 ### Project Modules
 - **Texture Module**: Responsible for loading, managing, and rendering game textures using OpenGL API. It utilizes `TextureManager` for resource management.
@@ -372,11 +389,11 @@ The `SoundManager` before refactoring (without the Flyweight pattern) and after 
 
 **Before Refactoring:**
 
-![before_flyweight](原始.png)
+![before_flyweight](img/原始.png)
 
 **After Refactoring:**
 
-![after_flyweight](享元.png)
+![after_flyweight](img/享元.png)
 
 ### Analysis of Reasonableness
 
